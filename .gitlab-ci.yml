@@ -1,0 +1,11 @@
+# Based on: https://henningtimm.gitlab.io/post/gitlab_ci_and_conda/
+
+image: continuumio/miniconda3:latest
+
+unittests:
+  script:
+    - apt-get update -q -y
+    - apt-get install -y build-essential
+    - conda env create -f test_environment.yml
+    - source activate test_env
+    - nosetests -v --nocapture
