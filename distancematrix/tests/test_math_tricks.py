@@ -7,10 +7,13 @@ import distancematrix.math_tricks as math_tricks
 
 class TestMathTricks(TestCase):
     def test_sliding_mean_std(self):
+        random_gen = np.random.RandomState(0)
+
         data_array = [
             np.array([5.15, 2.15, 1.05, -9.2, 0.01, 7.14, 4.18, 10.2, 3.25, 14.1, -9.85, 5.12, 0.11, 0.14, 0.98]),
             np.array([0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -50, -50, -50, -50, -50, -50]),
-            np.array([1e14, 1.6e14, 0.9e14, 6e14, 5.6e14, 9.9e14, 9e14, 6.48e14, 9.2e14, 1e14, 3.14e14])
+            np.array([1e14, 1.6e19, 0.9e18, 6e14, 5.6e10, 9.9e16, 9e17, 6.48e14, 9.2e14, 1e18, 3.14e13]),
+            np.random.rand(1000)
         ]
         m = 5
 
