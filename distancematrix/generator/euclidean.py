@@ -53,7 +53,7 @@ class Euclidean(object):
 
             sq_dist = self.prev_calc_column_sq_dist  # work in same array
             sq_dist[1:] = (self.prev_calc_column_sq_dist[:-1]
-                           - np.square(self.series[column - 1] - self.query[:-1])
+                           - np.square(self.series[column - 1] - self.query[:len(self.query)-self.m])
                            + np.square(self.series[column + self.m - 1] - self.query[self.m:]))
             sq_dist[0] = self.first_row[column]
 

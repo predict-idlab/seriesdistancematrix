@@ -23,10 +23,6 @@ class TestEuclidean(TestCase):
 
         cls.m = 5
 
-        cls.m = 1
-        cls.series = np.array([1, 2, 3])
-        cls.query = np.array([5, 10])
-
         num_cols = len(cls.series) - cls.m + 1
         num_rows = len(cls.query) - cls.m + 1
         cls.distance_matrix = np.zeros((num_rows, num_cols))
