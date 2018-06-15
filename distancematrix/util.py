@@ -28,3 +28,17 @@ def diag_indices(h, w, diagonal=0):
         return range(0, dl), range(diagonal, diagonal + dl)
     else:
         return range(-diagonal, -diagonal + dl), range(0, dl)
+
+
+def diag_indices_of(array, diagonal=0):
+    """
+    Returns the indices of the elements on the specified diagonal of the given matrix.
+
+    :param array: 2D array
+    :param diagonal: int, diagonal index of the matrix
+    :return: a tuple of ranges, serving as indices of the elements
+    """
+    if array.ndim != 2:
+        raise RuntimeError("array should be 2D")
+
+    return diag_indices(array.shape[0], array.shape[1], diagonal)

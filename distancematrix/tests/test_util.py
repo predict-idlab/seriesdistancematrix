@@ -4,9 +4,10 @@ import numpy.testing as npt
 
 from distancematrix.util import diag_length
 from distancematrix.util import diag_indices
+from distancematrix.util import diag_indices_of
 
 
-class TestEuclidean(TestCase):
+class TestUtil(TestCase):
     def test_diag_length_square_matrix(self):
         self.assertEqual(diag_length(5, 5, 0), 5)
         self.assertEqual(diag_length(5, 5, 1), 4)
@@ -60,3 +61,12 @@ class TestEuclidean(TestCase):
         npt.assert_equal(data[diag_indices(2, 3, 1)], [2, 6])
         npt.assert_equal(data[diag_indices(2, 3, 2)], [3])
         npt.assert_equal(data[diag_indices(2, 3, 3)], [])
+
+    def test_diag_indices_of_rect(self):
+        data = np.array([[1, 2, 3], [4, 5, 6]])
+        npt.assert_equal(data[diag_indices_of(data, -2)], [])
+        npt.assert_equal(data[diag_indices_of(data, -1)], [4])
+        npt.assert_equal(data[diag_indices_of(data, 0)], [1, 5])
+        npt.assert_equal(data[diag_indices_of(data, 1)], [2, 6])
+        npt.assert_equal(data[diag_indices_of(data, 2)], [3])
+        npt.assert_equal(data[diag_indices_of(data, 3)], [])
