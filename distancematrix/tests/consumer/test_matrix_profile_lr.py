@@ -5,6 +5,7 @@ import numpy.testing as npt
 from distancematrix.util import diag_indices_of
 from distancematrix.util import diag_indices
 from distancematrix.consumer.matrix_profile_lr import MatrixProfileLR
+from distancematrix.consumer.matrix_profile_lr import MatrixProfileLRReservoir
 
 
 class TestMatrixProfileLR(TestCase):
@@ -93,3 +94,60 @@ class TestMatrixProfileLR(TestCase):
 
         npt.assert_allclose(self.mplr.matrix_profile(), TestMatrixProfileLR.correct_mp)
         npt.assert_equal(self.mplr.profile_index(), TestMatrixProfileLR.correct_indices)
+
+
+class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
+    def setUp(self):
+        super(TestMatrixProfileLR, self).setUp()
+
+        m = 5
+        dm = TestMatrixProfileLR.dist_matrix
+        mock_series = np.zeros(dm.shape[1] + m - 1)
+        mock_query = np.zeros(dm.shape[0] + m - 1)
+
+        self.mplr = MatrixProfileLRReservoir(random_seed=0)
+        self.mplr.initialise(mock_series, mock_query, m)
+
+    @classmethod
+    def setUpClass(cls):
+        TestMatrixProfileLR.setUpClass()
+
+    def test_reservoir_sampling_columns(self):
+        m = 5
+        dm = np.zeros((4, 1000))
+        mock_series = np.zeros(dm.shape[1] + m - 1)
+        mock_query = np.zeros(dm.shape[0] + m - 1)
+
+        self.mplr = MatrixProfileLRReservoir(random_seed=0)
+        self.mplr.initialise(mock_series, mock_query, m)
+
+        for i in range(dm.shape[1]):
+            self.mplr.process_column(i, dm[:, i])
+
+        # Check correct value of matrix profile
+        npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
+
+        # Check uniform distribution of selected indices
+        mp_index = self.mplr.profile_index()
+        for i in range(dm.shape[0]):
+            npt.assert_allclose(np.count_nonzero(mp_index == i), dm.shape[1] / dm.shape[0], rtol=0.1)
+
+    def test_reservoir_sampling_diagonals(self):
+        m = 5
+        dm = np.zeros((4, 1000))
+        mock_series = np.zeros(dm.shape[1] + m - 1)
+        mock_query = np.zeros(dm.shape[0] + m - 1)
+
+        self.mplr = MatrixProfileLRReservoir(random_seed=0)
+        self.mplr.initialise(mock_series, mock_query, m)
+
+        for i in range(-dm.shape[0] + 1, dm.shape[1]):
+            self.mplr.process_diagonal(i, dm[diag_indices_of(dm, i)])
+
+        # Check correct value of matrix profile
+        npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
+
+        # Check uniform distribution of selected indices
+        mp_index = self.mplr.profile_index()
+        for i in range(dm.shape[0]):
+            npt.assert_allclose(np.count_nonzero(mp_index == i), dm.shape[1] / dm.shape[0], rtol=0.1)
