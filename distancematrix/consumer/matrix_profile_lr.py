@@ -6,8 +6,8 @@ class MatrixProfileLR(AbstractConsumer):
     """
     Consumer of distance matrix information to form the left and right matrix profile and their corresponding
     indices. The left matrix profile and index is a one dimensional series
-    where each each value at index i contains the distance and index of the best match whose index is less
-    than i. The right matrix profile and index contain the best match whose index is equal to or larger than i.
+    where each each value at index i contains the distance and index of the best match whose index is equal to or less
+    than i. The right matrix profile and index contain the best match whose index is larger than i.
     """
 
     def __init__(self):
