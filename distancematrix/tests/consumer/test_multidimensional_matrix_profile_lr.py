@@ -93,10 +93,10 @@ class TestContextualMatrixProfile(TestCase):
 
         correct_mp, correct_index, correct_dims = self.bruteforce_mmp(self.dist_matrix)
 
-        npt.assert_allclose(mmp.matrix_profile(), correct_mp)
-        npt.assert_equal(mmp.profile_index(), correct_index)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
         for i, dims in enumerate(correct_dims):
-            sorted_mmp_dims = np.sort(mmp.profile_dimensions()[i], axis=0)
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
             npt.assert_equal(sorted_mmp_dims, dims)
 
     def test_process_diagonal_partial_calculation(self):
@@ -112,10 +112,10 @@ class TestContextualMatrixProfile(TestCase):
 
         correct_mp, correct_index, correct_dims = self.bruteforce_mmp(part_dist_matrix)
 
-        npt.assert_allclose(mmp.matrix_profile(), correct_mp)
-        npt.assert_equal(mmp.profile_index(), correct_index)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
         for i, dims in enumerate(correct_dims):
-            sorted_mmp_dims = np.sort(mmp.profile_dimensions()[i], axis=0)
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
             npt.assert_equal(sorted_mmp_dims, dims)
 
     def test_process_diagonal_lr(self):
@@ -155,10 +155,10 @@ class TestContextualMatrixProfile(TestCase):
 
         correct_mp, correct_index, correct_dims = self.bruteforce_mmp(self.dist_matrix)
 
-        npt.assert_allclose(mmp.matrix_profile(), correct_mp)
-        npt.assert_equal(mmp.profile_index(), correct_index)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
         for i, dims in enumerate(correct_dims):
-            sorted_mmp_dims = np.sort(mmp.profile_dimensions()[i], axis=0)
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
             npt.assert_equal(sorted_mmp_dims, dims)
 
     def test_process_column_partial_calculation(self):
@@ -173,10 +173,10 @@ class TestContextualMatrixProfile(TestCase):
 
         correct_mp, correct_index, correct_dims = self.bruteforce_mmp(part_dist_matrix)
 
-        npt.assert_allclose(mmp.matrix_profile(), correct_mp)
-        npt.assert_equal(mmp.profile_index(), correct_index)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
         for i, dims in enumerate(correct_dims):
-            sorted_mmp_dims = np.sort(mmp.profile_dimensions()[i], axis=0)
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
             npt.assert_equal(sorted_mmp_dims, dims)
 
     def test_process_column_lr(self):
