@@ -59,6 +59,7 @@ class ContextualMatrixProfile(AbstractConsumer):
                 raise RuntimeError("Range start should not be negative.")
 
     def process_diagonal(self, diag, values):
+        values = values[0]
         num_values = len(values)
 
         if diag >= 0:
@@ -104,6 +105,8 @@ class ContextualMatrixProfile(AbstractConsumer):
                     self.match_index_series[c0_identifier, c1_identifier] = rel_indices + sss1_start
 
     def process_column(self, column_index, values):
+        values = values[0]
+
         context1_idxs = self._series_contexts[np.logical_and(
             self._series_contexts[:, 0] < column_index + 1,  # Start of context is on or before column
             self._series_contexts[:, 1] > column_index  # End of context is after column

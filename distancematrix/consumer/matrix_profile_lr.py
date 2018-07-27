@@ -33,6 +33,7 @@ class MatrixProfileLR(AbstractConsumer):
         self.profile_index_right = np.full(self._num_subseq, -1, dtype=int)
 
     def process_diagonal(self, diag, values):
+        values = values[0]
         num_values = len(values)
 
         if diag >= 0:
@@ -49,6 +50,8 @@ class MatrixProfileLR(AbstractConsumer):
                 self.profile_index_right[:num_values])
 
     def process_column(self, column_index, values):
+        values = values[0]
+
         self.matrix_profile_left[column_index] = np.min(values[:column_index + 1])
         self.profile_index_left[column_index] = np.argmin(values[:column_index + 1])
 
@@ -133,6 +136,7 @@ class MatrixProfileLRReservoir(AbstractConsumer):
         self.num_matches_right = np.full(self._num_subseq, 0, dtype=np.int)
 
     def process_diagonal(self, diag, values):
+        values = values[0]
         num_values = len(values)
 
         if diag >= 0:
@@ -151,6 +155,8 @@ class MatrixProfileLRReservoir(AbstractConsumer):
                 self.num_matches_right[:num_values])
 
     def process_column(self, column_index, values):
+        values = values[0]
+
         min_dist = np.min(values[:column_index + 1])
         self.matrix_profile_left[column_index] = min_dist
         self.profile_index_left[column_index] = self._random_pick(np.nonzero(values[:column_index + 1] == min_dist)[0])

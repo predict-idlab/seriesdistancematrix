@@ -71,7 +71,7 @@ class TestContextualMatrixProfile(TestCase):
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
-            cdm.process_diagonal(diag, self.dist_matrix[diag_ind])
+            cdm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
 
         npt.assert_allclose(cdm.distance_matrix, correct)
         npt.assert_equal(cdm.match_index_query, correct_qi)
@@ -89,7 +89,7 @@ class TestContextualMatrixProfile(TestCase):
 
         for diag in range(-8, self.dist_matrix.shape[1], 4):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
-            cdm.process_diagonal(diag, self.dist_matrix[diag_ind])
+            cdm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
             part_dist_matrix[diag_ind] = self.dist_matrix[diag_ind]
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(part_dist_matrix, query_ranges, series_ranges)
@@ -112,7 +112,7 @@ class TestContextualMatrixProfile(TestCase):
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
-            cdm.process_diagonal(diag, self.dist_matrix[diag_ind])
+            cdm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
 
         npt.assert_allclose(cdm.distance_matrix, correct)
         npt.assert_equal(cdm.match_index_query, correct_qi)
@@ -128,7 +128,7 @@ class TestContextualMatrixProfile(TestCase):
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
-            cdm.process_column(column, self.dist_matrix[:, column])
+            cdm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))
 
         npt.assert_allclose(cdm.distance_matrix, correct)
         npt.assert_equal(cdm.match_index_query, correct_qi)
@@ -145,7 +145,7 @@ class TestContextualMatrixProfile(TestCase):
         self.mock_initialise(cdm)
 
         for column in [2, 3, 4, 5, 10, 11, 12]:
-            cdm.process_column(column, self.dist_matrix[:, column])
+            cdm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))
             part_dist_matrix[:, column] = self.dist_matrix[:, column]
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(part_dist_matrix, query_ranges, series_ranges)
@@ -167,7 +167,7 @@ class TestContextualMatrixProfile(TestCase):
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
-            cdm.process_column(column, self.dist_matrix[:, column])
+            cdm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))
 
         npt.assert_allclose(cdm.distance_matrix, correct)
         npt.assert_equal(cdm.match_index_query, correct_qi)

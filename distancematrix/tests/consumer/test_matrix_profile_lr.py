@@ -69,7 +69,7 @@ class TestMatrixProfileLR(TestCase):
 
         for diag in range(-dm.shape[0] + 1, dm.shape[1]):
             diag_ind = diag_indices_of(dm, diag)
-            self.mplr.process_diagonal(diag, dm[diag_ind])
+            self.mplr.process_diagonal(diag, np.atleast_2d(dm[diag_ind]))
 
         npt.assert_allclose(self.mplr.matrix_profile_right, TestMatrixProfileLR.correct_mp_right)
         npt.assert_allclose(self.mplr.matrix_profile_left, TestMatrixProfileLR.correct_mp_left)
@@ -83,7 +83,7 @@ class TestMatrixProfileLR(TestCase):
         dm = TestMatrixProfileLR.dist_matrix
 
         for column in range(0, dm.shape[1]):
-            self.mplr.process_column(column, dm[:, column])
+            self.mplr.process_column(column, np.atleast_2d(dm[:, column]))
 
         npt.assert_allclose(self.mplr.matrix_profile_right, TestMatrixProfileLR.correct_mp_right)
         npt.assert_allclose(self.mplr.matrix_profile_left, TestMatrixProfileLR.correct_mp_left)
@@ -114,7 +114,7 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
         self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
         for i in range(dm.shape[1]):
-            self.mplr.process_column(i, dm[:, i])
+            self.mplr.process_column(i, np.atleast_2d(dm[:, i]))
 
         # Check correct value of matrix profile
         npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
@@ -131,7 +131,7 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
         self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
         for i in range(-dm.shape[0] + 1, dm.shape[1]):
-            self.mplr.process_diagonal(i, dm[diag_indices_of(dm, i)])
+            self.mplr.process_diagonal(i, np.atleast_2d(dm[diag_indices_of(dm, i)]))
 
         # Check correct value of matrix profile
         npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
