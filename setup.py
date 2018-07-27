@@ -1,4 +1,5 @@
 from setuptools import setup
+from setuptools import find_packages
 
 setup(name='distancematrix',
       version='0.1',
@@ -7,7 +8,7 @@ setup(name='distancematrix',
       author='Dieter De Paepe',
       author_email='dieter.depaepe@ugent.be',
       license='All rights reserved',
-      packages=['distancematrix'],
+      packages=find_packages(),
       classifiers=(
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
