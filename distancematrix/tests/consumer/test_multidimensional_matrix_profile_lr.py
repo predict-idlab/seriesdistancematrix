@@ -47,9 +47,7 @@ class TestContextualMatrixProfile(TestCase):
         self.m = 5
 
     def mock_initialise(self, mmp):
-        mock_series = np.zeros((3, self.dist_matrix.shape[2] + self.m - 1))
-        mock_query = np.zeros((3, self.dist_matrix.shape[1] + self.m - 1))
-        mmp.initialise(mock_series, mock_query, self.m)
+        mmp.initialise(*self.dist_matrix.shape)
 
     def bruteforce_mmp(self, dist_matrix):
         """

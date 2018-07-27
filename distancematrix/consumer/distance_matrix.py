@@ -13,16 +13,11 @@ class DistanceMatrix(AbstractConsumer):
 
         self.distance_matrix = None
 
-    def initialise(self, series, query, m):
-        if series.ndim != 1:
-            raise RuntimeError("Series should be 1D")
-        if query.ndim != 1:
-            raise RuntimeError("Query should be 1D")
+    def initialise(self, dims, query_subseq, series_subseq):
+        if dims != 1:
+            raise RuntimeError("Input should be 1D")
 
-        n = len(series)
-        q = len(query)
-
-        self.distance_matrix = np.full((q-m+1, n-m+1), np.nan, dtype=np.float)
+        self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=np.float)
 
     def process_diagonal(self, diagonal_index, values):
         indices = diag_indices_of(self.distance_matrix, diagonal_index)

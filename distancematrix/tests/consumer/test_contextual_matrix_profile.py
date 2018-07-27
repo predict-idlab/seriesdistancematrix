@@ -24,9 +24,7 @@ class TestContextualMatrixProfile(TestCase):
         self.m = 5
 
     def mock_initialise(self, cdm):
-        mock_series = np.zeros(self.dist_matrix.shape[1] + self.m - 1)
-        mock_query = np.zeros(self.dist_matrix.shape[0] + self.m - 1)
-        cdm.initialise(mock_series, mock_query, self.m)
+        cdm.initialise(1, self.dist_matrix.shape[0], self.dist_matrix.shape[1])
 
     def bruteforce_cdm(self, dist_matrix, query_ranges, series_ranges):
         """

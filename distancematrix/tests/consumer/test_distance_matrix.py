@@ -24,9 +24,7 @@ class TestContextualMatrixProfile(TestCase):
         self.m = 5
 
     def mock_initialise(self, dm):
-        mock_series = np.zeros(self.dist_matrix.shape[1] + self.m - 1)
-        mock_query = np.zeros(self.dist_matrix.shape[0] + self.m - 1)
-        dm.initialise(mock_series, mock_query, self.m)
+        dm.initialise(1, self.dist_matrix.shape[0], self.dist_matrix.shape[1])
 
     def test_process_diagonal(self):
         dm = DistanceMatrix()

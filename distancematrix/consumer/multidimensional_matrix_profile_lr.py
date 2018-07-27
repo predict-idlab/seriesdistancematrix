@@ -42,26 +42,20 @@ class MultidimensionalMatrixProfileLR(AbstractConsumer):
         self.md_profile_index_right = None
         self.md_profile_dimension_right = None
 
-    def initialise(self, series, query, m):
-        s_dim, s = series.shape
-        q_dim, q = query.shape
-
-        if s_dim != q_dim:
-            raise RuntimeError("Series and query have different number of data channels.")
-
-        self._n_dim = s_dim
-        self._num_subseq = s - m + 1
+    def initialise(self, dims, query_subseq, series_subseq):
+        self._n_dim = dims
+        self._num_subseq = series_subseq
         self._range = np.arange(0, self._num_subseq, dtype=np.int)
 
-        self.md_matrix_profile_left = np.full((s_dim, self._num_subseq), np.inf, dtype=np.float)
-        self.md_profile_index_left = np.full((s_dim, self._num_subseq), -1, dtype=np.int)
+        self.md_matrix_profile_left = np.full((dims, self._num_subseq), np.inf, dtype=np.float)
+        self.md_profile_index_left = np.full((dims, self._num_subseq), -1, dtype=np.int)
         self.md_profile_dimension_left = \
-            [np.full((i + 1, self._num_subseq), -1, dtype=np.int) for i in range(s_dim)]
+            [np.full((i + 1, self._num_subseq), -1, dtype=np.int) for i in range(dims)]
 
-        self.md_matrix_profile_right = np.full((s_dim, self._num_subseq), np.inf, dtype=np.float)
-        self.md_profile_index_right = np.full((s_dim, self._num_subseq), -1, dtype=np.int)
+        self.md_matrix_profile_right = np.full((dims, self._num_subseq), np.inf, dtype=np.float)
+        self.md_profile_index_right = np.full((dims, self._num_subseq), -1, dtype=np.int)
         self.md_profile_dimension_right = \
-            [np.full((i + 1, self._num_subseq), -1, dtype=np.int) for i in range(s_dim)]
+            [np.full((i + 1, self._num_subseq), -1, dtype=np.int) for i in range(dims)]
 
     def process_diagonal(self, diag, values):
         n_dim, num_values = values.shape

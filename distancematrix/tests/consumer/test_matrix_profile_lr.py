@@ -60,11 +60,9 @@ class TestMatrixProfileLR(TestCase):
     def setUp(self):
         m = 5
         dm = TestMatrixProfileLR.dist_matrix
-        mock_series = np.zeros(dm.shape[1] + m - 1)
-        mock_query = np.zeros(dm.shape[0] + m - 1)
 
         self.mplr = MatrixProfileLR()
-        self.mplr.initialise(mock_series, mock_query, m)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
     def test_process_diagonal(self):
         dm = TestMatrixProfileLR.dist_matrix
@@ -100,26 +98,20 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
     def setUp(self):
         super(TestMatrixProfileLR, self).setUp()
 
-        m = 5
         dm = TestMatrixProfileLR.dist_matrix
-        mock_series = np.zeros(dm.shape[1] + m - 1)
-        mock_query = np.zeros(dm.shape[0] + m - 1)
 
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
-        self.mplr.initialise(mock_series, mock_query, m)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
     @classmethod
     def setUpClass(cls):
         TestMatrixProfileLR.setUpClass()
 
     def test_reservoir_sampling_columns(self):
-        m = 5
         dm = np.zeros((4, 1000))
-        mock_series = np.zeros(dm.shape[1] + m - 1)
-        mock_query = np.zeros(dm.shape[0] + m - 1)
 
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
-        self.mplr.initialise(mock_series, mock_query, m)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
         for i in range(dm.shape[1]):
             self.mplr.process_column(i, dm[:, i])
@@ -133,13 +125,10 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
             npt.assert_allclose(np.count_nonzero(mp_index == i), dm.shape[1] / dm.shape[0], rtol=0.1)
 
     def test_reservoir_sampling_diagonals(self):
-        m = 5
         dm = np.zeros((4, 1000))
-        mock_series = np.zeros(dm.shape[1] + m - 1)
-        mock_query = np.zeros(dm.shape[0] + m - 1)
 
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
-        self.mplr.initialise(mock_series, mock_query, m)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
 
         for i in range(-dm.shape[0] + 1, dm.shape[1]):
             self.mplr.process_diagonal(i, dm[diag_indices_of(dm, i)])

@@ -23,12 +23,9 @@ class MatrixProfileLR(AbstractConsumer):
         self.matrix_profile_right = None
         self.profile_index_right = None
 
-    def initialise(self, series, query, m):
-        n = len(series)
-        q = len(query)
-
-        self._num_subseq = n - m + 1
-        self._range = np.arange(0, max(n - m + 1, q - m + 1), dtype=np.int)
+    def initialise(self, dims, query_subseq, series_subseq):
+        self._num_subseq = series_subseq
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
 
         self.matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
         self.profile_index_left = np.full(self._num_subseq, -1, dtype=int)
@@ -124,12 +121,9 @@ class MatrixProfileLRReservoir(AbstractConsumer):
         self.profile_index_right = None
         self.num_matches_right = None
 
-    def initialise(self, series, query, m):
-        n = len(series)
-        q = len(query)
-
-        self._num_subseq = n - m + 1
-        self._range = np.arange(0, max(n - m + 1, q - m + 1), dtype=np.int)
+    def initialise(self, dims, query_subseq, series_subseq):
+        self._num_subseq = series_subseq
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
 
         self.matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
         self.profile_index_left = np.full(self._num_subseq, -1, dtype=np.int)

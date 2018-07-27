@@ -40,12 +40,9 @@ class ContextualMatrixProfile(AbstractConsumer):
         self.match_index_series = None
         self.match_index_query = None
 
-    def initialise(self, series, query, m):
-        n = len(series)
-        q = len(query)
-
-        self._num_subseq = n - m + 1
-        self._range = np.arange(0, max(n - m + 1, q - m + 1), dtype=np.int)
+    def initialise(self, dims, query_subseq, series_subseq):
+        self._num_subseq = series_subseq
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
 
         num_series_contexts = np.max(self._series_contexts[:, 2]) + 1
         num_query_contexts = np.max(self._query_contexts[:, 2]) + 1

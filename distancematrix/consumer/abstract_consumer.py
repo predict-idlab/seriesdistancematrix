@@ -3,12 +3,13 @@ from abc import ABC, abstractmethod
 
 class AbstractConsumer(ABC):
     @abstractmethod
-    def initialise(self, series, query, m):
+    def initialise(self, dims, query_subseq, series_subseq):
         """
-        Initialise this consumer using the given series, query and subsequence length.
+        Initialise this consumer.
 
-        :param series: series to be processed, dimension (num_dimensions, num_data_points)
-        :param m: length of subsequences that will be considered
+        :param dims: the number of dimensions (data channels) this consumer will receive
+        :param query_subseq: the number of query subsequences (rows in the distance matrix)
+        :param series_subseq: the number of series subsequences (column in the distance matrix)
         :return: None
         """
         pass
