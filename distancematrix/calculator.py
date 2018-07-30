@@ -130,7 +130,7 @@ class Calculator(object):
                     columns_calculated = current_column - start
                     columns_remaining = upto + 1 - current_column
                     print("\r{0:5.3f}% {1:10.1f} sec".format(
-                        columns_calculated / (upto + 1 - start),
+                        columns_calculated / (upto + 1 - start) * 100,
                         (time.time() - start_time) / columns_calculated * columns_remaining
                     ), end="")
 
@@ -178,7 +178,7 @@ class Calculator(object):
                     avg_time_per_value = self._diagonal_calc_time / self._diagonal_values_calculated
                     time_left = avg_time_per_value * (values_needed - self._diagonal_values_calculated)
                     print("\r{0:5.3f}% {1:10.1f} sec ({2:5.3f}% total)".
-                          format(local_progress, time_left, global_progress), end="")
+                          format(local_progress * 100, time_left, global_progress * 100), end="")
 
 
 def _ratio_to_int(ratio_or_result, maximum):
