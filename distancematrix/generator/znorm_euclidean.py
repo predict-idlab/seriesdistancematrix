@@ -32,6 +32,8 @@ class ZNormEuclidean(object):
         self.mu_q = None
         self.std_s = None
         self.std_q = None
+        self.std_s_nonzero = None
+        self.std_q_nonzero = None
 
         # Caching
         self.first_row = None
@@ -45,6 +47,8 @@ class ZNormEuclidean(object):
 
         self.mu_s, self.std_s = sliding_mean_std(series, m)
         self.mu_q, self.std_q = sliding_mean_std(query, m)
+        self.std_s_nonzero = self.std_s != 0.
+        self.std_q_nonzero = self.std_q != 0.
 
         if series.ndim != 1:
             raise RuntimeError("Series should be 1D")
@@ -61,15 +65,15 @@ class ZNormEuclidean(object):
             # D = (y0 * x2), (y1 * x3), (y2 * x4)...
             # cumsum = 0, D0, D0+D1, D0+D1+D2, ...
             cumsum[1:] = np.cumsum(self.query[:dl] * self.series[diag: diag + dl])
-            q_range = range(0, dlr)
-            s_range = range(diag, diag + dlr)
+            q_range = slice(0, dlr)
+            s_range = slice(diag, diag + dlr)
         else:
             # Eg: for diag = -2:
             # D = (y2 * x0), (y3 * x1), (y4 * x2)...
             # cumsum = 0, D0, D0+D1, D0+D1+D2, ...
             cumsum[1:] = np.cumsum(self.query[-diag: -diag + dl] * self.series[:dl])
-            s_range = range(0, dlr)
-            q_range = range(-diag, -diag + dlr)
+            s_range = slice(0, dlr)
+            q_range = slice(-diag, -diag + dlr)
 
         mean_q = self.mu_q[q_range]
         mean_s = self.mu_s[s_range]
@@ -79,8 +83,8 @@ class ZNormEuclidean(object):
         dot_prod = cumsum[self.m:] - cumsum[:dlr]
 
         dist_sq = np.zeros(dlr, dtype=np.float)
-        non_zero_std_q = std_q != 0
-        non_zero_std_s = std_s != 0
+        non_zero_std_q = self.std_q_nonzero[q_range]
+        non_zero_std_s = self.std_s_nonzero[s_range]
 
         # For subsequences where both signals are stable (std = 0), we define the distance as zero.
         # This is covered by the initialization of the dist array.
