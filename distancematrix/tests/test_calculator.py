@@ -39,7 +39,7 @@ class TestCalculator(TestCase):
         distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
 
-        calc = Calculator(query, series, m)
+        calc = Calculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -69,7 +69,7 @@ class TestCalculator(TestCase):
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
-        calc = Calculator(query, series, m)
+        calc = Calculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -117,7 +117,7 @@ class TestCalculator(TestCase):
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
-        calc = Calculator(query, series, m)
+        calc = Calculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -148,7 +148,7 @@ class TestCalculator(TestCase):
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
         max_diag = min(len(query) - m + 1, len(series) - m + 1)  # Maximum length of a diagonal
 
-        calc = Calculator(query, series, m)
+        calc = Calculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -183,6 +183,48 @@ class TestCalculator(TestCase):
         npt.assert_equal(consumer1.distance_matrix, distance_matrix1)
         npt.assert_equal(consumer2.distance_matrix, distance_matrix4)
         npt.assert_equal(consumer3.distance_matrix, summed_matrix)
+
+    def test_simple_calculate_self_join_diagonals(self):
+        series = np.arange(23)
+        m = 4
+        buffer = 2
+
+        # This test verifies that no values below the main diagonal are used.
+        distance_matrix = np.triu(np.arange(1., 401.).reshape((20, 20)), buffer + 1)
+
+        calc = Calculator(m, series, trivial_match_buffer=buffer)
+        calc.add_generator(0, MockGenerator(distance_matrix))
+
+        consumer = DistanceMatrix()
+        calc.add_consumer([0], consumer)
+
+        npt.assert_array_less(np.full(17, buffer), calc._diagonal_calc_order)
+
+        calc.calculate_diagonals()
+        expected = distance_matrix + distance_matrix.T
+        expected[expected == 0] = np.nan
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+    def test_simple_calculate_self_join_columns(self):
+        series = np.arange(23)
+        m = 4
+        buffer = 2
+
+        distance_matrix = np.arange(1., 401.).reshape((20, 20))
+
+        calc = Calculator(m, series, trivial_match_buffer=buffer)
+        calc.add_generator(0, MockGenerator(distance_matrix))
+
+        consumer = DistanceMatrix()
+        calc.add_consumer([0], consumer)
+
+        calc.calculate_columns()
+
+        expected = distance_matrix.copy()
+        for diag in range(-buffer, buffer + 1):
+            expected[diag_indices_of(expected, diag)] = np.inf
+
+        npt.assert_equal(consumer.distance_matrix, expected)
 
 
 def copy_columns(array, columns):

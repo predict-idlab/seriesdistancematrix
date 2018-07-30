@@ -16,16 +16,24 @@ class Calculator(object):
     query and series to form a distance matrix. Consumers process these values in a way that is useful.
     """
 
-    def __init__(self, query, series, m):
+    def __init__(self, m, series, query=None, trivial_match_buffer=None):
         """
         Initialises a new calculator (without any generators/consumers).
 
-        :param query: 1D or 2D (dimensions x datapoints) array
-        :param series: 1D or 2D (dimensions x datapoints) array
         :param m: subsequence length
+        :param series: 1D or 2D (dimensions x datapoints) array
+        :param query: 1D or 2D (dimensions x datapoints) array, if None, a self-join on series is performed
+        :param trivial_match_buffer: used only in case of a self-join, the number of values next to the main diagonal
+        (of the distance matrix) to skip. If None, defaults to m/2. Any consumers will either not receive values
+        (in case of diagonal calculation) or Infinity values (in case of column calculation).
         """
+        self._self_join = query is None
+
         self.series = np.atleast_2d(series).astype(np.float, copy=True)
-        self.query = np.atleast_2d(query).astype(np.float, copy=True)
+        if not self._self_join:
+            self.query = np.atleast_2d(query).astype(np.float, copy=True)
+        else:
+            self.query = self.series
 
         if self.series.ndim != 2:
             raise RuntimeError("Series should be 1D or 2D ndarray.")
@@ -39,6 +47,15 @@ class Calculator(object):
         self.m = m
         self.num_series_subseq = self.series.shape[1] - m + 1
         self.num_query_subseq = self.query.shape[1] - m + 1
+
+        if self._self_join:
+            if trivial_match_buffer is None:
+                trivial_match_buffer = m // 2
+            if trivial_match_buffer not in range(-1, self.num_series_subseq):
+                raise RuntimeError("Invalid value for trivial_match_buffer: " + str(trivial_match_buffer))
+            self.trivial_match_buffer = trivial_match_buffer
+        else:
+            self.trivial_match_buffer = -1
 
         #series_invalid = np.nonzero(~np.isfinite(self.series))
         #self.series[series_invalid] = 0
@@ -57,7 +74,14 @@ class Calculator(object):
         self._last_column_calculated = -1
 
         # Tracking diagonal calculations
-        self._diagonal_calc_order = np.arange(-self.num_query_subseq + 1, self.num_series_subseq)
+        if not self._self_join:
+            self._diagonal_calc_order = np.arange(-self.num_query_subseq + 1, self.num_series_subseq)
+            self._diagonal_values_total = self.num_query_subseq * self.num_series_subseq
+        else:
+            self._diagonal_calc_order = np.arange(self.trivial_match_buffer + 1, self.num_series_subseq)
+            # Upper half of a square with size a = a * (a+1) / 2
+            temp = self.num_series_subseq - self.trivial_match_buffer - 1
+            self._diagonal_values_total = temp * (temp + 1) // 2
         random.shuffle(self._diagonal_calc_order, random.Random(0).random)
         self._diagonal_calc_list_next_index = 0
         self._diagonal_values_calculated = 0
@@ -120,6 +144,11 @@ class Calculator(object):
                     generator = generators[generator_id]
                     column_dists[generator_id, :] = generator.calc_column(current_column)
 
+                if self.trivial_match_buffer >= 0:
+                    trivial_match_start = max(0, current_column - self.trivial_match_buffer)
+                    trivial_match_end = current_column + self.trivial_match_buffer + 1
+                    column_dists[:, trivial_match_start : trivial_match_end] = np.inf
+
                 for consumer, generator_ids in self._consumers.items():  # todo: parallel
                     consumer.process_column(current_column, column_dists[generator_ids, :])
 
@@ -149,8 +178,7 @@ class Calculator(object):
         max_diagonal_length = min(self.num_query_subseq, self.num_series_subseq)
         diag_dists = np.full((len(self._generators), max_diagonal_length), np.nan, dtype=np.float)
 
-        num_dist_matrix_values = self.num_dist_matrix_values
-        values_needed = _ratio_to_int(partial, num_dist_matrix_values)
+        values_needed = _ratio_to_int(partial, self._diagonal_values_total)
 
         with interrupt_catcher() as is_interrupted:
             while self._diagonal_values_calculated < values_needed and not is_interrupted():
@@ -166,7 +194,10 @@ class Calculator(object):
                     diagonal_values[generator_id, :] = generator.calc_diagonal(diagonal)
 
                 for consumer, generator_ids in self._consumers.items():  # todo: parallel
-                    consumer.process_diagonal(diagonal, diagonal_values[generator_ids, :])
+                    values_to_consume = diagonal_values[generator_ids, :]
+                    consumer.process_diagonal(diagonal, values_to_consume)
+                    if self._self_join:
+                        consumer.process_diagonal(-diagonal, values_to_consume)
 
                 self._diagonal_values_calculated += diagonal_length
                 self._diagonal_calc_list_next_index += 1
@@ -174,7 +205,7 @@ class Calculator(object):
                 self._diagonal_calc_time += time.time() - start_time
                 if print_progress:
                     local_progress = self._diagonal_values_calculated / values_needed
-                    global_progress = self._diagonal_values_calculated / num_dist_matrix_values
+                    global_progress = self._diagonal_values_calculated / self._diagonal_values_total
                     avg_time_per_value = self._diagonal_calc_time / self._diagonal_values_calculated
                     time_left = avg_time_per_value * (values_needed - self._diagonal_values_calculated)
                     print("\r{0:5.3f}% {1:10.1f} sec ({2:5.3f}% total)".
