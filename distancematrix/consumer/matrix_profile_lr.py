@@ -1,5 +1,7 @@
 import numpy as np
+
 from .abstract_consumer import AbstractConsumer
+from distancematrix.ringbuffer import RingBuffer
 
 
 class MatrixProfileLR(AbstractConsumer):
@@ -18,19 +20,19 @@ class MatrixProfileLR(AbstractConsumer):
         self._num_subseq = None
         self._range = None
 
-        self.matrix_profile_left = None
-        self.profile_index_left = None
-        self.matrix_profile_right = None
-        self.profile_index_right = None
+        self._matrix_profile_left = None
+        self._profile_index_left = None
+        self._matrix_profile_right = None
+        self._profile_index_right = None
 
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_subseq = series_subseq
         self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
 
-        self.matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
-        self.profile_index_left = np.full(self._num_subseq, -1, dtype=int)
-        self.matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=np.float)
-        self.profile_index_right = np.full(self._num_subseq, -1, dtype=int)
+        self._matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
+        self._profile_index_left = np.full(self._num_subseq, -1, dtype=int)
+        self._matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=np.float)
+        self._profile_index_right = np.full(self._num_subseq, -1, dtype=int)
 
     def process_diagonal(self, diag, values):
         values = values[0]
@@ -40,30 +42,46 @@ class MatrixProfileLR(AbstractConsumer):
             self._update_matrix_profile(
                 values,
                 self._range[:num_values],
-                self.matrix_profile_left[diag:diag + num_values],
-                self.profile_index_left[diag:diag + num_values])
+                self._matrix_profile_left[diag:diag + num_values],
+                self._profile_index_left[diag:diag + num_values])
         else:
             self._update_matrix_profile(
                 values,
                 self._range[-diag:-diag + num_values],
-                self.matrix_profile_right[:num_values],
-                self.profile_index_right[:num_values])
+                self._matrix_profile_right[:num_values],
+                self._profile_index_right[:num_values])
 
     def process_column(self, column_index, values):
         values = values[0]
 
-        self.matrix_profile_left[column_index] = np.min(values[:column_index + 1])
-        self.profile_index_left[column_index] = np.argmin(values[:column_index + 1])
+        self._matrix_profile_left[column_index] = np.min(values[:column_index + 1])
+        self._profile_index_left[column_index] = np.argmin(values[:column_index + 1])
 
         if len(values) >= column_index + 2:
-            self.matrix_profile_right[column_index] = np.min(values[column_index + 1:])
-            self.profile_index_right[column_index] = np.argmin(values[column_index + 1:]) + column_index + 1
+            self._matrix_profile_right[column_index] = np.min(values[column_index + 1:])
+            self._profile_index_right[column_index] = np.argmin(values[column_index + 1:]) + column_index + 1
 
     def _update_matrix_profile(self, dist_profile, dist_profile_idx,
                                matrix_profile, matrix_profile_index):
         update_pos = dist_profile < matrix_profile
         matrix_profile[update_pos] = dist_profile[update_pos]
         matrix_profile_index[update_pos] = dist_profile_idx[update_pos]
+
+    @property
+    def matrix_profile_right(self):
+        return self._matrix_profile_right
+
+    @property
+    def matrix_profile_left(self):
+        return self._matrix_profile_left
+
+    @property
+    def profile_index_right(self):
+        return self._profile_index_right
+
+    @property
+    def profile_index_left(self):
+        return self._profile_index_left
 
     def matrix_profile(self):
         """
@@ -92,6 +110,109 @@ class MatrixProfileLR(AbstractConsumer):
         profile_index[~left_best] = self.profile_index_right[~left_best]
 
         return profile_index
+
+
+class ShiftingMatrixProfileLR(MatrixProfileLR):
+    """
+    Extension of MatrixProfileLR which supports shifting.
+
+    The profile indices tracked in this consumer refer to positions in the complete query series.
+    As an example, if the original query consisted of 10 sequences, but has since shifted by 5 sequences,
+    the profile indices can contain any value in [0..15], or -1 if no matrix profile value exists.
+    These indices can be converted to indices local to the current window by subtracting the query_shift,
+    keep in mind that some indices of the left matrix profile can refer to positions outside the current window.
+
+    The concept of left and right matrix profile is only useful when both query and series shift at the same time
+    (distances are calculated over a self-join). Even if this is not the case, the values in this consumer are
+    correct: the left matrix profile stores any values on or above the (unshifted) main diagonal, the right
+    matrix profile stores any values below the (unshifted) main diagonal. (Since the diagonal shifts away when
+    only the series is shifted, eventually only the left matrix profile will be used.)
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.series_shift = 0
+        self.query_shift = 0
+
+    def initialise(self, dims, query_subseq, series_subseq):
+        super().initialise(dims, query_subseq, series_subseq)
+
+        self._range = RingBuffer(self._range)
+
+        self._matrix_profile_left = RingBuffer(self._matrix_profile_left)
+        self._profile_index_left = RingBuffer(self._profile_index_left)
+        self._matrix_profile_right = RingBuffer(self._matrix_profile_right)
+        self._profile_index_right = RingBuffer(self._profile_index_right)
+
+    def process_diagonal(self, diag, values):
+        values = values[0]
+        num_values = len(values)
+        shift_diff = self.series_shift - self.query_shift
+
+        if diag >= 0:
+            # Values are on or above the main diagonal
+            self._update_matrix_profile(
+                values,
+                self._range[:num_values],
+                self._matrix_profile_left[diag:diag + num_values],
+                self._profile_index_left[diag:diag + num_values])
+        elif diag + shift_diff >= 0:
+            # Values would have been below the main diagonal, but since the diagonal has shifted, they are above it
+            self._update_matrix_profile(
+                values,
+                self._range[-diag:-diag + num_values],
+                self._matrix_profile_left[:num_values],
+                self._profile_index_left[:num_values])
+        else:
+            # Values are below the (shifted or not) main diagonal
+            self._update_matrix_profile(
+                values,
+                self._range[-diag:-diag + num_values],
+                self._matrix_profile_right[:num_values],
+                self._profile_index_right[:num_values])
+
+    def process_column(self, column_index, values):
+        values = values[0]
+        shift_diff = self.series_shift - self.query_shift
+
+        self._matrix_profile_left[column_index] = np.min(values[:column_index + 1 + shift_diff])
+        self._profile_index_left[column_index] = np.argmin(values[:column_index + 1 + shift_diff]) + self.query_shift
+
+        if len(values) >= column_index + 2 + shift_diff:
+            self._matrix_profile_right[column_index] = np.min(values[column_index + 1 + shift_diff:])
+            self._profile_index_right[column_index] = np.argmin(values[column_index + 1 + shift_diff:]) + \
+                                                      column_index + 1 + self.query_shift
+
+    def shift(self, query_shift, series_shift):
+        if query_shift > 0:
+            self.query_shift += query_shift
+            self._range.push(np.arange(self._range[-1] + 1, self._range[-1] + 1 + query_shift))
+
+        self.series_shift += series_shift
+
+        push_values = np.full(series_shift, np.inf)
+        self._matrix_profile_left.push(push_values)
+        self._matrix_profile_right.push(push_values)
+
+        push_values[:] = -1
+        self._profile_index_left.push(push_values)
+        self._profile_index_right.push(push_values)
+
+    @property
+    def matrix_profile_right(self):
+        return self._matrix_profile_right.view
+
+    @property
+    def matrix_profile_left(self):
+        return self._matrix_profile_left.view
+
+    @property
+    def profile_index_right(self):
+        return self._profile_index_right.view
+
+    @property
+    def profile_index_left(self):
+        return self._profile_index_left.view
 
 
 class MatrixProfileLRReservoir(AbstractConsumer):
