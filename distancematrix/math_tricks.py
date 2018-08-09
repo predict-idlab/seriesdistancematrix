@@ -8,6 +8,8 @@ def sliding_mean_std(series, m):
     """
     Calculates the sliding mean and standard deviation over the series using a window of size m.
 
+    For numerical stability of the variance, avoid having differences larger than 1e10 in series.
+
     :param series: 1D array
     :param m: sliding window size
     :return: tuple of 2 arrays, each of size (len(series) - m + 1)
@@ -17,13 +19,20 @@ def sliding_mean_std(series, m):
 
 
 def sliding_mean_var(series, m):
+    """
+    Calculates the sliding mean and variance over the series using a window of size m.
+
+    For numerical stability of the variance, avoid having differences larger than 1e10 in series.
+
+    :param series: 1D array
+    :param m: sliding window size
+    :return: tuple of 2 arrays, each of size (len(series) - m + 1)
+    """
     if m <= 0 or not isinstance(m, int):
         raise RuntimeError('m should be an integer > 0.')
 
     if not np.isfinite(series).all():
         raise RuntimeError('Provided series contains nan or infinite values.')
-
-    n = len(series)
 
     val_diff = series.copy()  # x0  x1  x2  x3 ...
     val_diff[m:] -= series[:-m]  # x0  x1  x2-x0  x3-x1 ... (m = 2)
@@ -77,6 +86,7 @@ class StreamingStats(object):
         else:
             # Sliding variance formula: http://jonisalonen.com/2014/efficient-and-accurate-rolling-standard-deviation/
             # First steps of derivation: http://jonisalonen.com/2013/deriving-welfords-method-for-computing-variance/
+            # (For non-online calculation, the formula used in sliding_mean_var is faster)
 
             old_mean = self._mean_buffer.view[..., -1]
             old_var = self._var_buffer.view[..., -1]

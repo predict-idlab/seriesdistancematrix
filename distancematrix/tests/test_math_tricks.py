@@ -24,7 +24,7 @@ class TestSlidingMeanStd(TestCase):
         data_array = [
             np.array([5.15, 2.15, 1.05, -9.2, 0.01, 7.14, 4.18, 10.2, 3.25, 14.1, -9.85, 5.12, 0.11, 0.14, 0.98]),
             np.array([0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -50, -50, -50, -50, -50, -50]),
-            np.array([1e14, 1.6e19, 0.9e18, 6e14, 5.6e10, 9.9e16, 9e17, 6.48e14, 9.2e14, 1e18, 3.14e13]),
+            np.array([1e8, 1.6e9, 0.9e8, 6e4, 5.6e2, 9.9e6, 9e7, 6.48e4, 9.2e4, 1e8, 3.14e7]),
             random_gen.rand(1000)
         ]
         m = 5
@@ -45,8 +45,8 @@ class TestSlidingMeanStd(TestCase):
             brute_sliding_mean(data, 2))
 
     def test_sliding_std_numerical_stability(self):
-        # For some reason, only 9.2e14 caused loss of precision in the old implementation.
-        data = np.array([1e19, 1e18, 1e15, 1e10, 1e16, 1e17, 1e15, 9.2e14])
+        data = np.array([1e10, 1e8, 1e7, 1e10, 1e8, 1e7, 1e5, 9.2e8])
+        data = data - np.mean(data)
         npt.assert_allclose(
             math_tricks.sliding_mean_std(data, 2)[1],
             brute_sliding_std(data, 2))
@@ -58,19 +58,19 @@ class TestStreamingStatistics(TestCase):
             5.15, 2.15, 1.05, -9.2, 0.01, 7.14, 4.18, 10.2, 3.25, 14.1,
             -9.85, 5.12, 0.11, 0.14, 0.98, 0., 0., 0., 0., 0.,
             0., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
-            1., -50, -50, -50, -50, -50, -50, 1e14, 1.6e19, 0.9e18,
-            6e14, 5.6e10, 9.9e16, 9e17, 6.48e14, 9.2e14, 1e18, 3.14e13, 42, 1
+            1., -50, -50, -50, -50, -50, -50, 1e8, 1.6e9, 0.9e8,
+            6e4, 5.6e2, 9.9e6, 9e7, 6.48e4, 9.2e4, 1e8, 3.14e7, 42., 1.
         ])
 
         self._test_for_params(data, 10, 5)
         self._test_for_params(data, 10, 4)
         self._test_for_params(data, 10, 3)
-        #self._test_for_params(data, 10, 2) # Temporarily disabled, error margin is a bit too high
+        self._test_for_params(data, 10, 2)
         self._test_for_params(data, 10, 1)
         self._test_for_params(data, 5, 5)
         self._test_for_params(data, 5, 4)
         self._test_for_params(data, 5, 3)
-        #self._test_for_params(data, 5, 2) # Temporarily disabled, error margin is a bit too high
+        self._test_for_params(data, 5, 2)
         self._test_for_params(data, 5, 1)
 
     def test_different_stepsize(self):
@@ -78,8 +78,8 @@ class TestStreamingStatistics(TestCase):
             5.15, 2.15, 1.05, -9.2, 0.01, 7.14, 4.18, 10.2, 3.25, 14.1,
             -9.85, 5.12, 0.11, 0.14, 0.98, 0., 0., 0., 0., 0.,
             0., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
-            1., -50, -50, -50, -50, -50, -50, 1e14, 1.6e19, 0.9e18,
-            6e14, 5.6e10, 9.9e16, 9e17, 6.48e14, 9.2e14, 1e18, 3.14e13, 42, 1
+            1., -50, -50, -50, -50, -50, -50, 1e8, 1.6e9, 0.9e8,
+            6e4, 5.6e2, 9.9e6, 9e7, 6.48e4, 9.2e4, 1e8, 3.14e7, 42., 1.
         ])
 
         self._test_for_params(data, 10, 5, 1)
