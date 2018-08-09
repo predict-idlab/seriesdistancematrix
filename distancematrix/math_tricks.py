@@ -29,9 +29,9 @@ def sliding_mean_var(series, m):
     val_diff[m:] -= series[:-m]  # x0  x1  x2-x0  x3-x1 ... (m = 2)
     sliding_avg = np.cumsum(val_diff / m)[m-1:]  # x0+x1  x0+x1+x2-x0  x0+x1+(x2-x0)+(x3-x1) ...
 
-    cum_sum_sq = np.cumsum(np.square(series) / m)
-    series_sum_sq = cum_sum_sq[m - 1:n].copy()  # x²(0..m-1) x²(0..m) x²(0..m+1) ... x²(0..n)
-    series_sum_sq[1:] -= cum_sum_sq[0:n - m]  # x²(0..m-1) x²(1..m) x²(2..m+1) ... x²(n-m+1..n)
+    val_sq_diff = np.square(series)
+    val_sq_diff[m:] -= val_sq_diff[:-m]
+    series_sum_sq = np.cumsum(val_sq_diff / m)[m-1:]
 
     sliding_var = series_sum_sq - np.square(sliding_avg)  # std^2 = E[X²] - E[X]²
     sliding_var[sliding_var < _EPS] = 0  # Due to rounding errors, zero values can have very small non-zero values

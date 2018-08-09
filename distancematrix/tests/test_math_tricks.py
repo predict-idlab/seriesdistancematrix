@@ -44,6 +44,13 @@ class TestSlidingMeanStd(TestCase):
             math_tricks.sliding_mean_std(data, 2)[0],
             brute_sliding_mean(data, 2))
 
+    def test_sliding_std_numerical_stability(self):
+        # For some reason, only 9.2e14 caused loss of precision in the old implementation.
+        data = np.array([1e19, 1e18, 1e15, 1e10, 1e16, 1e17, 1e15, 9.2e14])
+        npt.assert_allclose(
+            math_tricks.sliding_mean_std(data, 2)[1],
+            brute_sliding_std(data, 2))
+
 
 class TestStreamingStatistics(TestCase):
     def test_different_m(self):
