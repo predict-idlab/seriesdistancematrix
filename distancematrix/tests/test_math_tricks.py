@@ -5,7 +5,19 @@ import numpy.testing as npt
 import distancematrix.math_tricks as math_tricks
 
 
-class TestMathTricks(TestCase):
+def brute_sliding_mean(data, m):
+    return np.array([np.mean(data[i:i + m]) for i in range(len(data) - m + 1)])
+
+
+def brute_sliding_var(data, m):
+    return np.array([np.var(data[i:i + m]) for i in range(len(data) - m + 1)])
+
+
+def brute_sliding_std(data, m):
+    return np.array([np.std(data[i:i + m]) for i in range(len(data) - m + 1)])
+
+
+class TestSlidingMeanStd(TestCase):
     def test_sliding_mean_std(self):
         random_gen = np.random.RandomState(0)
 
@@ -25,6 +37,12 @@ class TestMathTricks(TestCase):
 
             npt.assert_allclose(mean, correct_mean)
             npt.assert_allclose(std, correct_std)
+
+    def test_sliding_mean_numerical_stability(self):
+        data = np.array([1e18, 3.14e13, 3.14e13, 42., 1])
+        npt.assert_allclose(
+            math_tricks.sliding_mean_std(data, 2)[0],
+            brute_sliding_mean(data, 2))
 
 
 class TestStreamingStatistics(TestCase):

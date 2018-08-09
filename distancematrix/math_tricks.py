@@ -25,9 +25,9 @@ def sliding_mean_var(series, m):
 
     n = len(series)
 
-    cum_sum = np.cumsum(series / m)
-    sliding_avg = cum_sum[m - 1:n].copy()  # x(0..m-1) x(0..m) x(0..m+1) ... x(0..n)
-    sliding_avg[1:] -= cum_sum[0:n - m]  # x(0..m-1) x(1..m) x(2..m+1) ... x(n-m+1..n)
+    val_diff = series.copy()  # x0  x1  x2  x3 ...
+    val_diff[m:] -= series[:-m]  # x0  x1  x2-x0  x3-x1 ... (m = 2)
+    sliding_avg = np.cumsum(val_diff / m)[m-1:]  # x0+x1  x0+x1+x2-x0  x0+x1+(x2-x0)+(x3-x1) ...
 
     cum_sum_sq = np.cumsum(np.square(series) / m)
     series_sum_sq = cum_sum_sq[m - 1:n].copy()  # x²(0..m-1) x²(0..m) x²(0..m+1) ... x²(0..n)
