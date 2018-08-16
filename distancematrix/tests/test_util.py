@@ -8,8 +8,6 @@ from distancematrix.util import diag_indices_of
 from distancematrix.util import cross_count
 from distancematrix.util import norm_cross_count
 
-
-
 class TestUtil(TestCase):
     def test_diag_length_square_matrix(self):
         self.assertEqual(diag_length(5, 5, 0), 5)
@@ -78,11 +76,6 @@ class TestUtil(TestCase):
         data = np.array([0, 1, 2, 3, 4, 5, 6])
         npt.assert_equal(cross_count(data), [0, 0, 0, 0, 0, 0, 0])
         npt.assert_equal(cross_count(data[::-1]), [2, 4, 6, 6, 4, 2, 0])
-
-        npt.assert_equal(data[diag_indices_of(data, 0)], [1, 5])
-        npt.assert_equal(data[diag_indices_of(data, 1)], [2, 6])
-        npt.assert_equal(data[diag_indices_of(data, 2)], [3])
-        npt.assert_equal(data[diag_indices_of(data, 3)], [])
 
     def test_norm_cross_count(self):
         data = np.arange(20)

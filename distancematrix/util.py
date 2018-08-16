@@ -1,3 +1,5 @@
+import numpy as np
+
 def diag_length(h, w, diagonal=0):
     """
     Returns the number of elements on the specified diagonal of a matrix with dimensions (h, w).
@@ -71,11 +73,11 @@ def norm_cross_count(array, window):
     """
     ncc = np.ones_like(array)
 
-    l = cross_count.shape[0] + 1
+    l = array.shape[0] + 1
     zone = window * 5  # 5 is used in the matlab code. Keeping it as such.
 
     for i in range(zone, l-zone):
-        ac = cross_count[i]
+        ac = array[i]
         ic = 2 * (i + 1) * (l - i + 1) / l
 
         ncc[i] = min(ac/ic, 1)
