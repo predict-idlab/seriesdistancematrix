@@ -18,7 +18,8 @@ class ContextualMatrixProfile(AbstractConsumer):
           use lists of ranges, to specify non-consecutive contexts.
         :param query_contexts: iterable of ranges, defaults to None, meaning to use the same contexts as the series
         """
-        self._num_subseq = None
+        self._num_series_subseq = None
+        self._num_query_subseq = None
         self._range = None
 
         self._verify_ranges([r for i, r in _enumerate_flattened(series_contexts)])
@@ -41,7 +42,8 @@ class ContextualMatrixProfile(AbstractConsumer):
         self.match_index_query = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self._num_subseq = series_subseq
+        self._num_series_subseq = series_subseq
+        self._num_query_subseq = query_subseq
         self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
 
         num_series_contexts = np.max(self._series_contexts[:, 2]) + 1
@@ -78,7 +80,7 @@ class ContextualMatrixProfile(AbstractConsumer):
             # We now have a sub-sequence (ss) defined by the first context on the query axis
             # In absolute coordinates, start/end of this subsequence on 2nd axis (series axis)
             ss1_start = max(0, c0_start + diag)
-            ss1_end = min(self._num_subseq, c0_end + diag)
+            ss1_end = min(self._num_series_subseq, min(self._num_query_subseq, c0_end) + diag)
 
             context1_idxs = self._series_contexts[np.logical_and(
                 self._series_contexts[:, 0] < ss1_end,  # Start of context is before end of sequence

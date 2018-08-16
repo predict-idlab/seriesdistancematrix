@@ -44,11 +44,13 @@ class TestContextualMatrixProfile(TestCase):
                 r0s = [r0s]
 
             for r0 in r0s:
+                r0 = slice(r0.start, r0.stop)
                 for j, r1s in enumerate(series_ranges):
                     if not isinstance(r1s, list):
                         r1s = [r1s]
 
                     for r1 in r1s:
+                        r1 = slice(r1.start, r1.stop)
                         view = dist_matrix[r0, :][:, r1]
                         min_value = np.min(view)
 
@@ -104,6 +106,23 @@ class TestContextualMatrixProfile(TestCase):
                         [range(1, 2), range(3, 4), range(7, 9)]]
         series_ranges = [range(0, 2), range(1, 3), range(2, 4), range(3, 6), range(4, 8), range(4, 10),
                          [range(0, 3), range(3, 5), range(13, 15)]]
+
+        correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
+
+        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        self.mock_initialise(cdm)
+
+        for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
+            diag_ind = diag_indices_of(self.dist_matrix, diag)
+            cdm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
+
+        npt.assert_allclose(cdm.distance_matrix, correct)
+        npt.assert_equal(cdm.match_index_query, correct_qi)
+        npt.assert_equal(cdm.match_index_series, correct_si)
+
+    def test_process_diagonal_context_goes_beyond_distancematrix(self):
+        query_ranges = [range(0, 8), range(8, 16)]
+        series_ranges = [range(0, 10), range(10, 20)]
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
