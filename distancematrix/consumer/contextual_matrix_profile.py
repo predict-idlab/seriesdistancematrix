@@ -81,8 +81,11 @@ class ContextualMatrixProfile(AbstractConsumer):
         for c0_start, c0_end, c0_identifier in context0_idxs:
             # We now have a sub-sequence (ss) defined by the first context on the query axis
             # In absolute coordinates, start/end of this subsequence on 2nd axis (series axis)
-            ss1_start = max(0, c0_start + diag)
+            ss1_start = min(max(0, c0_start + diag), self._num_series_subseq)
             ss1_end = min(self._num_series_subseq, min(self._num_query_subseq, c0_end) + diag)
+
+            if ss1_start == ss1_end:
+                continue
 
             context1_idxs = self._series_contexts[np.logical_and(
                 self._series_contexts[:, 0] < ss1_end,  # Start of context is before end of sequence

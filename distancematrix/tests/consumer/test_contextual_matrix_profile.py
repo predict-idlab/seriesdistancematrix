@@ -141,6 +141,25 @@ class TestContextualMatrixProfile(TestCase):
         npt.assert_equal(cdm.match_index_query, correct_qi)
         npt.assert_equal(cdm.match_index_series, correct_si)
 
+    def test_process_diagonal_context_goes_beyond_distancematrix_2(self):
+        self.dist_matrix = self.dist_matrix.T
+
+        query_ranges = [range(0, 8), range(13, 20)]
+        series_ranges = [range(0, 10), range(9, 13)]
+
+        correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
+
+        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        self.mock_initialise(cdm)
+
+        for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
+            diag_ind = diag_indices_of(self.dist_matrix, diag)
+            cdm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
+
+        npt.assert_allclose(cdm.distance_matrix, correct)
+        npt.assert_equal(cdm.match_index_query, correct_qi)
+        npt.assert_equal(cdm.match_index_series, correct_si)
+
     def test_process_diagonal_context_falls_outside_distancematrix(self):
         query_ranges = [range(0, 8), range(8, 16), range(20, 30)]
         series_ranges = [range(0, 10), range(10, 20), range(30, 40)]
