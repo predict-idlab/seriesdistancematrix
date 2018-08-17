@@ -75,6 +75,8 @@ class ContextualMatrixProfile(AbstractConsumer):
             # All contexts whose end is on or after the first value passed
             context0_idxs = self._qc_sorted_stop[
                             np.searchsorted(self._qc_sorted_stop[:, 1], values_idx0_start, side="right"):]
+            # But exclude contexts that fall outside of the distance matrix
+            context0_idxs = filter(lambda c: c[0] < self._num_query_subseq, context0_idxs)
 
         for c0_start, c0_end, c0_identifier in context0_idxs:
             # We now have a sub-sequence (ss) defined by the first context on the query axis
@@ -115,7 +117,10 @@ class ContextualMatrixProfile(AbstractConsumer):
         )]
 
         for _, _, c1_identifier in context1_idxs:
-            for c0_start, c0_end, c0_identifier in self._query_contexts:
+            # Skip contexts that fall outside the distance matrix
+            query_contexts = filter(lambda c: c[0] < self._num_query_subseq, self._query_contexts)
+
+            for c0_start, c0_end, c0_identifier in query_contexts:
                 subseq = values[c0_start: c0_end]
                 best_value = np.min(subseq)
 
