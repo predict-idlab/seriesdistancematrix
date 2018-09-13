@@ -41,14 +41,20 @@ class ZNormEuclidean(object):
         self.prev_calc_column_dot_prod = None
 
     def prepare(self, series, query, m):
-        self.series = np.array(series, dtype=np.float, copy=True)
-        self.query = np.array(query, dtype=np.float, copy=True)
         self.m = m
 
+        self.series = np.array(series, dtype=np.float, copy=True)
         self.mu_s, self.std_s = sliding_mean_std(series, m)
-        self.mu_q, self.std_q = sliding_mean_std(query, m)
         self.std_s_nonzero = self.std_s != 0.
-        self.std_q_nonzero = self.std_q != 0.
+
+        if series is not query:
+            self.query = np.array(query, dtype=np.float, copy=True)
+            self.mu_q, self.std_q = sliding_mean_std(query, m)
+            self.std_q_nonzero = self.std_q != 0.
+        else:
+            self.query = self.series
+            self.mu_q, self.std_q = self.mu_s, self.std_s
+            self.std_q_nonzero = self.std_s_nonzero
 
         if series.ndim != 1:
             raise RuntimeError("Series should be 1D")
@@ -162,3 +168,36 @@ class ZNormEuclidean(object):
         dist_sq[dist_sq < _EPS] = 0
 
         return np.sqrt(dist_sq)
+
+    def calc_single(self, row, column, dot_prod=None):
+        """
+        Calculates a single point of the distance matrix.
+
+        :param row: index of the subsequence in the query series
+        :param column: index of the subsequence in the data series
+        :param dot_prod: the dotproduct of the subsequences, if provided, this method can run in constant time
+        :return: z-normalised distance of the 2 subsequences
+        """
+        std_q = self.std_q[row]
+        std_s = self.std_s[column]
+
+        if std_q == 0. and std_s == 0.:
+            return 0.
+
+        if std_q == 0. or std_s == 0.:
+            return self.m
+
+        if not dot_prod:
+            dot_prod = np.sum(self.query[row: row+self.m] * self.series[column: column+self.m])
+        mean_q = self.mu_q[row]
+        mean_s = self.mu_s[column]
+
+        dist_sq = 2 * (self.m - (dot_prod - self.m * mean_q * mean_s) / (std_q * std_s))
+
+        if self.noise_std != 0.:
+            dist_sq -= (2 * (self.m + 1) * np.square(self.noise_std) / np.square(np.maximum(std_s, std_q)))
+
+        if dist_sq < _EPS:
+            return 0.
+        else:
+            return np.sqrt(dist_sq)
