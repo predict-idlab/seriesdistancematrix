@@ -57,14 +57,6 @@ class Calculator(object):
         else:
             self.trivial_match_buffer = -1
 
-        #series_invalid = np.nonzero(~np.isfinite(self.series))
-        #self.series[series_invalid] = 0
-        #self.invalid_subseq_series = _find_invalid_subseq_idxs(series_invalid, self.n_dim, m, 0, self.num_series_subseq)
-
-        #query_invalid = np.nonzero(~np.isfinite(self.query))
-        #self.query[query_invalid] = 0
-        #self.invalid_subseq_query = _find_invalid_subseq_idxs(query_invalid, self.n_dim, m, 0, self.num_query_subseq)
-
         # Generators calculate distance values from the series and query
         self._generators = OrderedDict()
         # Consumers process the calculated distance values
