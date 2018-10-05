@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 def diag_length(h, w, diagonal=0):
@@ -130,3 +131,27 @@ def shortest_path(cost_array):
         path.append((row, col))
 
     return path[::-1] # TODO: other indices order
+
+
+def sliding_min(array, window_size):
+    #result = np.empty(array.shape[0] - window_size + 1, array.dtype)
+    #d = collections.deque()  # d is always sorted
+    #
+    #for i in range(array.shape[0]):
+    #    while len(d) > 0 and d[-1][0] >= array[i]:
+    #        d.pop()
+    #    d.append((array[i], i))
+    #
+    #    if d[0][1] <= i - window_size:
+    #        d.popleft()
+    #
+    #    if i >= window_size - 1:
+    #        result[i - window_size + 1] = d[0][0]
+    #
+    #return result
+
+    # Pandas has implemented this in native code, speedup of about 10 times
+    return pd.Series(array).rolling(window_size).min().values[window_size - 1:]
+
+def sliding_max(array, window_size):
+    return pd.Series(array).rolling(window_size).max().values[window_size - 1:]
