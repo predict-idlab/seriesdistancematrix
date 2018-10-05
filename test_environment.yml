@@ -5,3 +5,4 @@ dependencies:
   - nose
   - numpy
   - scipy
+  - pandas

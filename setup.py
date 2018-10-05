@@ -13,4 +13,4 @@ setup(name='distancematrix',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
           'Operating System :: OS Independent'
-      ), install_requires=['numpy', 'scipy'])
+      ), install_requires=['numpy', 'scipy', 'pandas'])
