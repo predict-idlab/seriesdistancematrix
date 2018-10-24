@@ -1,2 +1,3 @@
 from distancematrix.generator.euclidean import Euclidean
 from distancematrix.generator.znorm_euclidean import ZNormEuclidean
+from distancematrix.generator.filter_generator import FilterGenerator
