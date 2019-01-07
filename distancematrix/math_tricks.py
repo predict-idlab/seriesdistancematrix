@@ -1,5 +1,6 @@
 import numpy as np
 from distancematrix.ringbuffer import RingBuffer
+from distancematrix.util import sliding_window_view
 
 _EPS = 1e-12
 
@@ -14,8 +15,14 @@ def sliding_mean_std(series, m):
     :param m: sliding window size
     :return: tuple of 2 arrays, each of size (len(series) - m + 1)
     """
-    mean, var = sliding_mean_var(series, m)
-    return mean, np.sqrt(var)
+    if m <= 0 or not isinstance(m, int):
+        raise RuntimeError('m should be an integer > 0.')
+
+    if not np.isfinite(series).all():
+        raise RuntimeError('Provided series contains nan or infinite values.')
+
+    sliding_view = sliding_window_view(series, [m])
+    return np.mean(sliding_view, axis=1), np.std(sliding_view, axis=1)
 
 
 def sliding_mean_var(series, m):
@@ -34,18 +41,8 @@ def sliding_mean_var(series, m):
     if not np.isfinite(series).all():
         raise RuntimeError('Provided series contains nan or infinite values.')
 
-    val_diff = series.copy()  # x0  x1  x2  x3 ...
-    val_diff[m:] -= series[:-m]  # x0  x1  x2-x0  x3-x1 ... (m = 2)
-    sliding_avg = np.cumsum(val_diff / m)[m-1:]  # x0+x1  x0+x1+x2-x0  x0+x1+(x2-x0)+(x3-x1) ...
-
-    val_sq_diff = np.square(series)
-    val_sq_diff[m:] -= val_sq_diff[:-m]
-    series_sum_sq = np.cumsum(val_sq_diff / m)[m-1:]
-
-    sliding_var = series_sum_sq - np.square(sliding_avg)  # std^2 = E[X²] - E[X]²
-    sliding_var[sliding_var < _EPS] = 0  # Due to rounding errors, zero values can have very small non-zero values
-
-    return sliding_avg, sliding_var
+    sliding_view = sliding_window_view(series, [m])
+    return np.mean(sliding_view, axis=1), np.var(sliding_view, axis=1)
 
 
 class StreamingStats(object):
