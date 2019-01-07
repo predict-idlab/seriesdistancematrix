@@ -10,6 +10,8 @@ from distancematrix.util import shortest_path_distances
 from distancematrix.util import shortest_path
 from distancematrix.util import sliding_min
 from distancematrix.util import sliding_max
+from distancematrix.util import sliding_window_view
+
 
 class TestUtil(TestCase):
     def test_diag_length_square_matrix(self):
@@ -179,4 +181,27 @@ class TestUtil(TestCase):
         npt.assert_equal(
             sliding_max(data, 3),
             [8, 4, 6, 6, 6, 1, 2, 7, 7, 7, 6, 4]
+        )
+
+    def test_sliding_window_view(self):
+        data = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+        npt.assert_equal(
+            sliding_window_view(data, [3]),
+            [[1, 2, 3], [2, 3, 4], [3, 4, 5], [4, 5, 6], [5, 6, 7], [6, 7, 8]]
+        )
+
+        npt.assert_equal(
+            sliding_window_view(data, [3], step=[2]),
+            [[1, 2, 3], [3, 4, 5], [5, 6, 7]]
+        )
+
+        data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        npt.assert_equal(
+            sliding_window_view(data, [2, 2]),
+            [[[[1, 2], [4, 5]], [[2, 3], [5, 6]]], [[[4, 5], [7, 8]], [[5, 6], [8, 9]]]]
+        )
+
+        npt.assert_equal(
+            sliding_window_view(data, [1, 3], step=[2, 1]),
+            [[[[1, 2, 3]]], [[[7, 8, 9]]]]
         )
