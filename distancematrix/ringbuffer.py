@@ -14,25 +14,43 @@ class RingBuffer(object):
     immediately access the buffer view.
     """
 
-    def __init__(self, data, scaling_factor=2.) -> None:
+    def __init__(self, data, shape=None, dtype=None, scaling_factor=2.) -> None:
         """
         Creates a new RingBuffer.
 
-        :param data: the initial window of the buffer
+        :param data: data to initialize the buffer, data may be smaller or larger than shape, may be None to
+            initialize an empty buffer
+        :param shape: the shape of the buffer, if None, uses the shape of data
+        :param dtype: the datatype for the buffer, if None, uses the dtype of data
         :param scaling_factor: determines internal buffer size (window size x scaling_factor)
         """
         super().__init__()
 
-        data = np.asarray(data)
-        new_shape = list(data.shape)
-        new_shape[-1] = ceil(scaling_factor * new_shape[-1])
+        if data is None and shape is None:
+            raise RuntimeError("Data and shape may not both be None.")
 
-        self._buffer = np.empty(new_shape, data.dtype)
-        self._window_size = data.shape[-1]
-        self._view_start = 0
+        if data is None and dtype is None:
+            raise RuntimeError("Data and dtype may not both be None.")
 
-        self.view = self._buffer[..., self._view_start:self._view_start+self._window_size]
-        self.view[:] = data
+        if data is not None:
+            data = np.asarray(data)
+
+        if not shape:
+            shape = list(data.shape)
+        if not dtype:
+            dtype = data.dtype
+
+        self._view_start = 0  # Where view of the buffer starts
+        self._view_max_length = shape[-1]  # Max length (last dimension) of the exposed view
+        self._view_length = 0  # Current length of the exposed view
+
+        buffer_shape = list(shape)
+        buffer_shape[-1] = ceil(scaling_factor * shape[-1])
+        self._buffer = np.empty(buffer_shape, dtype)
+
+        self.view = self._buffer[..., self._view_start: self._view_start + self._view_length]
+        if data is not None:
+            self.push(data)
 
     def push(self, data):
         """
@@ -51,22 +69,44 @@ class RingBuffer(object):
         if data_len == 0:
             return
 
-        if self._view_start + self._window_size + data_len <= self._buffer.shape[-1]:
+        # If the view does not has its target capacity, first fill until it does
+        if self._view_length < self._view_max_length:
+            delta = min(data_len, self._view_max_length - self._view_length)
+            self._buffer[..., self._view_length: self._view_length+delta] = data[..., :delta]
+            self._view_length += delta
+            self.view = self._buffer[..., :self._view_length]
+
+            if data_len == delta:
+                return
+
+            # The buffer (its view) is now filled, continue the normal flow to process the remaining data.
+            data = data[..., delta:]
+            data_len = data.shape[-1]
+
+        # The view is at target capacity at this point, we will start "dropping" data.
+
+        # The data fits in the remaining pre-allocated memory
+        if self._view_start + self._view_max_length + data_len <= self._buffer.shape[-1]:
             self._view_start += data_len
-            self.view = self._buffer[..., self._view_start:self._view_start + self._window_size]
+            self.view = self._buffer[..., self._view_start:self._view_start + self._view_max_length]
             self.view[..., -data_len:] = data
 
-        elif data_len < self._window_size:
-            mem_len = self._window_size - data_len
-            self._buffer[..., :mem_len] = self._buffer[..., self._view_start+data_len:self._view_start+self._window_size]
-            self._buffer[..., mem_len:self._window_size] = data
+        # The data does not fit in the remaining memory, but is less than the view capacity:
+        # we reset the view, copy enough old data to fill to capacity, and append the new data
+        elif data_len < self._view_max_length:
+            mem_len = self._view_max_length - data_len
+            self._buffer[..., :mem_len] = \
+                self._buffer[..., self._view_start+data_len:self._view_start+self._view_max_length]
+            self._buffer[..., mem_len:self._view_max_length] = data
             self._view_start = 0
-            self.view = self._buffer[..., self._view_start:self._view_start + self._window_size]
+            self.view = self._buffer[..., self._view_start:self._view_start + self._view_max_length]
 
+        # The data does not fit in the remaining memory, and can (over)fill the view capacity:
+        # we reset the view and copy a part of the new data equal to the view capacity.
         else:
-            self._buffer[..., :self._window_size] = data[..., -self._window_size:]
+            self._buffer[..., :self._view_max_length] = data[..., -self._view_max_length:]
             self._view_start = 0
-            self.view = self._buffer[..., self._view_start:self._view_start + self._window_size]
+            self.view = self._buffer[..., self._view_start:self._view_start + self._view_max_length]
 
     def __setitem__(self, key, value):
         self.view.__setitem__(key, value)
