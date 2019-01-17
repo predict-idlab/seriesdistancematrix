@@ -49,18 +49,18 @@ def sliding_mean_var(series, m):
 
 class StreamingStats(object):
     """
-    Class that tracks a data stream and corresponding mean and variance of a window over this data.
+    Class that tracks a data stream and corresponding mean and standard deviation of a window over this data.
 
-    The data stream has to be updated by the user, after which the mean/variance stream will be updated automatically.
+    The data stream has to be updated by the user, after which the mean/std stream will be updated automatically.
 
-    This class uses RingBuffers internally, so any old view (data, mean, variance) should be considered unreliable
+    This class uses RingBuffers internally, so any old view (data, mean, std) should be considered unreliable
     after new data was pushed to this class.
     """
 
     def __init__(self, series, m) -> None:
         """
         Creates a new instance. This instance will keep track of a data stream (with dimensions matching those of
-        series) and a stream of moving mean and variances using a window of length m.
+        series) and a stream of moving mean and standard deviation using a window of length m.
 
         :param series: Starting data of the data stream
         :param m: window size for mean and variance
@@ -71,9 +71,9 @@ class StreamingStats(object):
         self._data_buffer = RingBuffer(series)
         self._m = m
 
-        sliding_avg, sliding_var = sliding_mean_var(series, m)
+        sliding_avg, sliding_std = sliding_mean_std(series, m)
         self._mean_buffer = RingBuffer(sliding_avg)
-        self._var_buffer = RingBuffer(sliding_var)
+        self._std_buffer = RingBuffer(sliding_std)
 
     def append(self, data):
         data_length = data.shape[-1]
@@ -82,9 +82,9 @@ class StreamingStats(object):
             return
 
         self._data_buffer.push(data)
-        new_means, new_vars = sliding_mean_var(self._data_buffer[max(-self._m - 1 - data_length, 0):], self._m)
+        new_means, new_stds = sliding_mean_std(self._data_buffer[max(-self._m - 1 - data_length, 0):], self._m)
         self._mean_buffer.push(new_means)
-        self._var_buffer.push(new_vars)
+        self._std_buffer.push(new_stds)
 
         # Original implementation below, this approach might still be interesting if the current approach proves to be
         # too slow in practice. One issue that remains to be solved (why this method was replaced) is that
@@ -132,5 +132,5 @@ class StreamingStats(object):
         return self._mean_buffer.view
 
     @property
-    def var(self):
-        return self._var_buffer.view
+    def std(self):
+        return self._std_buffer.view

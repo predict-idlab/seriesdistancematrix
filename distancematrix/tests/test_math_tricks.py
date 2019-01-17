@@ -155,7 +155,7 @@ class TestStreamingStatistics(TestCase):
 
         npt.assert_equal(ss.data, data[start: start + data_len])
         npt.assert_allclose(ss.mean, [np.mean(data[start + i: start + i + m]) for i in range(data_len - m + 1)])
-        npt.assert_allclose(ss.var, [np.var(data[start + i: start + i + m]) for i in range(data_len - m + 1)])
+        npt.assert_allclose(ss.std, [np.std(data[start + i: start + i + m]) for i in range(data_len - m + 1)])
 
         while start + data_len + stepsize < len(data):
             ss.append(data[start + data_len: start + data_len + stepsize])
@@ -165,11 +165,11 @@ class TestStreamingStatistics(TestCase):
                 ss.mean, [np.mean(data[start + i: start + i + m]) for i in range(data_len - m + 1)],
                 atol=2e-15, err_msg="Different for window starting at " + str(start))
 
-            expected_var = [np.var(data[start + i: start + i + m]) for i in range(data_len - m + 1)]
+            expected_std = [np.std(data[start + i: start + i + m]) for i in range(data_len - m + 1)]
             npt.assert_allclose(
-                ss.var, expected_var,
+                ss.std, expected_std,
                 atol=2e-15,
-                err_msg="Different for window starting at " + str(start) + ": " + str(ss.var - expected_var))
+                err_msg="Different for window starting at " + str(start) + ": " + str(ss.std - expected_std))
 
     def test_stability(self):
         self._test_for_params(STD_VAR_STABILITY_DATA, 50, 24)
