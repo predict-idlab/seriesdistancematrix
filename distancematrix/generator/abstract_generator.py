@@ -3,13 +3,13 @@ from abc import ABC, abstractmethod
 
 class AbstractGenerator(ABC):
     @abstractmethod
-    def prepare(self, series, query, m):
+    def prepare(self, m, series, query=None):
         """
         Create a bound non-streaming generator for the given series and query sequences.
 
-        :param series: 1D array, used as the horizontal axis of a distance matrix
-        :param query: 1D array, used as the vertical axis of a distance matrix
         :param m: the size of the subsequences used to calculate distances between series and query
+        :param series: 1D array, used as the horizontal axis of a distance matrix
+        :param query: 1D array, used as the vertical axis of a distance matrix, or None to indicate a self-join
         :return: a bound generator
         """
         pass

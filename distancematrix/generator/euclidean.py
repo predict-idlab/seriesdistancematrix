@@ -1,32 +1,77 @@
 import numpy as np
 
 from distancematrix.util import diag_length
+from distancematrix.ringbuffer import RingBuffer
+from distancematrix.generator.abstract_generator import AbstractGenerator
+from distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
 
 
-class Euclidean(object):
-    def __init__(self):
-        self.m = None
-        self.series = None
-        self.query = None
-        self.n = None
+class Euclidean(AbstractGenerator):
+    def prepare_streaming(self, m, series_window, query_window=None):
+        series = RingBuffer(None, (series_window,), dtype=np.float)
+
+        if query_window is not None:
+            query = RingBuffer(None, (query_window,), dtype=np.float)
+            self_join = False
+        else:
+            query = series
+            self_join = True
+
+        return BoundStreamingEuclidean(m, series, query, self_join)
+
+    def prepare(self, m, series, query=None):
+        if series.ndim != 1:
+            raise RuntimeError("Series should be 1D")
+        if query is not None and query.ndim != 1:
+            raise RuntimeError("Query should be 1D")
+
+        series = RingBuffer(series, scaling_factor=1)
+        if query is not None:
+            query = RingBuffer(query, scaling_factor=1)
+            self_join = False
+        else:
+            query = series
+            self_join = True
+        return BoundStreamingEuclidean(m, series, query, self_join)
+
+
+class BoundStreamingEuclidean(AbstractBoundStreamingGenerator):
+    def __init__(self, m, series, query, self_join):
+        self.m = m
+        self.series = series
+        self.query = query
+        self.self_join = self_join
 
         self.first_row = None
+        self.first_row_backlog = 0  # The number of values not yet processed for the first row cache
         self.prev_calc_column_index = None
         self.prev_calc_column_sq_dist = None
 
-    def prepare(self, series, query, m):
-        self.series = np.array(series, dtype=np.float, copy=True)
-        self.query = np.array(query, dtype=np.float, copy=True)
-        self.m = m
-        self.n = len(series)
+    def append_series(self, values):
+        if len(values) == 0:
+            return
 
-        if series.ndim != 1:
-            raise RuntimeError("Series should be 1D")
-        if query.ndim != 1:
-            raise RuntimeError("Query should be 1D")
+        data_dropped = self.series.push(values)
+        self.first_row_backlog += len(values)
+
+        if self.self_join:
+            if data_dropped:
+                self.first_row = None  # The first row was dropped by new data
+            self.prev_calc_column_index = None
+
+    def append_query(self, values):
+        if self.self_join:
+            raise RuntimeError("Cannot append query data in case of a self join.")
+
+        if len(values) == 0:
+            return
+
+        if self.query.push(values):
+            self.first_row = None  # The first row was dropped by new data
+        self.prev_calc_column_index = None
 
     def calc_diagonal(self, diag):
-        dl = diag_length(len(self.query), self.n, diag)
+        dl = diag_length(len(self.query.view), len(self.series.view), diag)
         cumsum = np.zeros(dl + 1, dtype=np.float)
 
         if diag >= 0:
@@ -45,15 +90,22 @@ class Euclidean(object):
     def calc_column(self, column):
         if self.prev_calc_column_index != column - 1:
             # Previous column not cached, full calculation
-            sq_dist = _euclidean_distance_squared(self.query, self.series[column:column + self.m])
+            sq_dist = _euclidean_distance_squared(self.query.view, self.series[column:column + self.m])
         else:
             # Previous column cached, reuse it
             if self.first_row is None:
-                self.first_row = _euclidean_distance_squared(self.series, self.query[0: self.m])
+                self.first_row = RingBuffer(_euclidean_distance_squared(self.series.view, self.query[0: self.m]),
+                                            shape=(self.series.max_shape[0] - self.m + 1,))
+                self.first_row_backlog = 0
+            elif self.first_row_backlog > 0:
+                # Series has been updated since last calculation of first_row
+                elems_to_recalc = self.first_row_backlog + self.m - 1
+                self.first_row.push(_euclidean_distance_squared(self.series[-elems_to_recalc:], self.query[0: self.m]))
+                self.first_row_backlog = 0
 
             sq_dist = self.prev_calc_column_sq_dist  # work in same array
             sq_dist[1:] = (self.prev_calc_column_sq_dist[:-1]
-                           - np.square(self.series[column - 1] - self.query[:len(self.query)-self.m])
+                           - np.square(self.series[column - 1] - self.query[:len(self.query.view)-self.m])
                            + np.square(self.series[column + self.m - 1] - self.query[self.m:]))
             sq_dist[0] = self.first_row[column]
 
