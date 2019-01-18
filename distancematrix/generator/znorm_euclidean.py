@@ -3,66 +3,141 @@ from scipy.signal import fftconvolve
 
 from distancematrix.util import diag_length
 from distancematrix.math_tricks import sliding_mean_std
+from distancematrix.generator.abstract_generator import AbstractGenerator
+from distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
+from distancematrix.ringbuffer import RingBuffer
 
 _EPS = 1e-12
 
 
-class ZNormEuclidean(object):
+class ZNormEuclidean(AbstractGenerator):
     """
     Class capable of efficiently calculating parts of the z-normalized distance matrix between two series,
     where each entry in the distance matrix equals the euclidean distance between 2 z-normalized
     (zero mean and unit variance) subsequences of both series.
+
+    This generator can handle streaming data.
+
+    :param noise_std: standard deviation of measurement noise, if not zero, the resulting distances will
+          be adjusted to eliminate the influence of the noise.
     """
 
-    def __init__(self, noise_std):
-        """
-        Creates a new instance.
-
-        :param noise_std: standard deviation of measurement noise, if not zero, the resulting distances will
-          be adjusted to eliminate the influence of the noise.
-        """
-        # Core values
-        self.m = None
-        self.series = None
-        self.query = None
+    def __init__(self, noise_std=0.):
         self.noise_std = noise_std
 
+    def prepare_streaming(self, m, series_window, query_window=None):
+        series = RingBuffer(None, (series_window,), dtype=np.float)
+
+        if query_window is not None:
+            query = RingBuffer(None, (query_window,), dtype=np.float)
+            self_join = False
+        else:
+            query = series
+            self_join = True
+
+        return BoundZNormEuclidean(m, series, query, self_join, self.noise_std)
+
+    def prepare(self, m, series, query=None):
+        if series.ndim != 1:
+            raise RuntimeError("Series should be 1D")
+        if query is not None and query.ndim != 1:
+            raise RuntimeError("Query should be 1D")
+
+        series_buffer = RingBuffer(None, shape=series.shape, dtype=np.float, scaling_factor=1)
+        if query is not None:
+            query_buffer = RingBuffer(None, shape=query.shape, dtype=np.float, scaling_factor=1)
+            self_join = False
+        else:
+            query_buffer = series_buffer
+            self_join = True
+
+        result = BoundZNormEuclidean(m, series_buffer, query_buffer, self_join, self.noise_std)
+        result.append_series(series)
+        if not self_join:
+            result.append_query(query)
+
+        return result
+
+
+class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
+    def __init__(self, m, series, query, self_join, noise_std):
+        """
+        :param m: subsequence length to consider for distance calculations
+        :param series: empty ringbuffer, properly sized to contain the desired window for series
+        :param query: empty ringbuffer, properly sized to contain the desired window for query, or the same buffer
+          as series in case of a self-join
+        :param self_join: whether or not a self-join should be done
+        :param noise_std: standard deviation of noise on series/query, zero to disable noise cancellation
+        """
+
+        # Core values
+        self.m = m
+        self.series = series
+        self.query = query
+        self.noise_std = noise_std
+        self.self_join = self_join
+
         # Derivated values
-        self.mu_s = None
-        self.mu_q = None
-        self.std_s = None
-        self.std_q = None
-        self.std_s_nonzero = None
-        self.std_q_nonzero = None
+        num_subseq_s = series.max_shape[-1] - m + 1
+        self.mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float)
+        self.std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float)
+        self.std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float)
+
+        if not self_join:
+            num_subseq_q = query.max_shape[-1] - m + 1
+            self.mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float)
+            self.std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float)
+            self.std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float)
+        else:
+            self.mu_q = self.mu_s
+            self.std_q = self.std_s
+            self.std_q_nonzero = self.std_s_nonzero
 
         # Caching
         self.first_row = None
+        self.first_row_backlog = 0
         self.prev_calc_column_index = None
         self.prev_calc_column_dot_prod = None
 
-    def prepare(self, series, query, m):
-        self.m = m
+    def append_series(self, values):
+        if len(values) == 0:
+            return
 
-        self.series = np.array(series, dtype=np.float, copy=True)
-        self.mu_s, self.std_s = sliding_mean_std(series, m)
-        self.std_s_nonzero = self.std_s != 0.
+        data_dropped = self.series.push(values)
+        self.first_row_backlog += len(values)
 
-        if series is not query:
-            self.query = np.array(query, dtype=np.float, copy=True)
-            self.mu_q, self.std_q = sliding_mean_std(query, m)
-            self.std_q_nonzero = self.std_q != 0.
-        else:
-            self.query = self.series
-            self.mu_q, self.std_q = self.mu_s, self.std_s
-            self.std_q_nonzero = self.std_s_nonzero
+        if len(self.series.view) >= self.m:
+            num_affected = len(values) + self.m - 1
+            new_mu, new_std = sliding_mean_std(self.series[-num_affected:], self.m)
+            self.mu_s.push(new_mu)
+            self.std_s.push(new_std)
+            self.std_s_nonzero.push(new_std != 0.)
 
-        if series.ndim != 1:
-            raise RuntimeError("Series should be 1D")
-        if query.ndim != 1:
-            raise RuntimeError("Query should be 1D")
+        if self.self_join:
+            if data_dropped:
+                self.first_row = None  # The first row was dropped by new data
+            self.prev_calc_column_index = None
+
+    def append_query(self, values):
+        if self.self_join:
+            raise RuntimeError("Cannot append query data in case of a self join.")
+
+        if len(values) == 0:
+            return
+
+        if self.query.push(values):
+            self.first_row = None  # The first row was dropped by new data
+        self.prev_calc_column_index = None
+
+        if len(self.query.view) >= self.m:
+            num_affected = len(values) + self.m - 1
+            new_mu, new_std = sliding_mean_std(self.query[-num_affected:], self.m)
+            self.mu_q.push(new_mu)
+            self.std_q.push(new_std)
+            self.std_q_nonzero.push(new_std != 0.)
 
     def calc_diagonal(self, diag):
-        dl = diag_length(len(self.query), len(self.series), diag)  # Number of affected data points
+        dl = diag_length(len(self.query.view), len(self.series.view), diag)  # Number of affected data points
         dlr = dl - self.m + 1  # Number of entries in diagonal
         cumsum = np.zeros(dl + 1, dtype=np.float)
 
@@ -116,21 +191,29 @@ class ZNormEuclidean(object):
         return np.sqrt(dist_sq)
 
     def calc_column(self, column):
-        dist_sq = np.zeros(len(self.query) - self.m + 1, dtype=np.float)
+        dist_sq = np.zeros(len(self.query.view) - self.m + 1, dtype=np.float)
         series_subseq = self.series[column: column + self.m]
 
         if self.prev_calc_column_index != column - 1:
             # Previous column not cached, full calculation
-            dot_prod = fftconvolve(self.query, series_subseq[::-1], 'valid')
+            dot_prod = fftconvolve(self.query.view, series_subseq[::-1], 'valid')
         else:
             # Previous column cached, reuse it
             if self.first_row is None:
                 first_query = self.query[0:self.m]
-                self.first_row = fftconvolve(self.series, first_query[::-1], 'valid')
+                self.first_row = RingBuffer(fftconvolve(self.series.view, first_query[::-1], 'valid'),
+                                            shape=(self.series.max_shape[0] - self.m + 1,))
+                self.first_row_backlog = 0
+            elif self.first_row_backlog > 0:
+                # Series has been updated since last calculation of first_row
+                elems_to_recalc = self.first_row_backlog + self.m - 1
+                first_query = self.query[0:self.m]
+                self.first_row.push(fftconvolve(self.series[-elems_to_recalc:], first_query[::-1], 'valid'))
+                self.first_row_backlog = 0
 
             dot_prod = self.prev_calc_column_dot_prod  # work in same array
             dot_prod[1:] = (self.prev_calc_column_dot_prod[:-1]
-                            - self.series[column - 1] * self.query[:len(self.query) - self.m]
+                            - self.series[column - 1] * self.query[:len(self.query.view) - self.m]
                             + self.series[column + self.m - 1] * self.query[self.m:])
             dot_prod[0] = self.first_row[column]
 
@@ -138,7 +221,7 @@ class ZNormEuclidean(object):
         self.prev_calc_column_index = column
 
         if self.std_s[column] != 0:
-            q_valid = self.std_q != 0
+            q_valid = self.std_q.view != 0
 
             # Series subsequence is not stable, if query subsequence is stable, the distance is sqrt(m) by definition.
             dist_sq[~q_valid] = self.m
@@ -149,7 +232,7 @@ class ZNormEuclidean(object):
             # Series subsequence is stable, results are either sqrt(m) or 0, depending on whether or not
             # query subsequences are stable as well.
 
-            dist_sq[self.std_q != 0] = self.m
+            dist_sq[self.std_q.view != 0] = self.m
             # dist_sq[self.std_q == 0] = 0  # Covered by array initialization
 
         # Noise correction - See paper "Eliminating noise in the matrix profile"
