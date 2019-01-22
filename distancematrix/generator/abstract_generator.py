@@ -24,7 +24,7 @@ class AbstractGenerator(ABC):
         :param series_window: number of values to keep in memory for series, the length of the
           horizontal axis of the distance matrix will be equal to (series_window - m + 1)
         :param query_window: number of values to keep in memory for query, the length of the
-          vertical axis of the distance matrix will be equal to (series_window - m + 1),
+          vertical axis of the distance matrix will be equal to (query_window - m + 1),
           or None to indicate a self-join.
         :return: a bound generator that supports streaming
         """
