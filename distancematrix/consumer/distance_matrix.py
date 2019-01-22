@@ -1,12 +1,13 @@
 import numpy as np
 from ..util import diag_indices_of
-from .abstract_consumer import AbstractConsumer
+from .abstract_consumer import AbstractStreamingConsumer
 
 
-class DistanceMatrix(AbstractConsumer):
+class DistanceMatrix(AbstractStreamingConsumer):
     def __init__(self):
         """
         Creates a new consumer that will store the complete distance matrix.
+        This consumer supports streaming.
 
         Note that the distance matrix requires quadratic memory, so it is unsuited for long time series.
         """
@@ -25,3 +26,17 @@ class DistanceMatrix(AbstractConsumer):
 
     def process_column(self, column_index, values):
         self.distance_matrix[:, column_index] = values
+
+    def shift_series(self, amount):
+        if amount == 0:
+            return
+
+        self.distance_matrix = np.roll(self.distance_matrix, -amount, axis=1)
+        self.distance_matrix[:, -amount:] = np.nan
+
+    def shift_query(self, amount):
+        if amount == 0:
+            return
+
+        self.distance_matrix = np.roll(self.distance_matrix, -amount, axis=0)
+        self.distance_matrix[-amount:, :] = np.nan

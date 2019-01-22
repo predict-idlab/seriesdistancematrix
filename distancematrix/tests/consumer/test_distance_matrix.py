@@ -21,8 +21,6 @@ class TestContextualMatrixProfile(TestCase):
             [4.67, 8.88, 3.05, 3.06, 2.36, 8.34, 4.91, 5.46, 9.25, 9.78, 0.03, 5.64, 5.10, 3.58, 6.92],
             [1.01, 0.91, 6.28, 7.79, 0.68, 5.50, 6.72, 5.11, 0.80, 9.30, 9.77, 4.71, 3.26, 7.29, 6.26]])
 
-        self.m = 5
-
     def mock_initialise(self, dm):
         dm.initialise(1, self.dist_matrix.shape[0], self.dist_matrix.shape[1])
 
@@ -68,4 +66,32 @@ class TestContextualMatrixProfile(TestCase):
             dm.process_column(column, self.dist_matrix[:, column])
             correct[:, column] = self.dist_matrix[:, column]
 
+        npt.assert_equal(dm.distance_matrix, correct)
+
+    def test_streaming(self):
+        dm = DistanceMatrix()
+        dm.initialise(1, 5, 5)
+
+        for column in range(0, 5):
+            dm.process_column(column, self.dist_matrix[:5, :5][:, column])
+        npt.assert_equal(dm.distance_matrix, self.dist_matrix[:5, :5])
+
+        dm.shift_query(1)
+        dm.shift_series(3)
+
+        correct = np.full((5, 5), np.nan)
+        correct[0:4, 0:2] = self.dist_matrix[1:5, 3:5]
+        npt.assert_equal(dm.distance_matrix, correct)
+
+        for column in range(0, 5):
+            dm.process_column(column, self.dist_matrix[1:6, 3:8][:, column])
+        npt.assert_equal(dm.distance_matrix, self.dist_matrix[1:6, 3:8])
+
+        dm.shift_query(2)
+        dm.shift_series(1)
+        dm.process_column(4, self.dist_matrix[3:8, 8])
+
+        correct = np.full((5, 5), np.nan)
+        correct[0:3, 0:4] = self.dist_matrix[3:6, 4:8]
+        correct[:, 4] = self.dist_matrix[3:8, 8]
         npt.assert_equal(dm.distance_matrix, correct)
