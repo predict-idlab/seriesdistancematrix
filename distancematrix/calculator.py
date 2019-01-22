@@ -95,8 +95,12 @@ class Calculator(object):
         if input_dim < 0 or input_dim >= self.n_dim:
             raise ValueError("Invalid input_dim, should be in range [0, %s]" % self.n_dim)
 
-        generator.prepare(self.series[input_dim, :], self.query[input_dim, :], self.m)
-        self._generators[generator] = input_dim
+        if not self._self_join:
+            bound_gen = generator.prepare(self.m, self.series[input_dim, :], self.query[input_dim, :])
+        else:
+            bound_gen = generator.prepare(self.m, self.series[input_dim, :])
+
+        self._generators[bound_gen] = input_dim
 
     def add_consumer(self, generator_ids, consumer):
         gen_dims = len(generator_ids)
