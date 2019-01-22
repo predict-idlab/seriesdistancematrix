@@ -19,7 +19,8 @@ class AbstractConsumer(ABC):
         """
         Method called when a diagonal of the distance matrix is calculated.
 
-        :param diagonal_index: index of the diagonal, main diagonal has index 0
+        :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+            the main diagonal has index 0
         :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
         :return: None
         """
@@ -30,8 +31,30 @@ class AbstractConsumer(ABC):
         """
         Method called when a column of the distance matrix is calculated.
 
-        :param column_index: index of the column
+        :param column_index: index of the column, in range [0, series_subseq[
         :param values: array of shape (num_dimensions, num_values_on_column) containing the distances
+        :return: None
+        """
+        pass
+
+
+class AbstractStreamingConsumer(AbstractConsumer):
+    @abstractmethod
+    def shift_query(self, amount):
+        """
+        Inform the consumer that the distance matrix has shifted in the query direction.
+
+        :param amount: amount of subsequences that were shifted
+        :return: None
+        """
+        pass
+
+    @abstractmethod
+    def shift_series(self, amount):
+        """
+        Inform the consumer that the distance matrix has shifted in the series direction.
+
+        :param amount: amount of subsequences that were shifted
         :return: None
         """
         pass
