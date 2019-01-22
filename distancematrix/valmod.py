@@ -34,8 +34,7 @@ def find_variable_length_motifs(series, min_motif_length, max_motif_length, cach
     # Stores for each motif length a tuple of the indices of the motif
     motifs_found = []
 
-    dist_generator = ZNormEuclidean(noise_std=noise_std)
-    dist_generator.prepare(series, series, min_motif_length)
+    dist_generator = ZNormEuclidean(noise_std=noise_std).prepare(min_motif_length, series)
 
     # Full distance matrix calculation for first motif length
     lb_lists, best_motif_idxs = _find_all_motifs_full_matrix_iteration(dist_generator, cache_size,
@@ -45,8 +44,7 @@ def find_variable_length_motifs(series, min_motif_length, max_motif_length, cach
     # For all following motif lengths: try exploiting the lower bound to avoid calculations
     for m in range(min_motif_length + 1, max_motif_length + 1):
         # Note: might be possible to simply update the existing generator?
-        dist_generator = ZNormEuclidean(noise_std=noise_std)
-        dist_generator.prepare(series, series, m)
+        dist_generator = ZNormEuclidean(noise_std=noise_std).prepare(m, series)
 
         num_subseq = len(series) - m + 1
         trivial_match_buffer = int(np.ceil(min_motif_length / 2))
@@ -139,7 +137,7 @@ def _find_all_motifs_full_matrix_iteration(dist_generator, lb_list_size, trivial
       this buffer
     :return: tuple of: list of all lb_lists per column, indices of the best motif for the entire distance matrix
     """
-    num_subseq = dist_generator.mu_s.shape[0]
+    num_subseq = dist_generator.mu_s.view.shape[0]
     subseq_length = dist_generator.m
 
     lb_lists = []
@@ -161,8 +159,8 @@ def _find_all_motifs_full_matrix_iteration(dist_generator, lb_list_size, trivial
 
         # Determine lower boundaries
         dotprod = dist_generator.prev_calc_column_dot_prod
-        mu = dist_generator.mu_s
-        std = dist_generator.std_s
+        mu = dist_generator.mu_s.view
+        std = dist_generator.std_s.view
 
         if std[column_idx] == 0:
             # In case one of the stds is zero, there is no defined formula for a lower bound (not found yet at least).
