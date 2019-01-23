@@ -104,6 +104,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             return
 
         data_dropped = self.series.push(values)
+        num_dropped = len(values) - (self.series.max_shape[0] - self.series.view.shape[0])
         self.first_row_backlog += len(values)
 
         if len(self.series.view) >= self.m:
@@ -112,6 +113,9 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             self.mu_s.push(new_mu)
             self.std_s.push(new_std)
             self.std_s_nonzero.push(new_std != 0.)
+
+        if self.prev_calc_column_index is not None and num_dropped > 0:
+            self.prev_calc_column_index -= num_dropped
 
         if self.self_join:
             if data_dropped:
@@ -194,8 +198,8 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
         dist_sq = np.zeros(len(self.query.view) - self.m + 1, dtype=np.float)
         series_subseq = self.series[column: column + self.m]
 
-        if self.prev_calc_column_index != column - 1:
-            # Previous column not cached, full calculation
+        if self.prev_calc_column_index != column - 1 or column == 0:
+            # Previous column not cached or data for incremental calculation not available: full calculation
             dot_prod = fftconvolve(self.query.view, series_subseq[::-1], 'valid')
         else:
             # Previous column cached, reuse it

@@ -144,6 +144,32 @@ class AbstractGeneratorTest(object):
         bf_dist_matrix = self.bruteforce_matrix(self.m, self.series[20: 40], self.query[10: 25])
         _verify_columns_correct(bf_dist_matrix, gen, False)
 
+    def test_streaming_updates_cached_row(self):
+        # Override series & query to ensure there are no constant subsequences
+        self.series = np.array(
+            [0.5546021, 0.13714127, 0.903246, 0.03695094, 0.23420792,
+             0.27482897, 0.57765821, 0.23571178, 0.65772705, 0.00292154,
+             0.87258653, 0.29869269, 0.91492178, 0.69096235, 0.6786107])
+
+        self.query = np.array(
+            [0.03737861, 0.53931239, 0.06194507, 0.0938707, 0.95875364,
+             0.09495936, 0.12392364, 0.81358582, 0.56507776, 0.61620183])
+
+        gen = self.create_generator().prepare_streaming(self.m, 10, 10)
+        gen.append_series(self.series[:10])
+        gen.append_query(self.query[:10])
+        bf_dist_matrix = self.bruteforce_matrix(self.m, self.series[:15], self.query[:10])
+
+        # Test shifted behaviour
+        npt.assert_allclose(bf_dist_matrix[:, 0], gen.calc_column(0))
+        gen.append_series(self.series[10:11])
+        npt.assert_allclose(bf_dist_matrix[:, 1], gen.calc_column(0))
+
+        # Test shifted but off-by-one behaviour
+        npt.assert_allclose(bf_dist_matrix[:, 4], gen.calc_column(3))
+        gen.append_series(self.series[11:12])
+        npt.assert_allclose(bf_dist_matrix[:, 6], gen.calc_column(4))
+
     def test_streaming_self_join_calc_diagonal(self):
         gen = self.create_generator().prepare_streaming(self.m, 20)
 
