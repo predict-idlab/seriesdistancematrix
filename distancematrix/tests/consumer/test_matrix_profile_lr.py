@@ -127,8 +127,8 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
 
 class TestShiftingMatrixProfileLR(TestMatrixProfileLR):
     def setUp(self):
+        # Needed to run all tests in TestMatrixProfileLR
         super().setUp()
-
         self.mplr = ShiftingMatrixProfileLR()
         self.mplr.initialise(1, self.dm.shape[0], self.dm.shape[1])
 
@@ -143,17 +143,34 @@ class TestShiftingMatrixProfileLR(TestMatrixProfileLR):
         mplr = ShiftingMatrixProfileLR()
         mplr.initialise(1, 4, 4)
 
-        for col in range(4):
-            mplr.process_column(col, np.atleast_2d(dm[:, col]))
+        mplr.process_column(0, np.atleast_2d(dm[:, 0]))
+        mplr.process_column(1, np.atleast_2d(dm[:, 1]))
 
-        npt.assert_equal(mplr.matrix_profile_left, [2., 1, 2., 1])
-        npt.assert_equal(mplr.profile_index_left, [0, 1, 1, 0])
-        npt.assert_equal(mplr.matrix_profile_right, [1., 3, 1., np.inf])
-        npt.assert_equal(mplr.profile_index_right, [2, 2, 3, -1])
-        npt.assert_equal(mplr.matrix_profile(), [1., 1., 1., 1.])
-        npt.assert_equal(mplr.profile_index(), [2, 1, 3, 0])
+        npt.assert_equal(mplr.matrix_profile_left, [2., 1, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_left, [0, 1, -1, -1])
+        npt.assert_equal(mplr.matrix_profile_right, [1., 3, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_right, [2, 2, -1, -1])
+        npt.assert_equal(mplr.matrix_profile(), [1., 1., np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index(), [2, 1, -1, -1])
 
-        mplr.shift(0, 2)
+        mplr.shift_series(1)
+        npt.assert_equal(mplr.matrix_profile_left, [1, np.inf, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_left, [1, -1, -1, -1])
+        npt.assert_equal(mplr.matrix_profile_right, [3, np.inf, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_right, [2, -1, -1, -1])
+        npt.assert_equal(mplr.matrix_profile(), [1., np.inf, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index(), [1, -1, -1, -1])
+
+        mplr.process_column(1, np.atleast_2d(dm[:, 2]))
+        npt.assert_equal(mplr.matrix_profile_left, [1, 2, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_left, [1, 1, -1, -1])
+        npt.assert_equal(mplr.matrix_profile_right, [3, 1, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_right, [2, 3, -1, -1])
+        npt.assert_equal(mplr.matrix_profile(), [1., 1, np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index(), [1, 3, -1, -1])
+
+        mplr.shift_series(1)
+        mplr.process_column(1, np.atleast_2d(dm[:, 3]))
         npt.assert_equal(mplr.matrix_profile_left, [2., 1, np.inf, np.inf])
         npt.assert_equal(mplr.profile_index_left, [1, 0, -1, -1])
         npt.assert_equal(mplr.matrix_profile_right, [1., np.inf, np.inf, np.inf])
@@ -194,7 +211,8 @@ class TestShiftingMatrixProfileLR(TestMatrixProfileLR):
         npt.assert_equal(mplr.matrix_profile(), [1., 1., 1., 1.])
         npt.assert_equal(mplr.profile_index(), [2, 1, 3, 0])
 
-        mplr.shift(2, 2)
+        mplr.shift_query(2)
+        mplr.shift_series(2)
         npt.assert_equal(mplr.matrix_profile_left, [2., 1, np.inf, np.inf])
         npt.assert_equal(mplr.profile_index_left, [1, 0, -1, -1])
         npt.assert_equal(mplr.matrix_profile_right, [1., np.inf, np.inf, np.inf])
@@ -223,17 +241,28 @@ class TestShiftingMatrixProfileLR(TestMatrixProfileLR):
         mplr = ShiftingMatrixProfileLR()
         mplr.initialise(1, 4, 4)
 
-        for diag in range(-3, 4):
+        for diag in range(-3, 0):
+            mplr.process_diagonal(diag, np.atleast_2d(dm[:, :4][diag_indices(4, 4, diag)]))
+        for diag in range(1, 4):
             mplr.process_diagonal(diag, np.atleast_2d(dm[:, :4][diag_indices(4, 4, diag)]))
 
-        npt.assert_equal(mplr.matrix_profile_left, [2., 1, 2., 1])
-        npt.assert_equal(mplr.profile_index_left, [0, 1, 1, 0])
+        npt.assert_equal(mplr.matrix_profile_left, [np.inf, 2, 2., 1])
+        npt.assert_equal(mplr.profile_index_left, [-1, 0, 1, 0])
         npt.assert_equal(mplr.matrix_profile_right, [1., 3, 1., np.inf])
         npt.assert_equal(mplr.profile_index_right, [2, 2, 3, -1])
-        npt.assert_equal(mplr.matrix_profile(), [1., 1., 1., 1.])
-        npt.assert_equal(mplr.profile_index(), [2, 1, 3, 0])
+        npt.assert_equal(mplr.matrix_profile(), [1., 2., 1., 1.])
+        npt.assert_equal(mplr.profile_index(), [2, 0, 3, 0])
 
-        mplr.shift(0, 2)
+        mplr.shift_series(1)
+        mplr.process_diagonal(-1, np.atleast_2d(dm[:, 1:5][diag_indices(4, 4, -1)]))
+        npt.assert_equal(mplr.matrix_profile_left, [1., 2., 1, np.inf])
+        npt.assert_equal(mplr.profile_index_left, [1, 1, 0, -1])
+        npt.assert_equal(mplr.matrix_profile_right, [3, 1., np.inf, np.inf])
+        npt.assert_equal(mplr.profile_index_right, [2, 3, -1, -1])
+        npt.assert_equal(mplr.matrix_profile(), [1., 1., 1., np.inf])
+        npt.assert_equal(mplr.profile_index(), [1, 3, 0, -1])
+
+        mplr.shift_series(1)
         npt.assert_equal(mplr.matrix_profile_left, [2., 1, np.inf, np.inf])
         npt.assert_equal(mplr.profile_index_left, [1, 0, -1, -1])
         npt.assert_equal(mplr.matrix_profile_right, [1., np.inf, np.inf, np.inf])
@@ -274,7 +303,8 @@ class TestShiftingMatrixProfileLR(TestMatrixProfileLR):
         npt.assert_equal(mplr.matrix_profile(), [1., 1., 1., 1.])
         npt.assert_equal(mplr.profile_index(), [2, 1, 3, 0])
 
-        mplr.shift(2, 2)
+        mplr.shift_query(2)
+        mplr.shift_series(2)
         npt.assert_equal(mplr.matrix_profile_left, [2., 1, np.inf, np.inf])
         npt.assert_equal(mplr.profile_index_left, [1, 0, -1, -1])
         npt.assert_equal(mplr.matrix_profile_right, [1., np.inf, np.inf, np.inf])
