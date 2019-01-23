@@ -52,7 +52,11 @@ class BoundStreamingEuclidean(AbstractBoundStreamingGenerator):
             return
 
         data_dropped = self.series.push(values)
+        num_dropped = len(values) - (self.series.max_shape[0] - self.series.view.shape[0])
         self.first_row_backlog += len(values)
+
+        if self.prev_calc_column_index is not None and num_dropped > 0:
+            self.prev_calc_column_index -= num_dropped
 
         if self.self_join:
             if data_dropped:
@@ -88,8 +92,8 @@ class BoundStreamingEuclidean(AbstractBoundStreamingGenerator):
         return np.sqrt(cumsum[self.m:] - cumsum[:len(cumsum) - self.m])
 
     def calc_column(self, column):
-        if self.prev_calc_column_index != column - 1:
-            # Previous column not cached, full calculation
+        if self.prev_calc_column_index != column - 1 or column == 0:
+            # Previous column not cached or data for incremental calculation not available: full calculation
             sq_dist = _euclidean_distance_squared(self.query.view, self.series[column:column + self.m])
         else:
             # Previous column cached, reuse it
