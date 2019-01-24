@@ -90,13 +90,12 @@ class MatrixProfileLR(AbstractConsumer):
 
         :return: 1D array
         """
-        matrix_profile = np.full(self.matrix_profile_left.shape, np.inf, dtype=np.float)
-
         left_best = self.matrix_profile_left < self.matrix_profile_right
-        matrix_profile[left_best] = self.matrix_profile_left[left_best]
-        matrix_profile[~left_best] = self.matrix_profile_right[~left_best]
-
-        return matrix_profile
+        return np.where(
+            left_best,
+            self.matrix_profile_left,
+            self.matrix_profile_right
+        )
 
     def profile_index(self):
         """
@@ -104,13 +103,12 @@ class MatrixProfileLR(AbstractConsumer):
 
         :return: 1D array
         """
-        profile_index = np.full(self.matrix_profile_left.shape, -1, dtype=int)
-
         left_best = self.matrix_profile_left < self.matrix_profile_right
-        profile_index[left_best] = self.profile_index_left[left_best]
-        profile_index[~left_best] = self.profile_index_right[~left_best]
-
-        return profile_index
+        return np.where(
+            left_best,
+            self.profile_index_left,
+            self.profile_index_right
+        )
 
 
 class ShiftingMatrixProfileLR(MatrixProfileLR, AbstractStreamingConsumer):
@@ -331,13 +329,12 @@ class MatrixProfileLRReservoir(AbstractConsumer):
 
         :return: 1D array
         """
-        matrix_profile = np.full(self.matrix_profile_left.shape, np.inf, dtype=np.float)
-
         left_best = self.matrix_profile_left < self.matrix_profile_right
-        matrix_profile[left_best] = self.matrix_profile_left[left_best]
-        matrix_profile[~left_best] = self.matrix_profile_right[~left_best]
-
-        return matrix_profile
+        return np.where(
+            left_best,
+            self.matrix_profile_left,
+            self.matrix_profile_right
+        )
 
     def profile_index(self):
         """

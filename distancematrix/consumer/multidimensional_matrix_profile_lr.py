@@ -120,14 +120,12 @@ class MultidimensionalMatrixProfileLR(AbstractConsumer):
         Merges the left and right multidimensional matrix profile, to create the multidimensional matrix profile.
         :return: ndarray of shape (num_dimensions, num_subsequences)
         """
-        matrix_profile = np.full((self._n_dim, self._num_subseq), np.inf, dtype=np.float)
-
-        for dim in range(self._n_dim):
-            left_best = self.md_matrix_profile_left[dim, :] < self.md_matrix_profile_right[dim, :]
-            matrix_profile[dim, left_best] = self.md_matrix_profile_left[dim, left_best]
-            matrix_profile[dim, ~left_best] = self.md_matrix_profile_right[dim, ~left_best]
-
-        return matrix_profile
+        left_best = self.md_matrix_profile_left < self.md_matrix_profile_right
+        return np.where(
+            left_best,
+            self.md_matrix_profile_left,
+            self.md_matrix_profile_right
+        )
 
     def md_profile_index(self):
         """
@@ -135,14 +133,12 @@ class MultidimensionalMatrixProfileLR(AbstractConsumer):
         index.
         :return: ndarray of shape (num_dimensions, num_subsequences)
         """
-        profile_index = np.full((self._n_dim, self._num_subseq), -1, dtype=np.int)
-
-        for dim in range(self._n_dim):
-            left_best = self.md_matrix_profile_left[dim, :] < self.md_matrix_profile_right[dim, :]
-            profile_index[dim, left_best] = self.md_profile_index_left[dim, left_best]
-            profile_index[dim, ~left_best] = self.md_profile_index_right[dim, ~left_best]
-
-        return profile_index
+        left_best = self.md_matrix_profile_left < self.md_matrix_profile_right
+        return np.where(
+            left_best,
+            self.md_profile_index_left,
+            self.md_profile_index_right
+        )
 
     def md_profile_dimensions(self):
         """
@@ -154,7 +150,10 @@ class MultidimensionalMatrixProfileLR(AbstractConsumer):
 
         for dim in range(self._n_dim):
             left_best = self.md_matrix_profile_left[dim, :] < self.md_matrix_profile_right[dim, :]
-            profile_dimension[dim][:, left_best] = self.md_profile_dimension_left[dim][:, left_best]
-            profile_dimension[dim][:, ~left_best] = self.md_profile_dimension_right[dim][:, ~left_best]
+            profile_dimension[dim] = np.where(
+                left_best,
+                self.md_profile_dimension_left[dim],
+                self.md_profile_dimension_right[dim]
+            )
 
         return profile_dimension
