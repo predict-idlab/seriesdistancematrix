@@ -3,6 +3,7 @@ from unittest import TestCase
 import numpy.testing as npt
 
 from distancematrix.util import diag_indices_of
+from distancematrix.util import diag_indices
 from distancematrix.consumer.multidimensional_matrix_profile_lr import MultidimensionalMatrixProfileLR
 
 
@@ -43,8 +44,6 @@ class TestContextualMatrixProfile(TestCase):
              [3.83, 5.72, 4.78, 9.77, 8.38, 6.96, 0.90, 5.01, 9.55, 2.26, 3.10, 3.78, 2.83, 3.21, 1.7],
              [1.41, 7.79, 8.91, 0.13, 4.94, 9.35, 8.13, 4.78, 0.15, 4.76, 2.10, 7.92, 8.54, 2.19, 2.71]]
         ])
-
-        self.m = 5
 
     def mock_initialise(self, mmp):
         mmp.initialise(*self.dist_matrix.shape)
@@ -206,3 +205,112 @@ class TestContextualMatrixProfile(TestCase):
             sorted_mmp_rdims = np.sort(mmp.md_profile_dimension_right[i], axis=0)
             npt.assert_equal(sorted_mmp_ldims, correct_ldims[i])
             npt.assert_equal(sorted_mmp_rdims, correct_rdims[i])
+
+    def test_streaming_process_column(self):
+        mmp = MultidimensionalMatrixProfileLR()
+        mmp.initialise(3, 5, 7)
+
+        available_data = np.full((3, 5, 7), np.inf)
+        available_data[:, 0:5, 0] = self.dist_matrix[:, 0:5, 0]
+        available_data[:, 0:5, 4] = self.dist_matrix[:, 0:5, 4]
+        available_data[:, 0:5, 5] = self.dist_matrix[:, 0:5, 5]
+        mmp.process_column(0, self.dist_matrix[:, 0:5, 0])
+        mmp.process_column(4, self.dist_matrix[:, 0:5, 4])
+        mmp.process_column(5, self.dist_matrix[:, 0:5, 5])
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims)
+
+        mmp.shift_series(2)
+        mmp.shift_query(3)
+        available_data = np.full((3, 8, 9), np.inf)
+        available_data[:, 0:5, 4] = self.dist_matrix[:, 0:5, 4]
+        available_data[:, 0:5, 5] = self.dist_matrix[:, 0:5, 5]
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp[:, 2:])
+        npt.assert_equal(mmp.md_profile_index(), correct_index[:, 2:])
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims[:, 2:])
+
+        mmp.process_column(0, self.dist_matrix[:, 3:8, 2])
+        mmp.process_column(2, self.dist_matrix[:, 3:8, 4])
+        mmp.process_column(3, self.dist_matrix[:, 3:8, 5])
+        mmp.process_column(5, self.dist_matrix[:, 3:8, 7])
+        available_data[:, 3:8, 2] = self.dist_matrix[:, 3:8, 2]
+        available_data[:, 3:8, 4] = self.dist_matrix[:, 3:8, 4]
+        available_data[:, 3:8, 5] = self.dist_matrix[:, 3:8, 5]
+        available_data[:, 3:8, 7] = self.dist_matrix[:, 3:8, 7]
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp[:, 2:])
+        npt.assert_equal(mmp.md_profile_index(), correct_index[:, 2:])
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims[:, 2:])
+
+    def test_streaming_process_diagonal(self):
+        mmp = MultidimensionalMatrixProfileLR()
+        mmp.initialise(3, 5, 7)
+
+        available_data = np.full((3, 5, 7), np.inf)
+        a = self.dist_matrix[:, 0:5, 0:7]
+        available_data[diag3(available_data, 0)] = a[diag3(a, 0)]
+        available_data[diag3(available_data, 4)] = a[diag3(a, 4)]
+        available_data[diag3(available_data, -3)] = a[diag3(a, -3)]
+        mmp.process_diagonal(0, a[diag3(a, 0)])
+        mmp.process_diagonal(4, a[diag3(a, 4)])
+        mmp.process_diagonal(-3, a[diag3(a, -3)])
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp)
+        npt.assert_equal(mmp.md_profile_index(), correct_index)
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims)
+
+        mmp.shift_series(3)
+        mmp.shift_query(2)
+        available_data = np.full((3, 7, 10), np.inf)
+        a_win = available_data[:, 0:5, 0:7]
+        a = self.dist_matrix[:, 0:5, 0:7]
+        a_win[diag3(a_win, 0)] = a[diag3(a, 0)]
+        a_win[diag3(a_win, 4)] = a[diag3(a, 4)]
+        a_win[diag3(a_win, -3)] = a[diag3(a, -3)]
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp[:, 3:])
+        npt.assert_equal(mmp.md_profile_index(), correct_index[:, 3:])
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims[:, 3:])
+
+        a_win = available_data[:, 2:7, 3:10]
+        a = self.dist_matrix[:, 2:7, 3:10]
+        a_win[diag3(a_win, -1)] = a[diag3(a, -1)]  # Old diag 0
+        a_win[diag3(a_win, 3)] = a[diag3(a, 3)]  # Old diag 4
+        a_win[diag3(a_win, -4)] = a[diag3(a, -4)]  # Old diag -3
+        a_win[diag3(a_win, 2)] = a[diag3(a, 2)]
+        mmp.process_diagonal(-1, a[diag3(a, -1)])
+        mmp.process_diagonal(3, a[diag3(a, 3)])
+        mmp.process_diagonal(-4, a[diag3(a, -4)])
+        mmp.process_diagonal(2, a[diag3(a, 2)])
+
+        correct_mp, correct_index, correct_dims = self.bruteforce_mmp(available_data)
+        npt.assert_allclose(mmp.md_matrix_profile(), correct_mp[:, 3:])
+        npt.assert_equal(mmp.md_profile_index(), correct_index[:, 3:])
+        for i, dims in enumerate(correct_dims):
+            sorted_mmp_dims = np.sort(mmp.md_profile_dimensions()[i], axis=0)
+            npt.assert_equal(sorted_mmp_dims, dims[:, 3:])
+
+
+def diag3(array, diag):
+    """
+    Returns the diagonal indices for a 3D array, taking all elements from the first dimension.
+    """
+    return (slice(None), *diag_indices_of(array[0], diag))
