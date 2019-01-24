@@ -182,15 +182,21 @@ class ShiftingMatrixProfileLR(MatrixProfileLR, AbstractStreamingConsumer):
         shift_diff = self.series_shift - self.query_shift
 
         border = max(0, column_index + 1 + shift_diff)
-        # Todo: crash if border == 0
-        # Todo: overwrites if smaller value existed
-        self._matrix_profile_left[column_index] = np.min(values[:border])
-        self._profile_index_left[column_index] = np.argmin(values[:border]) + self.query_shift
+        if border > 0:
+            min_value = np.min(values[:border])
+
+            # In case of shifting, a lower value could already be present
+            if min_value < self._matrix_profile_left[column_index]:
+                self._matrix_profile_left[column_index] = min_value
+                self._profile_index_left[column_index] = np.argmin(values[:border]) + self.query_shift
 
         if len(values) > border:
-            # Todo: overwrites if smaller value existed
-            self._matrix_profile_right[column_index] = np.min(values[border:])
-            self._profile_index_right[column_index] = np.argmin(values[border:]) + border + self.query_shift
+            min_value = np.min(values[border:])
+
+            # In case of shifting, a lower value could already be present
+            if min_value < self._matrix_profile_right[column_index]:
+                self._matrix_profile_right[column_index] = np.min(values[border:])
+                self._profile_index_right[column_index] = np.argmin(values[border:]) + border + self.query_shift
 
     def shift_query(self, amount):
         if amount == 0:
