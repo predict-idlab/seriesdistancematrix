@@ -4,6 +4,7 @@ import numpy.testing as npt
 
 from distancematrix.util import diag_indices_of
 from distancematrix.consumer.contextual_matrix_profile import ContextualMatrixProfile
+from distancematrix.consumer.contextmanager import GeneralStaticManager
 
 
 class TestContextualMatrixProfile(TestCase):
@@ -72,7 +73,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
@@ -90,7 +91,7 @@ class TestContextualMatrixProfile(TestCase):
 
         part_dist_matrix = np.full_like(self.dist_matrix, np.inf)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-8, self.dist_matrix.shape[1], 4):
@@ -113,7 +114,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
@@ -130,7 +131,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
@@ -149,7 +150,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
@@ -166,7 +167,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
@@ -183,7 +184,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
@@ -200,7 +201,7 @@ class TestContextualMatrixProfile(TestCase):
 
         part_dist_matrix = np.full_like(self.dist_matrix, np.inf)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for column in [2, 3, 4, 5, 10, 11, 12]:
@@ -222,7 +223,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
@@ -238,7 +239,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
@@ -254,7 +255,7 @@ class TestContextualMatrixProfile(TestCase):
 
         correct, correct_qi, correct_si = self.bruteforce_cdm(self.dist_matrix, query_ranges, series_ranges)
 
-        cdm = ContextualMatrixProfile(series_ranges, query_ranges)
+        cdm = ContextualMatrixProfile(GeneralStaticManager(series_ranges, query_ranges))
         self.mock_initialise(cdm)
 
         for column in range(0, self.dist_matrix.shape[1]):
