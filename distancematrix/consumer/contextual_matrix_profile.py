@@ -1,14 +1,17 @@
 import numpy as np
 
-from distancematrix.consumer.abstract_consumer import AbstractConsumer
+from distancematrix.ringbuffer import RingBuffer
+from distancematrix.consumer.abstract_consumer import AbstractStreamingConsumer
 from distancematrix.consumer.contextmanager import AbstractContextManager
 
 
-class ContextualMatrixProfile(AbstractConsumer):
+class ContextualMatrixProfile(AbstractStreamingConsumer):
     """
     A consumer that constructs the contextual matrix profile. The contextual matrix profile is formed by
     taking the minimum of rectangles across the full distance matrix (where the matrix profile takes the
     minimum across columns).
+
+    This consumer supports streaming if the provided context manager does.
     """
 
     def __init__(self, context_manager: AbstractContextManager):
@@ -23,10 +26,12 @@ class ContextualMatrixProfile(AbstractConsumer):
         self._range = None
 
         self._contexts = context_manager
+        self._query_shift = 0
+        self._series_shift = 0
 
-        self.distance_matrix = None
-        self.match_index_series = None
-        self.match_index_query = None
+        self._distance_matrix = None
+        self._match_index_series = None
+        self._match_index_query = None
 
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_series_subseq = series_subseq
@@ -35,9 +40,9 @@ class ContextualMatrixProfile(AbstractConsumer):
 
         num_query_contexts, num_series_contexts = self._contexts.context_matrix_shape()
 
-        self.distance_matrix = np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=np.float)
-        self.match_index_series = np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int)
-        self.match_index_query = np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int)
+        self._distance_matrix = RingBuffer(np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=np.float))
+        self._match_index_series = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int))
+        self._match_index_query = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int))
 
     def process_diagonal(self, diag, values):
         values = values[0]
@@ -71,14 +76,14 @@ class ContextualMatrixProfile(AbstractConsumer):
 
                 # Compare if better than current
                 min_sss_value = np.min(sss_values)
-                is_better = min_sss_value < self.distance_matrix[c0_identifier, c1_identifier]
+                is_better = min_sss_value < self._distance_matrix[c0_identifier, c1_identifier]
 
                 if is_better:
-                    self.distance_matrix[c0_identifier, c1_identifier] = min_sss_value
+                    self._distance_matrix[c0_identifier, c1_identifier] = min_sss_value
                     rel_indices = np.argmin(sss_values)
                     sss0_start = sss1_start - diag
-                    self.match_index_query[c0_identifier, c1_identifier] = rel_indices + sss0_start
-                    self.match_index_series[c0_identifier, c1_identifier] = rel_indices + sss1_start
+                    self._match_index_query[c0_identifier, c1_identifier] = rel_indices + sss0_start + self._query_shift
+                    self._match_index_series[c0_identifier, c1_identifier] = rel_indices + sss1_start + self._series_shift
 
     def process_column(self, column_index, values):
         values = values[0]
@@ -91,7 +96,43 @@ class ContextualMatrixProfile(AbstractConsumer):
                 subseq = values[c0_start: c0_end]
                 best_value = np.min(subseq)
 
-                if best_value < self.distance_matrix[c0_identifier, c1_identifier]:
-                    self.distance_matrix[c0_identifier, c1_identifier] = best_value
-                    self.match_index_query[c0_identifier, c1_identifier] = np.argmin(subseq) + c0_start
-                    self.match_index_series[c0_identifier, c1_identifier] = column_index
+                if best_value < self._distance_matrix[c0_identifier, c1_identifier]:
+                    self._distance_matrix[c0_identifier, c1_identifier] = best_value
+                    self._match_index_query[c0_identifier, c1_identifier] = np.argmin(subseq) + c0_start + self._query_shift
+                    self._match_index_series[c0_identifier, c1_identifier] = column_index + self._series_shift
+
+    def shift_series(self, amount):
+        context_shift = self._contexts.shift_series(amount)
+        self._series_shift += amount
+
+        if context_shift > 0:
+            height = self._distance_matrix.max_shape[0]
+            self._distance_matrix.push(np.full((height, context_shift), np.Inf, dtype=np.float))
+            self._match_index_series.push(np.full((height, context_shift), -1, dtype=np.int))
+            self._match_index_query.push(np.full((height, context_shift), -1, dtype=np.int))
+
+    def shift_query(self, amount):
+        context_shift = self._contexts.shift_query(amount)
+        self._query_shift += amount
+
+        if context_shift > 0:
+            # Note: This could be more efficient using a 2D Ringbuffer.
+            height = min(context_shift, self._distance_matrix.max_shape[0])
+            self._distance_matrix.view = np.roll(self._distance_matrix.view, context_shift, axis=0)
+            self._distance_matrix[-height:, :] = np.Inf
+            self._match_index_series.view = np.roll(self._match_index_series.view, context_shift, axis=0)
+            self._match_index_series[-height:, :] = -1
+            self._match_index_query.view = np.roll(self._match_index_query.view, context_shift, axis=0)
+            self._match_index_query[-height:, :] = -1
+
+    @property
+    def match_index_query(self):
+        return self._match_index_query.view
+
+    @property
+    def match_index_series(self):
+        return self._match_index_series.view
+
+    @property
+    def distance_matrix(self):
+        return self._distance_matrix.view

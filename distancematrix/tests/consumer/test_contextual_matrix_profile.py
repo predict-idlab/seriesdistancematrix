@@ -1,3 +1,5 @@
+from typing import Iterable, Tuple
+
 import numpy as np
 from unittest import TestCase
 import numpy.testing as npt
@@ -5,6 +7,7 @@ import numpy.testing as npt
 from distancematrix.util import diag_indices_of
 from distancematrix.consumer.contextual_matrix_profile import ContextualMatrixProfile
 from distancematrix.consumer.contextmanager import GeneralStaticManager
+from distancematrix.consumer.contextmanager import AbstractContextManager
 
 
 class TestContextualMatrixProfile(TestCase):
@@ -264,3 +267,157 @@ class TestContextualMatrixProfile(TestCase):
         npt.assert_allclose(cdm.distance_matrix, correct)
         npt.assert_equal(cdm.match_index_query, correct_qi)
         npt.assert_equal(cdm.match_index_series, correct_si)
+
+
+class MockContextManager(AbstractContextManager):
+    def __init__(self) -> None:
+        self.series_shift = 0
+        self.query_shift = 0
+
+    def context_matrix_shape(self) -> (int, int):
+        return 2, 4
+
+    def shift_query(self, amount: int) -> int:
+        self.query_shift += amount
+        if self.query_shift == 2:
+            return 0
+        elif self.query_shift == 4:
+            return 1
+        else:
+            raise RuntimeError("Invalid test state")
+
+    def shift_series(self, amount: int) -> int:
+        self.series_shift += amount
+        if self.series_shift == 1:
+            return 0
+        elif self.series_shift == 2:
+            return 1
+        else:
+            raise RuntimeError("Invalid test state")
+
+    def series_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]:
+        if self.series_shift == 0:
+            ctxs = [(0, 2, 0), (2, 4, 1), (4, 6, 2)]
+        elif self.series_shift == 1:
+            ctxs = [(0, 1, 0), (1, 3, 1), (3, 5, 2), (5, 6, 3)]
+        elif self.series_shift == 2:
+            ctxs = [(0, 2, 0), (2, 4, 1), (4, 6, 2)]
+        else:
+            raise RuntimeError("Invalid test state")
+        return filter(lambda c: c[0] < stop and c[1] > start, ctxs)
+
+    def query_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]:
+        if self.query_shift == 0:
+            ctxs = [(0, 3, 0), (3, 10, 1)]
+        elif self.query_shift == 2:
+            ctxs = [(0, 1, 0), (1, 10, 1)]
+        elif self.query_shift == 4:
+            ctxs = [(0, 10, 0), (2, 8, 1)]
+        else:
+            raise RuntimeError("Invalid test state")
+        return filter(lambda c: c[0] < stop and c[1] > start, ctxs)
+
+
+class TestStreamingContextualMatrixProfile(TestCase):
+    def setUp(self):
+        self.dist_matrix = np.array([
+            [9.2, 4.6, 0.5, 0.0, 9.7, 8.4, 8.8, 7.2],
+            [8.4, 3.3, 3.8, 6.2, 2.3, 7.3, 1.0, 9.7],
+            [7.2, 3.1, 6.1, 3.2, 8.0, 5.9, 2.7, 8.1],
+            [5.3, 7.3, 5.8, 9.0, 2.6, 1.0, 2.9, 8.8],
+            [8.9, 4.8, 6.4, 6.7, 2.1, 6.4, 1.2, 5.2],
+            [4.2, 8.1, 2.3, 4.4, 3.4, 6.6, 1.5, 4.2],
+            [1.7, 8.8, 1.2, 0.4, 3.7, 9.3, 4.4, 3.7],
+            [1.6, 7.8, 4.0, 8.9, 0.1, 7.5, 2.5, 8.]
+        ])
+
+    def test_streaming_process_column(self):
+        cdm = ContextualMatrixProfile(MockContextManager())
+        cdm.initialise(1, 4, 6)
+
+        cdm.process_column(0, np.atleast_2d(self.dist_matrix[0:4, 0]))
+        cdm.process_column(2, np.atleast_2d(self.dist_matrix[0:4, 2]))
+
+        npt.assert_equal(cdm.distance_matrix, [[7.2, 0.5, np.Inf, np.Inf], [5.3, 5.8, np.Inf, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, -1, -1], [3, 3, -1, -1]])
+        npt.assert_equal(cdm.match_index_series, [[0, 2, -1, -1], [0, 2, -1, -1]])
+
+        cdm.shift_series(1)
+        cdm.shift_query(2)
+
+        npt.assert_equal(cdm.distance_matrix, [[7.2, 0.5, np.Inf, np.Inf], [5.3, 5.8, np.Inf, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, -1, -1], [3, 3, -1, -1]])
+        npt.assert_equal(cdm.match_index_series, [[0, 2, -1, -1], [0, 2, -1, -1]])
+
+        cdm.process_column(0, np.atleast_2d(self.dist_matrix[2:6, 1]))
+        cdm.process_column(1, np.atleast_2d(self.dist_matrix[2:6, 2]))
+        cdm.process_column(3, np.atleast_2d(self.dist_matrix[2:6, 4]))
+
+        npt.assert_equal(cdm.distance_matrix, [[3.1, 0.5, 8.0, np.Inf], [4.8, 2.3, 2.1, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, 2, -1], [4, 5, 4, -1]])
+        npt.assert_equal(cdm.match_index_series, [[1, 2, 4, -1], [1, 2, 4, -1]])
+
+        cdm.shift_series(1)
+        cdm.shift_query(2)
+
+        npt.assert_equal(cdm.distance_matrix, [[2.3, 2.1, np.Inf, np.Inf], [np.Inf, np.Inf, np.Inf, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[5, 4, -1, -1], [-1, -1, -1, -1]])
+        npt.assert_equal(cdm.match_index_series, [[2, 4, -1, -1], [-1, -1, -1, -1]])
+
+        cdm.process_column(0, np.atleast_2d(self.dist_matrix[4:8, 2]))
+        cdm.process_column(3, np.atleast_2d(self.dist_matrix[4:8, 5]))
+        cdm.process_column(4, np.atleast_2d(self.dist_matrix[4:8, 6]))
+        cdm.process_column(5, np.atleast_2d(self.dist_matrix[4:8, 7]))
+
+        npt.assert_equal(cdm.distance_matrix, [[1.2, 2.1, 1.2, np.Inf], [1.2, 7.5, 2.5, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[6, 4, 4, -1], [6, 7, 7, -1]])
+        npt.assert_equal(cdm.match_index_series, [[2, 4, 6, -1], [2, 5, 6, -1]])
+
+    def test_streaming_process_diagonal(self):
+        cdm = ContextualMatrixProfile(MockContextManager())
+        cdm.initialise(1, 4, 6)
+
+        v = self.dist_matrix[0:4, 0:6]
+        cdm.process_diagonal(0, np.atleast_2d(v[diag_indices_of(v, 0)]))
+        cdm.process_diagonal(2, np.atleast_2d(v[diag_indices_of(v, 2)]))
+        cdm.process_diagonal(-1, np.atleast_2d(v[diag_indices_of(v, -1)]))
+
+        npt.assert_equal(cdm.distance_matrix, [[3.1, 0.5, 8., np.Inf], [np.Inf, 5.8, 1., np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, 2, -1], [-1, 3, 3, -1]])
+        npt.assert_equal(cdm.match_index_series, [[1, 2, 4, -1], [-1, 2, 5, -1]])
+
+        cdm.shift_series(1)
+        cdm.shift_query(2)
+        v = self.dist_matrix[2:6, 1:7]
+
+        npt.assert_equal(cdm.distance_matrix, [[3.1, 0.5, 8., np.Inf], [np.Inf, 5.8, 1., np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, 2, -1], [-1, 3, 3, -1]])
+        npt.assert_equal(cdm.match_index_series, [[1, 2, 4, -1], [-1, 2, 5, -1]])
+
+        cdm.process_diagonal(5, np.atleast_2d(v[diag_indices_of(v, 5)]))
+        cdm.process_diagonal(1, np.atleast_2d(v[diag_indices_of(v, 1)]))
+        cdm.process_diagonal(0, np.atleast_2d(v[diag_indices_of(v, 0)]))
+        cdm.process_diagonal(-3, np.atleast_2d(v[diag_indices_of(v, -3)]))
+
+        npt.assert_equal(cdm.distance_matrix, [[3.1, 0.5, 8., 2.7], [8.1, 5.8, 1., np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[2, 0, 2, 2], [5, 3, 3, -1]])
+        npt.assert_equal(cdm.match_index_series, [[1, 2, 4, 6], [1, 2, 5, -1]])
+
+        cdm.shift_series(1)
+        cdm.shift_query(2)
+        v = self.dist_matrix[4:8, 2:8]
+
+        npt.assert_equal(cdm.distance_matrix, [[5.8, 1., np.Inf, np.Inf], [np.Inf, np.Inf, np.Inf, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[3, 3, -1, -1], [-1, -1, -1, -1]])
+        npt.assert_equal(cdm.match_index_series, [[2, 5, -1, -1], [-1, -1, -1, -1]])
+
+        cdm.process_diagonal(-2, np.atleast_2d(v[diag_indices_of(v, -2)]))
+        cdm.process_diagonal(0, np.atleast_2d(v[diag_indices_of(v, 0)]))
+        cdm.process_diagonal(1, np.atleast_2d(v[diag_indices_of(v, 1)]))
+        cdm.process_diagonal(2, np.atleast_2d(v[diag_indices_of(v, 2)]))
+        cdm.process_diagonal(3, np.atleast_2d(v[diag_indices_of(v, 3)]))
+        cdm.process_diagonal(4, np.atleast_2d(v[diag_indices_of(v, 4)]))
+
+        npt.assert_equal(cdm.distance_matrix, [[1.2, 1., 1.2, np.Inf], [1.2, 3.7, 2.5, np.Inf]])
+        npt.assert_equal(cdm.match_index_query, [[6, 3, 4, -1], [6, 6, 7, -1]])
+        npt.assert_equal(cdm.match_index_series, [[2, 5, 6, -1], [2, 4, 6, -1]])
