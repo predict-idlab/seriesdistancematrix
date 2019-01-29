@@ -91,15 +91,15 @@ class BoundMockGenerator(AbstractBoundStreamingGenerator):
 
     def calc_diagonal(self, diag):
         view = self._dist_matrix[
-               max(self._q_index, 0): self._q_index + self._q_win,
-               max(self._s_index, 0): self._s_index + self._s_win
+               max(self._q_index, 0): max(self._q_index + self._q_win, 0),
+               max(self._s_index, 0): max(self._s_index + self._s_win, 0)
                ]
         return view[diag_indices_of(view, diag)]
 
     def calc_column(self, column):
         view = self._dist_matrix[
-               max(self._q_index, 0): self._q_index + self._q_win,
-               max(self._s_index, 0): self._s_index + self._s_win
+               max(self._q_index, 0): max(self._q_index + self._q_win, 0),
+               max(self._s_index, 0): max(self._s_index + self._s_win, 0)
                ]
         return view[:, column]
 

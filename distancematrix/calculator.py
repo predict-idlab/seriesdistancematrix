@@ -3,58 +3,51 @@ import time
 import random
 from collections import OrderedDict
 from math import ceil
+from abc import ABC, abstractmethod
+
 from distancematrix.interrupt_util import interrupt_catcher
 from distancematrix.util import diag_length
 
 
-class Calculator(object):
+class AbstractCalculator(ABC):
     """
-    Class that organises the calculation and processing of distance matrix values between generators and
-    consumers.
+    Base class for calculators. A calculator is repsonsible for managing
+    consumers and generators for a distance matrix calculation. It provides
+    a single point of interaction for the user.
 
-    In order to do useful work, generators and consumers need to be added. Generators will use the input
-    query and series to form a distance matrix. Consumers process these values in a way that is useful.
+    In order to do useful work, generators and consumers need to be added.
+    Generators will use the input query and series to form a distance matrix.
+    Consumers process these values in a way that is useful.
     """
-
-    def __init__(self, m, series, query=None, trivial_match_buffer=None):
+    def __init__(self, self_join, m, num_series_subseq, num_query_subseq, n_dim, trivial_match_buffer=None):
         """
-        Initialises a new calculator (without any generators/consumers).
+        Initialises a new calculator (without any generators/consumers)
 
-        :param m: subsequence length
-        :param series: 1D or 2D (dimensions x datapoints) array
-        :param query: 1D or 2D (dimensions x datapoints) array, if None, a self-join on series is performed
+        :param self_join: indicates whether a self-join of the series is being performed,
+          this can lead to faster results
+        :param m: subsequence length to consider
+        :param num_series_subseq: number of subsequences on the series axis (second dim of distance matrix)
+        :param num_query_subseq: number of subsequences on the query axis (first dim of distance matrix)
+        :param n_dim: number of data channels (dimensions) in series/query
         :param trivial_match_buffer: used only in case of a self-join, the number of values next to the main diagonal
         (of the distance matrix) to skip. If None, defaults to m/2. Any consumers will either not receive values
         (in case of diagonal calculation) or Infinity values (in case of column calculation).
         """
-        self._self_join = query is None
-
-        self.series = np.atleast_2d(series).astype(np.float, copy=True)
-        if not self._self_join:
-            self.query = np.atleast_2d(query).astype(np.float, copy=True)
-        else:
-            self.query = self.series
-
-        if self.series.ndim != 2:
-            raise RuntimeError("Series should be 1D or 2D ndarray.")
-        if self.query.ndim != 2:
-            raise RuntimeError("Query should be 1D or 2D ndarray.")
-
-        self.n_dim = self.series.shape[0]
-        if self.n_dim != self.query.shape[0]:
-            raise RuntimeError("Dimensions of series and query do not match.")
-
+        self._self_join = self_join
         self.m = m
-        self.num_series_subseq = self.series.shape[1] - m + 1
-        self.num_query_subseq = self.query.shape[1] - m + 1
+        self.n_dim = n_dim
+        self.num_series_subseq = num_series_subseq
 
-        if self._self_join:
+        if self_join:
+            self.num_query_subseq = num_series_subseq
+
             if trivial_match_buffer is None:
                 trivial_match_buffer = m // 2
             if trivial_match_buffer not in range(-1, self.num_series_subseq):
                 raise RuntimeError("Invalid value for trivial_match_buffer: " + str(trivial_match_buffer))
             self.trivial_match_buffer = trivial_match_buffer
         else:
+            self.num_query_subseq = num_query_subseq
             self.trivial_match_buffer = -1
 
         # Generators calculate distance values from the series and query
@@ -65,49 +58,29 @@ class Calculator(object):
         # Tracking column calculations
         self._last_column_calculated = -1
 
-        # Tracking diagonal calculations
-        if not self._self_join:
-            self._diagonal_calc_order = np.arange(-self.num_query_subseq + 1, self.num_series_subseq)
-            self._diagonal_values_total = self.num_query_subseq * self.num_series_subseq
-        else:
-            self._diagonal_calc_order = np.arange(self.trivial_match_buffer + 1, self.num_series_subseq)
-            # Upper half of a square with size a = a * (a+1) / 2
-            temp = self.num_series_subseq - self.trivial_match_buffer - 1
-            self._diagonal_values_total = temp * (temp + 1) // 2
-        random.shuffle(self._diagonal_calc_order, random.Random(0).random)
-        self._diagonal_calc_list_next_index = 0
-        self._diagonal_values_calculated = 0
-        self._diagonal_calc_time = 0
-
-    @property
-    def num_dist_matrix_values(self):
-        return self.num_query_subseq * self.num_series_subseq
-
-    @property
-    def generators(self):
-        return list(self._generators.keys())
-
-    @property
-    def consumers(self):
-        return list(self._consumers.keys())
-
-    def add_generator(self, input_dim, generator):
-        if input_dim < 0 or input_dim >= self.n_dim:
-            raise ValueError("Invalid input_dim, should be in range [0, %s]" % self.n_dim)
-
-        if not self._self_join:
-            bound_gen = generator.prepare(self.m, self.series[input_dim, :], self.query[input_dim, :])
-        else:
-            bound_gen = generator.prepare(self.m, self.series[input_dim, :])
-
-        self._generators[bound_gen] = input_dim
-
     def add_consumer(self, generator_ids, consumer):
+        """
+        Adds a consumer that uses the distances calculated by the provided generators.
+
+        :param generator_ids: list containing ids of the generators
+        :param consumer: the consumer to add
+        :return: the bound consumer
+        """
         gen_dims = len(generator_ids)
-        q = self.query.shape[1]
-        n = self.series.shape[1]
-        consumer.initialise(gen_dims, q-self.m+1, n-self.m+1)
+        consumer.initialise(gen_dims, self.num_query_subseq, self.num_series_subseq)
         self._consumers[consumer] = generator_ids
+        return consumer
+
+    @abstractmethod
+    def add_generator(self, input_dim, generator):
+        """
+        Adds a generator that will use the data from the specified channel (from series/query).
+
+        :param input_dim: index of the data channel
+        :param generator: the generator to add
+        :return: the bound generator
+        """
+        pass
 
     def calculate_columns(self, start=None, upto=1., print_progress=False):
         """
@@ -124,9 +97,10 @@ class Calculator(object):
         """
         if start is None:
             start = self._last_column_calculated + 1
-        start = _ratio_to_int(start, self.num_series_subseq)
+        column_limit = self._max_column()
+        start = _ratio_to_int(start, self.num_series_subseq, column_limit)
         current_column = start
-        upto = _ratio_to_int(upto, self.num_series_subseq)
+        upto = _ratio_to_int(upto, self.num_series_subseq, column_limit)
 
         generators = list(self._generators.keys())
         generators_needed_ids = list(set(id for id_list in self._consumers.values() for id in id_list))
@@ -159,6 +133,91 @@ class Calculator(object):
                         (time.time() - start_time) / columns_calculated * columns_remaining
                     ), end="")
 
+    @property
+    def num_dist_matrix_values(self):
+        return self.num_query_subseq * self.num_series_subseq
+
+    @property
+    def generators(self):
+        return list(self._generators.keys())
+
+    @property
+    def consumers(self):
+        return list(self._consumers.keys())
+
+    def _max_column(self):
+        return self.num_series_subseq
+
+
+class AnytimeCalculator(AbstractCalculator):
+    """
+    Calculator that allows approximate calculations in a fraction of the time, but does not support
+    data streaming.
+
+    A calculator is repsonsible for managing
+    consumers and generators for a distance matrix calculation. It provides
+    a single point of interaction for the user.
+    """
+    def __init__(self, m, series, query=None, trivial_match_buffer=None):
+        """
+        Creates a new calculator.
+
+        :param m: subsequence length to consider
+        :param series: 1D or 2D (dimensions x datapoints) array
+        :param query: 1D or 2D (dimensions x datapoints) array, if None, a self-join on series is performed
+        :param trivial_match_buffer: used only in case of a self-join, the number of values next to the main diagonal
+        (of the distance matrix) to skip. If None, defaults to m/2. Any consumers will either not receive values
+        (in case of diagonal calculation) or Infinity values (in case of column calculation).
+        """
+        self_join = query is None
+
+        self.series = np.atleast_2d(series).astype(np.float, copy=True)
+        if not self_join:
+            self.query = np.atleast_2d(query).astype(np.float, copy=True)
+        else:
+            self.query = self.series
+
+        if self.series.ndim != 2:
+            raise RuntimeError("Series should be 1D or 2D ndarray.")
+        if self.query.ndim != 2:
+            raise RuntimeError("Query should be 1D or 2D ndarray.")
+
+        n_dim = self.series.shape[0]
+        if n_dim != self.query.shape[0]:
+            raise RuntimeError("Dimensions of series and query do not match.")
+
+        num_series_subseq = self.series.shape[1] - m + 1
+        num_query_subseq = self.query.shape[1] - m + 1
+
+        super().__init__(self_join, m, num_series_subseq, num_query_subseq, n_dim, trivial_match_buffer)
+        # Code below depends on trivial match buffer being set.
+
+        # Tracking diagonal calculations
+        if not self_join:
+            self._diagonal_calc_order = np.arange(-self.num_query_subseq + 1, self.num_series_subseq)
+            self._diagonal_values_total = self.num_query_subseq * self.num_series_subseq
+        else:
+            self._diagonal_calc_order = np.arange(self.trivial_match_buffer + 1, self.num_series_subseq)
+            # Upper half of a square with size a = a * (a+1) / 2
+            temp = self.num_series_subseq - self.trivial_match_buffer - 1
+            self._diagonal_values_total = temp * (temp + 1) // 2
+        random.shuffle(self._diagonal_calc_order, random.Random(0).random)
+        self._diagonal_calc_list_next_index = 0
+        self._diagonal_values_calculated = 0
+        self._diagonal_calc_time = 0
+
+    def add_generator(self, input_dim, generator):
+        if input_dim < 0 or input_dim >= self.n_dim:
+            raise ValueError("Invalid input_dim, should be in range [0, %s]" % self.n_dim)
+
+        if not self._self_join:
+            bound_gen = generator.prepare(self.m, self.series[input_dim, :], self.query[input_dim, :])
+        else:
+            bound_gen = generator.prepare(self.m, self.series[input_dim, :])
+
+        self._generators[bound_gen] = input_dim
+        return bound_gen
+
     def calculate_diagonals(self, partial=1., print_progress=False):
         """
         Calculates diagonals of the distance matrix. The advantage of calculating diagonals is that values are spread
@@ -174,7 +233,7 @@ class Calculator(object):
         max_diagonal_length = min(self.num_query_subseq, self.num_series_subseq)
         diag_dists = np.full((len(self._generators), max_diagonal_length), np.nan, dtype=np.float)
 
-        values_needed = _ratio_to_int(partial, self._diagonal_values_total)
+        values_needed = _ratio_to_int(partial, self._diagonal_values_total, self._diagonal_values_total)
 
         with interrupt_catcher() as is_interrupted:
             while self._diagonal_values_calculated < values_needed and not is_interrupted():
@@ -208,15 +267,132 @@ class Calculator(object):
                           format(local_progress * 100, time_left, global_progress * 100), end="")
 
 
-def _ratio_to_int(ratio_or_result, maximum):
+class StreamingCalculator(AbstractCalculator):
+    """
+    Calculator that allows streaming data, but does not support anytime calculations.
+
+    A calculator is repsonsible for managing
+    consumers and generators for a distance matrix calculation. It provides
+    a single point of interaction for the user.
+    """
+    def __init__(self, m, series_window, query_window=None, n_dim=1, trivial_match_buffer=None):
+        """
+        Creates a new calculator.
+
+        :param m: subsequence length to consider
+        :param series_window: number of data points of series to keep in memory for calculations
+        :param query_window: number of data points of series to keep in memory for calculations,
+          or None to specify that a self-join over series should be performed
+        :param n_dim: number of data channels that will be used
+        :param trivial_match_buffer: used only in case of a self-join, the number of values next to the main diagonal
+        (of the distance matrix) to skip. If None, defaults to m/2. Any consumers will either not receive values
+        (in case of diagonal calculation) or Infinity values (in case of column calculation).
+        """
+        self.streamed_series_points = 0
+
+        self_join = query_window is None
+
+        num_series_subseq = series_window - m + 1
+        if self_join:
+            num_query_subseq = num_series_subseq
+            self.streamed_query_points = -1
+        else:
+            num_query_subseq = query_window - m + 1
+            self.streamed_query_points = 0
+
+        super().__init__(self_join, m, num_series_subseq, num_query_subseq, n_dim, trivial_match_buffer)
+
+    def add_generator(self, input_dim, generator):
+        if input_dim < 0 or input_dim >= self.n_dim:
+            raise ValueError("Invalid input_dim, should be in range [0, %s]" % self.n_dim)
+
+        if not self._self_join:
+            bound_gen = generator.prepare_streaming(self.m,
+                                                    self.num_series_subseq + self.m - 1,
+                                                    self.num_query_subseq + self.m - 1)
+        else:
+            bound_gen = generator.generator.prepare_streaming(self.m,
+                                                              self.num_series_subseq + self.m - 1,
+                                                              self.num_query_subseq + self.m - 1)
+
+        self._generators[bound_gen] = input_dim
+        return bound_gen
+
+    def append_series(self, values):
+        """
+        Add more data points to series.
+
+        As a side effect, the last calculated column index is shifted along with the data.
+
+        :param values: 1D array for one data point on each channel, or 2D array of shape (num_dim, num_points)
+        :return: None
+        """
+        values = np.asarray(values)
+
+        if values.ndim == 1:
+            if len(values) == self.n_dim:
+                values = values.reshape((self.n_dim, 1))
+            else:
+                raise RuntimeError("Expected {dim} values, but received {len}".format(dim=self.n_dim, len=len(values)))
+        elif values.ndim != 2 or values.shape[0] != self.n_dim:
+            raise RuntimeError("Provided values do not match shape ({dim}, x)".format(dim=self.n_dim))
+
+        for gen in self.generators:
+            input_dim = self._generators[gen]
+            gen.append_series(values[input_dim, :])
+
+        self.streamed_series_points += values.shape[1]
+        column_shift = max(0, self.streamed_series_points - max(self.num_series_subseq + self.m - 1,
+                                                                self.streamed_series_points - values.shape[1]))
+
+        if column_shift:
+            for cons in self.consumers:
+                cons.shift_series(column_shift)
+            self._last_column_calculated = min(-1, self._last_column_calculated - column_shift)
+
+    def append_query(self, values):
+        """
+        Add more data points to query. Cannot be used if performing a self join.
+
+        Note that appending query data does not adjust the last column calculated index.
+
+        :param values: 1D array for one data point on each channel, or 2D array of shape (num_dim, num_points)
+        :return: None
+        """
+        if self._self_join:
+            raise RuntimeError("Cannot append to query when performing a self-join on series.")
+
+        values = np.asarray(values)
+
+        if values.ndim == 1:
+            if len(values) == self.n_dim:
+                values = values.reshape((self.n_dim, 1))
+            else:
+                raise RuntimeError("Expected {dim} values, but received {len}".format(dim=self.n_dim, len=len(values)))
+        elif values.ndim != 2 or values.shape[0] != self.n_dim:
+            raise RuntimeError("Provided values do not match shape ({dim}, x)".format(dim=self.n_dim))
+        values = np.atleast_2d(values)
+
+        for gen in self.generators:
+            input_dim = self._generators[gen]
+            gen.append_query(values[input_dim, :])
+
+        for cons in self.consumers:
+            cons.shift_query(values.shape[1])
+
+    def _max_column(self):
+        return min(max(0, self.streamed_series_points - self.m + 1), self.num_series_subseq)
+
+
+def _ratio_to_int(ratio_or_result, full, max_value):
     if type(ratio_or_result) == float:
         if ratio_or_result < 0 or ratio_or_result > 1:
             raise ValueError("Value should be in range [0, 1].")
 
-        return ceil(ratio_or_result * maximum)
+        return min(max(0, ceil(ratio_or_result * full)), max_value)
 
     if type(ratio_or_result) == int:
-        return ratio_or_result
+        return min(max(0, ratio_or_result), max_value)
 
     raise RuntimeError("Invalid type, should be int or float.")
 

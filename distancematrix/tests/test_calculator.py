@@ -4,7 +4,8 @@ import numpy.testing as npt
 
 from distancematrix.util import diag_indices_of
 from distancematrix.consumer.distance_matrix import DistanceMatrix
-from distancematrix.calculator import Calculator
+from distancematrix.calculator import AnytimeCalculator
+from distancematrix.calculator import StreamingCalculator
 from distancematrix.tests.generator.mock_generator import MockGenerator
 from distancematrix.consumer.abstract_consumer import AbstractConsumer
 
@@ -28,7 +29,7 @@ class SummingConsumer(AbstractConsumer):
         self.distance_matrix[:, column_index] = np.sum(values, axis=0)
 
 
-class TestCalculator(TestCase):
+class TestAnytimeCalculator(TestCase):
     def test_simple_calculate_columns(self):
         query = np.arange(13)
         series = np.arange(23)
@@ -39,7 +40,7 @@ class TestCalculator(TestCase):
         distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
 
-        calc = Calculator(m, series, query)
+        calc = AnytimeCalculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -69,7 +70,7 @@ class TestCalculator(TestCase):
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
-        calc = Calculator(m, series, query)
+        calc = AnytimeCalculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -117,7 +118,7 @@ class TestCalculator(TestCase):
         distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
-        calc = Calculator(m, series, query)
+        calc = AnytimeCalculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -148,7 +149,7 @@ class TestCalculator(TestCase):
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
         max_diag = min(len(query) - m + 1, len(series) - m + 1)  # Maximum length of a diagonal
 
-        calc = Calculator(m, series, query)
+        calc = AnytimeCalculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
         calc.add_generator(0, MockGenerator(distance_matrix2))
         calc.add_generator(0, MockGenerator(distance_matrix3))
@@ -192,7 +193,7 @@ class TestCalculator(TestCase):
         # This test verifies that no values below the main diagonal are used.
         distance_matrix = np.triu(np.arange(1., 401.).reshape((20, 20)), buffer + 1)
 
-        calc = Calculator(m, series, trivial_match_buffer=buffer)
+        calc = AnytimeCalculator(m, series, trivial_match_buffer=buffer)
         calc.add_generator(0, MockGenerator(distance_matrix))
 
         consumer = DistanceMatrix()
@@ -212,7 +213,7 @@ class TestCalculator(TestCase):
 
         distance_matrix = np.arange(1., 401.).reshape((20, 20))
 
-        calc = Calculator(m, series, trivial_match_buffer=buffer)
+        calc = AnytimeCalculator(m, series, trivial_match_buffer=buffer)
         calc.add_generator(0, MockGenerator(distance_matrix))
 
         consumer = DistanceMatrix()
@@ -224,6 +225,60 @@ class TestCalculator(TestCase):
         for diag in range(-buffer, buffer + 1):
             expected[diag_indices_of(expected, diag)] = np.inf
 
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+
+class TestStreamingCalculator(TestCase):
+    def test_streaming_calculate_columns(self):
+        dist_matrix = np.arange(1200).astype(dtype=np.float).reshape((30, 40))
+        calc = StreamingCalculator(6, 25, 20)
+        calc.add_generator(0, MockGenerator(dist_matrix))
+
+        consumer = DistanceMatrix()
+        calc.add_consumer([0], consumer)
+
+        calc.calculate_columns()
+
+        expected = np.full((15, 20), np.nan)
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 15)))
+        calc.append_query(np.zeros((1, 20)))
+        calc.calculate_columns()
+
+        expected[:, 0:10] = dist_matrix[0:15, 0:10]
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 10)))
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = dist_matrix[0:15, 0:20]
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 10)))
+        calc.append_query(np.zeros((1, 5)))
+        expected = dist_matrix[5:20, 10:30].copy()
+        expected[-5:, :] = np.nan
+        expected[:, -10:] = np.nan
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = dist_matrix[5:20, 10:30]
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_query(np.zeros((1, 5)))
+        expected = dist_matrix[10:25, 10:30].copy()
+        expected[-5:, :] = np.nan
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        # Expect same result after full calculation, because query shift does not change last column calculated
+        calc.calculate_columns()
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        # Correct results when performing full recalculation
+        calc.calculate_columns(0, 1.)
+        expected = dist_matrix[10:25, 10:30]
         npt.assert_equal(consumer.distance_matrix, expected)
 
 

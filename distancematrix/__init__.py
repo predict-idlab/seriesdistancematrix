@@ -1,3 +1,4 @@
 import distancematrix.consumer
 import distancematrix.generator
-from distancematrix.calculator import Calculator
+from distancematrix.calculator import AnytimeCalculator
+from distancematrix.calculator import StreamingCalculator
