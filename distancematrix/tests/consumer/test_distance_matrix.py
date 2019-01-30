@@ -30,7 +30,7 @@ class TestContextualMatrixProfile(TestCase):
 
         for diag in range(-self.dist_matrix.shape[0] + 1, self.dist_matrix.shape[1]):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
-            dm.process_diagonal(diag, self.dist_matrix[diag_ind])
+            dm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
 
         npt.assert_equal(dm.distance_matrix, self.dist_matrix)
 
@@ -42,7 +42,7 @@ class TestContextualMatrixProfile(TestCase):
 
         for diag in range(-8, self.dist_matrix.shape[1], 3):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
-            dm.process_diagonal(diag, self.dist_matrix[diag_ind])
+            dm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
             correct[diag_ind] = self.dist_matrix[diag_ind]
 
         npt.assert_equal(dm.distance_matrix, correct)
@@ -52,7 +52,7 @@ class TestContextualMatrixProfile(TestCase):
         self.mock_initialise(dm)
 
         for column in range(0, self.dist_matrix.shape[1]):
-            dm.process_column(column, self.dist_matrix[:, column])
+            dm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))
 
         npt.assert_equal(dm.distance_matrix, self.dist_matrix)
 
@@ -63,17 +63,24 @@ class TestContextualMatrixProfile(TestCase):
         correct = np.full_like(self.dist_matrix, np.nan, dtype=np.float)
 
         for column in [2, 3, 4, 5, 10, 11, 12]:
-            dm.process_column(column, self.dist_matrix[:, column])
+            dm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))
             correct[:, column] = self.dist_matrix[:, column]
 
         npt.assert_equal(dm.distance_matrix, correct)
 
-    def test_streaming(self):
+    def test_streaming_process_column(self):
         dm = DistanceMatrix()
         dm.initialise(1, 5, 5)
 
+        dm.process_column(0, np.atleast_2d(self.dist_matrix[0, 0]))
+        dm.process_column(1, np.atleast_2d(self.dist_matrix[:2, 1]))
+        expected = np.full((5, 5), np.nan)
+        expected[0, 0] = self.dist_matrix[0, 0]
+        expected[:2, 1] = self.dist_matrix[:2, 1]
+        npt.assert_equal(dm.distance_matrix, expected)
+
         for column in range(0, 5):
-            dm.process_column(column, self.dist_matrix[:5, :5][:, column])
+            dm.process_column(column, np.atleast_2d(self.dist_matrix[:5, :5][:, column]))
         npt.assert_equal(dm.distance_matrix, self.dist_matrix[:5, :5])
 
         dm.shift_query(1)
@@ -84,14 +91,45 @@ class TestContextualMatrixProfile(TestCase):
         npt.assert_equal(dm.distance_matrix, correct)
 
         for column in range(0, 5):
-            dm.process_column(column, self.dist_matrix[1:6, 3:8][:, column])
+            dm.process_column(column, np.atleast_2d(self.dist_matrix[1:6, 3:8][:, column]))
         npt.assert_equal(dm.distance_matrix, self.dist_matrix[1:6, 3:8])
 
         dm.shift_query(2)
         dm.shift_series(1)
-        dm.process_column(4, self.dist_matrix[3:8, 8])
+        dm.process_column(4, np.atleast_2d(self.dist_matrix[3:8, 8]))
 
         correct = np.full((5, 5), np.nan)
         correct[0:3, 0:4] = self.dist_matrix[3:6, 4:8]
         correct[:, 4] = self.dist_matrix[3:8, 8]
         npt.assert_equal(dm.distance_matrix, correct)
+
+    def test_streaming_process_diagonal(self):
+        dm = DistanceMatrix()
+        dm.initialise(1, 5, 5)
+
+        dm.process_diagonal(0, np.atleast_2d(self.dist_matrix[0, 0]))
+        diag_ind = diag_indices_of(self.dist_matrix[:3, :3], 1)
+        dm.process_diagonal(1, np.atleast_2d(np.atleast_2d(self.dist_matrix[diag_ind])))
+        expected = np.full((5, 5), np.nan)
+        expected[0, 0] = self.dist_matrix[0, 0]
+        expected[0, 1] = self.dist_matrix[0, 1]
+        expected[1, 2] = self.dist_matrix[1, 2]
+        npt.assert_equal(dm.distance_matrix, expected)
+
+        for diag in range(-4,5):
+            diag_ind = diag_indices_of(self.dist_matrix[:5, :5], diag)
+            dm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
+
+        npt.assert_equal(dm.distance_matrix, self.dist_matrix[:5, :5])
+
+        dm.shift_query(2)
+        dm.shift_series(1)
+        expected = self.dist_matrix[2:7, 1:6].copy()
+        expected[-2:, :] = np.nan
+        expected[:, -1:] = np.nan
+        npt.assert_equal(dm.distance_matrix, expected)
+
+        for diag in range(-4,5):
+            diag_ind = diag_indices_of(self.dist_matrix[:5, :5], diag)
+            dm.process_diagonal(diag, np.atleast_2d(self.dist_matrix[diag_ind]))
+        npt.assert_equal(dm.distance_matrix, self.dist_matrix[:5, :5])

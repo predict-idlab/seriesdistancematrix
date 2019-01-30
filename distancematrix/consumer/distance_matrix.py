@@ -21,11 +21,14 @@ class DistanceMatrix(AbstractStreamingConsumer):
         self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=np.float)
 
     def process_diagonal(self, diagonal_index, values):
+        num_values = values.shape[1]
         indices = diag_indices_of(self.distance_matrix, diagonal_index)
+        indices = (indices[0][:num_values], indices[1][:num_values])
         self.distance_matrix[indices] = values
 
     def process_column(self, column_index, values):
-        self.distance_matrix[:, column_index] = values
+        num_values = values.shape[1]
+        self.distance_matrix[:num_values, column_index] = values
 
     def shift_series(self, amount):
         if amount == 0:
