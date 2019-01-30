@@ -19,6 +19,10 @@ class AbstractConsumer(ABC):
         """
         Method called when a diagonal of the distance matrix is calculated.
 
+        The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+        this can occur when not enough data is available yet to calculate the entire distance matrix
+        (typically for streaming when not enough data is available to fill the entire foreseen space).
+
         :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
             the main diagonal has index 0
         :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
@@ -30,6 +34,10 @@ class AbstractConsumer(ABC):
     def process_column(self, column_index, values):
         """
         Method called when a column of the distance matrix is calculated.
+
+        The number of values on the column might be less than the column of the full matrix profile,
+        this can occur when not enough data is available yet to calculate the entire distance matrix
+        (typically for streaming when not enough data is available to fill the entire foreseen space).
 
         :param column_index: index of the column, in range [0, series_subseq[
         :param values: array of shape (num_dimensions, num_values_on_column) containing the distances

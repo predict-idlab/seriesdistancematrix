@@ -35,7 +35,7 @@ class AbstractBoundGenerator(ABC):
     @abstractmethod
     def calc_diagonal(self, diag):
         """
-        Calculates all distances of the distance matrix diagonal with the given index.
+        Calculates all distances of the distance matrix diagonal with the given index for the available data.
 
         If diag is zero, this calculates the main diagonal, running from the top left to the bottom right.
         Any positive value represents a diagonal above the main diagonal, and a negative value represents
@@ -49,7 +49,7 @@ class AbstractBoundGenerator(ABC):
     @abstractmethod
     def calc_column(self, column):
         """
-        Calculates all distances of the distance matrix on the specified column.
+        Calculates all distances of the distance matrix on the specified column for the available data.
 
         :param column: the column index (starting at 0)
         :return: 1D array, containing all values
