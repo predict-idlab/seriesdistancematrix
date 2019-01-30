@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 
 from distancematrix.generator.znorm_euclidean import ZNormEuclidean  # Generators live in the generator package
 from distancematrix.consumer.matrix_profile_lr import MatrixProfileLR  # Consumers live in the consumer package
-from distancematrix.calculator import Calculator
+from distancematrix.calculator import AnytimeCalculator
 
 # Create a one-dimensional series with 2 artefacts
 data = np.array([
@@ -49,12 +49,10 @@ plt.show()
 # Setup generator, consumer and calculator
 m = 100  # Subsequence length
 
-gen_0 = ZNormEuclidean(noise_std=0.)
-cons_0 = MatrixProfileLR()
-calc = Calculator(m, data)  # One series passed => self-join
+calc = AnytimeCalculator(m, data)  # One series passed => self-join
 
-calc.add_generator(0, gen_0)  # Generator 0 works on channel 0
-calc.add_consumer([0], cons_0)  # Consumer 0 works on generator 0
+gen_0 = calc.add_generator(0, ZNormEuclidean(noise_std=0.))  # Generator 0 works on channel 0
+cons_0 = calc.add_consumer([0], MatrixProfileLR())  # Consumer 0 works on generator 0
 
 # Calculate
 calc.calculate_diagonals(print_progress=True, partial=1.)
