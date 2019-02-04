@@ -254,7 +254,7 @@ class AnytimeCalculator(AbstractCalculator):
                     if self._self_join:
                         consumer.process_diagonal(-diagonal, values_to_consume)
 
-                self._diagonal_values_calculated += diagonal_length
+                self._diagonal_values_calculated += int(diagonal_length)  # numpy.int32 to int
                 self._diagonal_calc_list_next_index += 1
 
                 self._diagonal_calc_time += time.time() - start_time
