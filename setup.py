@@ -8,7 +8,7 @@ setup(name='distancematrix',
       author='Dieter De Paepe',
       author_email='dieter.depaepe@ugent.be',
       license='All rights reserved',
-      packages=find_packages(),
+      packages=find_packages(exclude=["distancematrix.tests*"]),
       classifiers=(
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
