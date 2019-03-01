@@ -9,6 +9,12 @@ from (time-)series data.
 python setup.py clean build install
 ```
 
+or for development (this creates a link to the source code, rather than a library):
+```commandline
+python setup.py develop
+```
+
+
 ## Usage
 
 The basic workflow goes as follows:
