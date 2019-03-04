@@ -1,12 +1,21 @@
 import numpy as np
 
 from distancematrix.util import diag_length
+from distancematrix.util import sliding_window_view
 from distancematrix.ringbuffer import RingBuffer
 from distancematrix.generator.abstract_generator import AbstractGenerator
 from distancematrix.generator.abstract_generator import AbstractBoundStreamingGenerator
 
+EPSILON = 1e-15
+
 
 class Euclidean(AbstractGenerator):
+    """
+    Class capable of efficiently calculating parts of the euclidean distance matrix between two series,
+    where each entry in the distance matrix equals the euclidean distance between 2 subsequences of both series.
+
+    This generator can handle streaming data.
+    """
     def prepare_streaming(self, m, series_window, query_window=None):
         series = RingBuffer(None, (series_window,), dtype=np.float)
 
@@ -134,11 +143,24 @@ def _euclidean_distance_squared(series, sequence):
         raise RuntimeError("Sequence should be 1D")
 
     m = len(sequence)
-    num_sub_seq = len(series) - m + 1
 
-    # Simple implementation:
-    dist = np.zeros(num_sub_seq)
-    for i in range(m):
-        dist += np.square(series[i:num_sub_seq + i] - sequence[i])
+    sliding_view = sliding_window_view(series, [m])
+
+    # (X - Y)^2 = X^2 - 2XY + Y^2
+    # Here, einsum is used to calculate dot products over sliding window to prevent memory copying.
+    # Using the normal euclidean distance calculation over the sliding window (x - y)^2 would result in copying
+    # each window, which leads to memory errors for long series.
+    dist = np.einsum('ij,ij->i', sliding_view, sliding_view)  # Dot product of every window with itself
+    dist -= 2 * np.einsum('ij,j->i', sliding_view, sequence)  # Dot product of every window with sequence
+    dist += np.dot(sequence, sequence)  # Dot product of sequence with itself
+    dist[dist < EPSILON] = 0  # Avoid very small negative numbers due to rounding
+
+    # Simple implementation, this takes double as long to calculate as the einsum approach, though it contains
+    # no approximations. For very long series (100k when testing), suddenly takes 10 times as long, most likely
+    # due to cpu caching that cannot contain the entire series (could be circumvented by batching):
+    # num_sub_seq = len(series) - m + 1
+    # dist = np.zeros(num_sub_seq)
+    # for i in range(m):
+    #     dist += np.square(series[i:num_sub_seq + i] - sequence[i])
 
     return dist
