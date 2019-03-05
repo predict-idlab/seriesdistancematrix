@@ -6,6 +6,7 @@ from distancematrix.util import diag_indices_of
 from distancematrix.consumer.distance_matrix import DistanceMatrix
 from distancematrix.calculator import AnytimeCalculator
 from distancematrix.calculator import StreamingCalculator
+from distancematrix.calculator import _ratio_to_int
 from distancematrix.tests.generator.mock_generator import MockGenerator
 from distancematrix.consumer.abstract_consumer import AbstractConsumer
 
@@ -280,6 +281,24 @@ class TestStreamingCalculator(TestCase):
         calc.calculate_columns(0, 1.)
         expected = dist_matrix[10:25, 10:30]
         npt.assert_equal(consumer.distance_matrix, expected)
+
+
+class TestHelperMethods(TestCase):
+    def test_ratio_to_int(self):
+        self.assertEqual(5, _ratio_to_int(5, 20, 10))
+        self.assertEqual(5, _ratio_to_int(np.int32(5), np.int32(20), np.int32(10)))
+
+        self.assertEqual(10, _ratio_to_int(15, 20, 10))
+        self.assertEqual(10, _ratio_to_int(np.int32(15), np.int32(20), np.int32(10)))
+
+        self.assertEqual(5, _ratio_to_int(0.25, 20, 10))
+        self.assertEqual(5, _ratio_to_int(np.float32(0.25), np.int32(20), np.int32(10)))
+
+        self.assertEqual(10, _ratio_to_int(0.75, 20, 10))
+        self.assertEqual(10, _ratio_to_int(np.float32(0.75), np.int32(20), np.int32(10)))
+
+        self.assertEqual(15, _ratio_to_int(0.75, 20, 20))
+        self.assertEqual(15, _ratio_to_int(np.float32(0.75), np.int32(20), np.int32(20)))
 
 
 def copy_columns(array, columns):

@@ -385,13 +385,13 @@ class StreamingCalculator(AbstractCalculator):
 
 
 def _ratio_to_int(ratio_or_result, full, max_value):
-    if type(ratio_or_result) == float:
+    if isinstance(ratio_or_result, (float, np.floating)):
         if ratio_or_result < 0 or ratio_or_result > 1:
             raise ValueError("Value should be in range [0, 1].")
 
         return min(max(0, ceil(ratio_or_result * full)), max_value)
 
-    if type(ratio_or_result) == int:
+    if isinstance(ratio_or_result, (int, np.integer)):
         return min(max(0, ratio_or_result), max_value)
 
     raise RuntimeError("Invalid type, should be int or float.")
