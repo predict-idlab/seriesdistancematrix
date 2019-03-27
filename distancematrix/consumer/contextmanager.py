@@ -8,7 +8,7 @@ class AbstractContextManager(ABC):
     @abstractmethod
     def query_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]:
         """
-        Return all query context definitions that fall in the given range of the distance matrix query axis.
+        Return all non-empty query context definitions that fall in the given range of the distance matrix query axis.
 
         :param start: start of the range
         :param stop: end of the range
@@ -19,7 +19,7 @@ class AbstractContextManager(ABC):
     @abstractmethod
     def series_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]:
         """
-        Return all series context definitions that fall in the given range of the distance matrix series axis.
+        Return all non-empty series context definitions that fall in the given range of the distance matrix series axis.
 
         :param start: start of the range
         :param stop: end of the range
@@ -76,9 +76,9 @@ class GeneralStaticManager(AbstractContextManager):
             _verify_ranges([r for i, r in _enumerate_flattened(query_contexts)])
 
         self._series_contexts = np.array(
-            [(r.start, r.stop, i) for i, r in _enumerate_flattened(series_contexts)], dtype=np.int)
+            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(series_contexts))], dtype=np.int)
         self._query_contexts = np.array(
-            [(r.start, r.stop, i) for i, r in _enumerate_flattened(query_contexts)], dtype=np.int)
+            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(query_contexts))], dtype=np.int)
 
         self._qc_sorted_start = self._query_contexts[np.argsort(self._query_contexts[:, 0])]
         self._qc_sorted_stop = self._query_contexts[np.argsort(self._query_contexts[:, 1])]
@@ -135,3 +135,9 @@ def _enumerate_flattened(l):
                 yield i, r
         else:
             yield i, el
+
+
+def _filter_empty(iter):
+    for i, r in iter:
+        if r.start < r.stop:
+            yield (i, r)
