@@ -230,56 +230,163 @@ class TestAnytimeCalculator(TestCase):
 
 
 class TestStreamingCalculator(TestCase):
-    def test_streaming_calculate_columns(self):
-        dist_matrix = np.arange(1200).astype(dtype=np.float).reshape((30, 40))
-        calc = StreamingCalculator(6, 25, 20)
+    def test_streaming_calculate_columns_self_join(self):
+        dist_matrix = np.arange(10, 100).astype(dtype=np.float).reshape((9, 10))
+        calc = StreamingCalculator(101, 106, trivial_match_buffer=-1)  # Distance Matrix in consumer has shape (6, 6)
         calc.add_generator(0, MockGenerator(dist_matrix))
-
         consumer = DistanceMatrix()
         calc.add_consumer([0], consumer)
+        nn = np.nan
 
         calc.calculate_columns()
-
-        expected = np.full((15, 20), np.nan)
+        expected = np.array([
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
         npt.assert_equal(consumer.distance_matrix, expected)
 
-        calc.append_series(np.zeros((1, 15)))
-        calc.append_query(np.zeros((1, 20)))
-        calc.calculate_columns()
-
-        expected[:, 0:10] = dist_matrix[0:15, 0:10]
-        npt.assert_equal(consumer.distance_matrix, expected)
-
-        calc.append_series(np.zeros((1, 10)))
-        npt.assert_equal(consumer.distance_matrix, expected)
-
-        calc.calculate_columns()
-        expected = dist_matrix[0:15, 0:20]
-        npt.assert_equal(consumer.distance_matrix, expected)
-
-        calc.append_series(np.zeros((1, 10)))
-        calc.append_query(np.zeros((1, 5)))
-        expected = dist_matrix[5:20, 10:30].copy()
-        expected[-5:, :] = np.nan
-        expected[:, -10:] = np.nan
+        calc.append_series(np.zeros((1, 104)))
         npt.assert_equal(consumer.distance_matrix, expected)
 
         calc.calculate_columns()
-        expected = dist_matrix[5:20, 10:30]
+        expected = np.array([
+            [10, 11, 12, 13, nn, nn],
+            [20, 21, 22, 23, nn, nn],
+            [30, 31, 32, 33, nn, nn],
+            [40, 41, 42, 43, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
         npt.assert_equal(consumer.distance_matrix, expected)
 
-        calc.append_query(np.zeros((1, 5)))
-        expected = dist_matrix[10:25, 10:30].copy()
-        expected[-5:, :] = np.nan
+        calc.append_series(np.zeros((1, 2)))
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = np.array([
+            [10, 11, 12, 13, 14, 15],
+            [20, 21, 22, 23, 24, 25],
+            [30, 31, 32, 33, 34, 35],
+            [40, 41, 42, 43, 44, 45],
+            [nn, nn, nn, nn, 54, 55],
+            [nn, nn, nn, nn, 64, 65]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 2)))
+        expected = np.array([
+            [32, 33, 34, 35, nn, nn],
+            [42, 43, 44, 45, nn, nn],
+            [nn, nn, 54, 55, nn, nn],
+            [nn, nn, 64, 65, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = np.array([
+            [32, 33, 34, 35, 36, 37],
+            [42, 43, 44, 45, 46, 47],
+            [nn, nn, 54, 55, 56, 57],
+            [nn, nn, 64, 65, 66, 67],
+            [nn, nn, nn, nn, 76, 77],
+            [nn, nn, nn, nn, 86, 87]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        # Correct results when performing full recalculation
+        calc.calculate_columns(0, 1.)
+        expected = np.array([
+            [32, 33, 34, 35, 36, 37],
+            [42, 43, 44, 45, 46, 47],
+            [52, 53, 54, 55, 56, 57],
+            [62, 63, 64, 65, 66, 67],
+            [72, 73, 74, 75, 76, 77],
+            [82, 83, 84, 85, 86, 87]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+    def test_streaming_calculate_columns(self):
+        dist_matrix = np.arange(10, 100).astype(dtype=np.float).reshape((9, 10))
+        calc = StreamingCalculator(101, 106, 105)  # Distance Matrix in consumer has shape (5, 6)
+        calc.add_generator(0, MockGenerator(dist_matrix))
+        consumer = DistanceMatrix()
+        calc.add_consumer([0], consumer)
+        nn = np.nan
+
+        calc.calculate_columns()
+        expected = np.array([
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 102)))
+        calc.append_query(np.zeros((1, 103)))
+        calc.calculate_columns()
+        expected = np.array([
+            [10, 11, nn, nn, nn, nn],
+            [20, 21, nn, nn, nn, nn],
+            [30, 31, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1, 3)))
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = np.array([
+            [10, 11, 12, 13, 14, nn],
+            [20, 21, 22, 23, 24, nn],
+            [30, 31, 32, 33, 34, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_query(np.zeros((1, 2)))
         npt.assert_equal(consumer.distance_matrix, expected)
 
         # Expect same result after full calculation, because query shift does not change last column calculated
         calc.calculate_columns()
         npt.assert_equal(consumer.distance_matrix, expected)
 
-        # Correct results when performing full recalculation
+        calc.calculate_columns(start=2)
+        expected = np.array([
+            [10, 11, 12, 13, 14, nn],
+            [20, 21, 22, 23, 24, nn],
+            [30, 31, 32, 33, 34, nn],
+            [nn, nn, 42, 43, 44, nn],
+            [nn, nn, 52, 53, 54, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.append_series(np.zeros((1,3)))
+        calc.append_query(np.zeros((1, 2)))
+        expected = np.array([
+            [32, 33, 34, nn, nn, nn],
+            [42, 43, 44, nn, nn, nn],
+            [52, 53, 54, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn],
+            [nn, nn, nn, nn, nn, nn]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
+        calc.calculate_columns()
+        expected = np.array([
+            [32, 33, 34, 35, 36, 37],
+            [42, 43, 44, 45, 46, 47],
+            [52, 53, 54, 55, 56, 57],
+            [nn, nn, nn, 65, 66, 67],
+            [nn, nn, nn, 75, 76, 77]])
+        npt.assert_equal(consumer.distance_matrix, expected)
+
         calc.calculate_columns(0, 1.)
-        expected = dist_matrix[10:25, 10:30]
+        expected = np.array([
+            [32, 33, 34, 35, 36, 37],
+            [42, 43, 44, 45, 46, 47],
+            [52, 53, 54, 55, 56, 57],
+            [62, 63, 64, 65, 66, 67],
+            [72, 73, 74, 75, 76, 77]])
         npt.assert_equal(consumer.distance_matrix, expected)
 
 

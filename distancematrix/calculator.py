@@ -98,13 +98,14 @@ class AbstractCalculator(ABC):
         if start is None:
             start = self._last_column_calculated + 1
         column_limit = self._max_column()
+        row_limit = self._max_row()
         start = _ratio_to_int(start, self.num_series_subseq, column_limit)
         current_column = start
         upto = _ratio_to_int(upto, self.num_series_subseq, column_limit)
 
         generators = list(self._generators.keys())
         generators_needed_ids = list(set(id for id_list in self._consumers.values() for id in id_list))
-        column_dists = np.full((len(self._generators), self.num_query_subseq), np.nan, dtype=np.float)
+        column_dists = np.full((len(self._generators), row_limit), np.nan, dtype=np.float)
 
         start_time = time.time()
 
@@ -147,6 +148,9 @@ class AbstractCalculator(ABC):
 
     def _max_column(self):
         return self.num_series_subseq
+
+    def _max_row(self):
+        return self.num_query_subseq
 
 
 class AnytimeCalculator(AbstractCalculator):
@@ -311,9 +315,7 @@ class StreamingCalculator(AbstractCalculator):
                                                     self.num_series_subseq + self.m - 1,
                                                     self.num_query_subseq + self.m - 1)
         else:
-            bound_gen = generator.generator.prepare_streaming(self.m,
-                                                              self.num_series_subseq + self.m - 1,
-                                                              self.num_query_subseq + self.m - 1)
+            bound_gen = generator.prepare_streaming(self.m, self.num_series_subseq + self.m - 1)
 
         self._generators[bound_gen] = input_dim
         return bound_gen
@@ -341,14 +343,20 @@ class StreamingCalculator(AbstractCalculator):
             input_dim = self._generators[gen]
             gen.append_series(values[input_dim, :])
 
+        series_window = self.num_series_subseq + self.m - 1
+        if self.streamed_series_points < series_window:
+            column_shift = max(0, values.shape[1] - (series_window - self.streamed_series_points))
+        else:
+            column_shift = values.shape[1]
         self.streamed_series_points += values.shape[1]
-        column_shift = max(0, self.streamed_series_points - max(self.num_series_subseq + self.m - 1,
-                                                                self.streamed_series_points - values.shape[1]))
 
         if column_shift:
             for cons in self.consumers:
                 cons.shift_series(column_shift)
-            self._last_column_calculated = min(-1, self._last_column_calculated - column_shift)
+            if self._self_join:
+                for cons in self.consumers:
+                    cons.shift_query(column_shift)
+            self._last_column_calculated = max(-1, self._last_column_calculated - column_shift)
 
     def append_query(self, values):
         """
@@ -377,11 +385,25 @@ class StreamingCalculator(AbstractCalculator):
             input_dim = self._generators[gen]
             gen.append_query(values[input_dim, :])
 
-        for cons in self.consumers:
-            cons.shift_query(values.shape[1])
+        query_window = self.num_query_subseq + self.m - 1
+        if self.streamed_query_points < query_window:
+            row_shift = max(0, values.shape[1] - (query_window - self.streamed_query_points))
+        else:
+            row_shift = values.shape[1]
+        self.streamed_query_points += values.shape[1]
+
+        if row_shift:
+            for cons in self.consumers:
+                cons.shift_query(row_shift)
 
     def _max_column(self):
         return min(max(0, self.streamed_series_points - self.m + 1), self.num_series_subseq)
+
+    def _max_row(self):
+        if self._self_join:
+            return self._max_column()
+        else:
+            return min(max(0, self.streamed_query_points - self.m + 1), self.num_query_subseq)
 
 
 def _ratio_to_int(ratio_or_result, full, max_value):

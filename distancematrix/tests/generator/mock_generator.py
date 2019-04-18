@@ -31,7 +31,6 @@ class MockGenerator(AbstractGenerator):
         self.series_window = series_window
         self.query_window = query_window
 
-
         if query_window is None:
             query_window = series_window
             self_join = True
@@ -41,7 +40,7 @@ class MockGenerator(AbstractGenerator):
         s_subseqs = series_window - m + 1
         q_subseqs = query_window - m + 1
         self.bound_gen = BoundMockGenerator(self._dist_matrix, s_subseqs, q_subseqs,
-                                            self_join, -m - s_subseqs + 1, -m - q_subseqs + 1)
+                                            self_join, -series_window, -query_window)
 
         return self.bound_gen
 
