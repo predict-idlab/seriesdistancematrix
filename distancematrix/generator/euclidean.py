@@ -16,11 +16,24 @@ class Euclidean(AbstractGenerator):
 
     This generator can handle streaming data.
     """
+
+    def __init__(self, rb_scale_factor=2.):
+        """
+        Creates a new instance.
+
+        :param rb_scale_factor: scaling factor used for RingBuffers in case of streaming data (should be >= 1),
+            this allows choosing a balance between less memory (low values) and reduced data copying (higher values)
+        """
+        if rb_scale_factor < 1.:
+            raise ValueError("rb_scale_factor should be >= 1, it was: " + str(rb_scale_factor))
+
+        self._rb_scale_factor = rb_scale_factor
+
     def prepare_streaming(self, m, series_window, query_window=None):
-        series = RingBuffer(None, (series_window,), dtype=np.float)
+        series = RingBuffer(None, (series_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
 
         if query_window is not None:
-            query = RingBuffer(None, (query_window,), dtype=np.float)
+            query = RingBuffer(None, (query_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
             self_join = False
         else:
             query = series
@@ -34,9 +47,9 @@ class Euclidean(AbstractGenerator):
         if query is not None and query.ndim != 1:
             raise RuntimeError("Query should be 1D")
 
-        series = RingBuffer(series, scaling_factor=1)
+        series = RingBuffer(series, dtype=np.float, scaling_factor=1)
         if query is not None:
-            query = RingBuffer(query, scaling_factor=1)
+            query = RingBuffer(query, dtype=np.float, scaling_factor=1)
             self_join = False
         else:
             query = series

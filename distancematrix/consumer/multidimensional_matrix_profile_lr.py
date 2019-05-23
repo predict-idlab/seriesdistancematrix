@@ -28,11 +28,17 @@ class MultidimensionalMatrixProfileLR(AbstractStreamingConsumer):
     This consumer supports streaming.
     """
 
-    def __init__(self):
+    def __init__(self, rb_scale_factor=2.):
         """
         Creates a new consumer that calculates the left and right matrix profile, the corresponding
         indices and the used dimensions over multiple dimensions (data channels).
+
+        :param rb_scale_factor: scaling factor used for RingBuffers in case of streaming data (should be >= 1),
+            this allows choosing a balance between less memory (low values) and reduced data copying (higher values)
         """
+
+        if rb_scale_factor < 1.:
+            raise ValueError("rb_scale_factor should be >= 1, it was: " + str(rb_scale_factor))
 
         self._num_subseq = None
         self._range = None
@@ -49,20 +55,29 @@ class MultidimensionalMatrixProfileLR(AbstractStreamingConsumer):
         self._series_shift = 0
         self._query_shift = 0
 
+        self._rb_scale_factor = rb_scale_factor
+
     def initialise(self, dims, query_subseq, series_subseq):
         self._n_dim = dims
         self._num_subseq = series_subseq
-        self._range = RingBuffer(np.arange(0, self._num_subseq, dtype=np.int))
+        self._range = RingBuffer(np.arange(0, self._num_subseq, dtype=np.int),
+                                 scaling_factor=self._rb_scale_factor)
 
-        self._md_matrix_profile_left = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float))
-        self._md_profile_index_left = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int))
+        self._md_matrix_profile_left = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float),
+                                                  scaling_factor=self._rb_scale_factor)
+        self._md_profile_index_left = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int),
+                                                 scaling_factor=self._rb_scale_factor)
         self._md_profile_dimension_left = \
-            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int)) for i in range(dims)]
+            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int),
+                        scaling_factor=self._rb_scale_factor) for i in range(dims)]
 
-        self._md_matrix_profile_right = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float))
-        self._md_profile_index_right = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int))
+        self._md_matrix_profile_right = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float),
+                                                   scaling_factor=self._rb_scale_factor)
+        self._md_profile_index_right = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int),
+                                                  scaling_factor=self._rb_scale_factor)
         self._md_profile_dimension_right = \
-            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int)) for i in range(dims)]
+            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int),
+                        scaling_factor=self._rb_scale_factor) for i in range(dims)]
 
     def process_diagonal(self, diag, values):
         n_dim, num_values = values.shape

@@ -15,7 +15,7 @@ def is_not_finite(data, subseq_length):
 
 
 class FilterGenerator(AbstractGenerator):
-    def __init__(self, generator, invalid_data_function=is_not_finite):
+    def __init__(self, generator, invalid_data_function=is_not_finite, rb_scale_factor=2.):
         """
         Creates a new generator by wrapping another generator.
 
@@ -29,6 +29,10 @@ class FilterGenerator(AbstractGenerator):
            a True value for any invalid subsequence. Invalid subsequences will have positive infinte values
            as distance.
         """
+        if rb_scale_factor < 1.:
+            raise ValueError("rb_scale_factor should be >= 1, it was: " + str(rb_scale_factor))
+
+        self._rb_scale_factor = rb_scale_factor
         self._generator = generator
         self._invalid_data_function = invalid_data_function
 
@@ -41,7 +45,8 @@ class FilterGenerator(AbstractGenerator):
         else:
             num_q_subseq = query_window - m + 1
 
-        return BoundStreamingFilterGenerator(gen, m, num_s_subseq, num_q_subseq, self._invalid_data_function)
+        return BoundStreamingFilterGenerator(gen, m, num_s_subseq, num_q_subseq,
+                                             self._invalid_data_function, self._rb_scale_factor)
 
     def prepare(self, m, series, query=None):
         new_series, invalid_series_subseq = _correct_data_and_create_masks(series, m, self._invalid_data_function)
@@ -124,7 +129,7 @@ class BoundStreamingFilterGenerator(BoundFilterGenerator, AbstractBoundStreaming
     that does not support nan values.
     """
 
-    def __init__(self, generator, m, num_s_subseq, num_q_subseq, invalid_data_function):
+    def __init__(self, generator, m, num_s_subseq, num_q_subseq, invalid_data_function, rb_scale_factor):
         """
         Creates a new generator by wrapping another generator.
 
@@ -137,9 +142,11 @@ class BoundStreamingFilterGenerator(BoundFilterGenerator, AbstractBoundStreaming
 
         self._invalid_data_function = invalid_data_function
 
-        invalid_s_subseq_buffer = RingBuffer(None, shape=(num_s_subseq,), dtype=np.bool)
+        invalid_s_subseq_buffer = RingBuffer(None, shape=(num_s_subseq,),
+                                             dtype=np.bool, scaling_factor=rb_scale_factor)
 
-        self.invalid_series = RingBuffer(None, shape=(num_s_subseq + m - 1,), dtype=np.bool)
+        self.invalid_series = RingBuffer(None, shape=(num_s_subseq + m - 1,),
+                                         dtype=np.bool, scaling_factor=rb_scale_factor)
 
         if num_q_subseq is None:
             self.self_join = True
@@ -149,8 +156,10 @@ class BoundStreamingFilterGenerator(BoundFilterGenerator, AbstractBoundStreaming
         else:
             self.self_join = False
 
-            invalid_q_subseq_buffer = RingBuffer(None, shape=(num_q_subseq,), dtype=np.bool)
-            self.invalid_query = RingBuffer(None, shape=(num_q_subseq + m - 1,), dtype=np.bool)
+            invalid_q_subseq_buffer = RingBuffer(None, shape=(num_q_subseq,),
+                                                 dtype=np.bool, scaling_factor=rb_scale_factor)
+            self.invalid_query = RingBuffer(None, shape=(num_q_subseq + m - 1,),
+                                            dtype=np.bool, scaling_factor=rb_scale_factor)
 
         super().__init__(generator, m, num_q_subseq, invalid_s_subseq_buffer, invalid_q_subseq_buffer)
 

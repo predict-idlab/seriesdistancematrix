@@ -128,20 +128,30 @@ class ShiftingMatrixProfileLR(MatrixProfileLR, AbstractStreamingConsumer):
     only the series is shifted, eventually only the left matrix profile will be used.)
     """
 
-    def __init__(self):
+    def __init__(self, rb_scale_factor=2.):
+        """
+        Creates a new instance.
+
+        :param rb_scale_factor: scaling factor used for RingBuffers in case of streaming data (should be >= 1),
+            this allows choosing a balance between less memory (low values) and reduced data copying (higher values)
+        """
+        if rb_scale_factor < 1.:
+            raise ValueError("rb_scale_factor should be >= 1, it was: " + str(rb_scale_factor))
+
         super().__init__()
         self.series_shift = 0
         self.query_shift = 0
+        self._rb_scale_factor = rb_scale_factor
 
     def initialise(self, dims, query_subseq, series_subseq):
         super().initialise(dims, query_subseq, series_subseq)
 
-        self._range = RingBuffer(self._range)
+        self._range = RingBuffer(self._range, scaling_factor=self._rb_scale_factor)
 
-        self._matrix_profile_left = RingBuffer(self._matrix_profile_left)
-        self._profile_index_left = RingBuffer(self._profile_index_left)
-        self._matrix_profile_right = RingBuffer(self._matrix_profile_right)
-        self._profile_index_right = RingBuffer(self._profile_index_right)
+        self._matrix_profile_left = RingBuffer(self._matrix_profile_left, scaling_factor=self._rb_scale_factor)
+        self._profile_index_left = RingBuffer(self._profile_index_left, scaling_factor=self._rb_scale_factor)
+        self._matrix_profile_right = RingBuffer(self._matrix_profile_right, scaling_factor=self._rb_scale_factor)
+        self._profile_index_right = RingBuffer(self._profile_index_right, scaling_factor=self._rb_scale_factor)
 
     def process_diagonal(self, diag, values):
         values = values[0]

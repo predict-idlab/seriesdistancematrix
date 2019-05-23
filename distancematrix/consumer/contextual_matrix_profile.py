@@ -14,13 +14,18 @@ class ContextualMatrixProfile(AbstractStreamingConsumer):
     This consumer supports streaming if the provided context manager does.
     """
 
-    def __init__(self, context_manager: AbstractContextManager):
+    def __init__(self, context_manager: AbstractContextManager, rb_scale_factor=2.):
         """
         Creates a new consumer that calculates a contextual matrix profile,
         according to the contexts defined by the manager.
 
         :param context_manager: object responsible for defining the spans of each context over the query and series axis
+        :param rb_scale_factor: scaling factor used for RingBuffers in case of streaming data (should be >= 1),
+            this allows choosing a balance between less memory (low values) and reduced data copying (higher values)
         """
+        if rb_scale_factor < 1.:
+            raise ValueError("rb_scale_factor should be >= 1, it was: " + str(rb_scale_factor))
+
         self._num_series_subseq = None
         self._num_query_subseq = None
         self._range = None
@@ -33,6 +38,8 @@ class ContextualMatrixProfile(AbstractStreamingConsumer):
         self._match_index_series = None
         self._match_index_query = None
 
+        self._rb_scale_factor = rb_scale_factor
+
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_series_subseq = series_subseq
         self._num_query_subseq = query_subseq
@@ -40,9 +47,12 @@ class ContextualMatrixProfile(AbstractStreamingConsumer):
 
         num_query_contexts, num_series_contexts = self._contexts.context_matrix_shape()
 
-        self._distance_matrix = RingBuffer(np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=np.float))
-        self._match_index_series = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int))
-        self._match_index_query = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int))
+        self._distance_matrix = RingBuffer(np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=np.float),
+                                           scaling_factor=self._rb_scale_factor)
+        self._match_index_series = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int),
+                                              scaling_factor=self._rb_scale_factor)
+        self._match_index_query = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int),
+                                             scaling_factor=self._rb_scale_factor)
 
     def process_diagonal(self, diag, values):
         values = values[0]
