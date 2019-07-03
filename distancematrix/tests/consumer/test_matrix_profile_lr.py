@@ -90,7 +90,7 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
         self.mplr.initialise(1, self.dm.shape[0], self.dm.shape[1])
 
-    def test_reservoir_sampling_columns(self):
+    def test_reservoir_sampling_columns_spreads_over_rows(self):
         dm = np.zeros((4, 1000))
 
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
@@ -107,7 +107,25 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
         for i in range(dm.shape[0]):
             npt.assert_allclose(np.count_nonzero(mp_index == i), dm.shape[1] / dm.shape[0], rtol=0.1)
 
-    def test_reservoir_sampling_diagonals(self):
+    def test_reservoid_sampling_columns_spreads_over_lower_upper_diag(self):
+        dm = np.zeros((500, 499))
+
+        self.mplr = MatrixProfileLRReservoir(random_seed=0)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
+
+        for i in range(dm.shape[1]):
+            self.mplr.process_column(i, np.atleast_2d(dm[:, i]))
+
+        # Check correct value of matrix profile
+        npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
+
+        # Check uniform distribution of selected indices - spread between upper and lower diagonal
+        mp_index = self.mplr.profile_index()
+        w = dm.shape[1]
+        below_diag = mp_index[:w] > np.arange(w)
+        npt.assert_allclose(np.count_nonzero(below_diag), w / 2, rtol=0.05)
+
+    def test_reservoir_sampling_diagonals_spreads_over_rows(self):
         dm = np.zeros((4, 1000))
 
         self.mplr = MatrixProfileLRReservoir(random_seed=0)
@@ -123,6 +141,24 @@ class TestMatrixProfileLRReservoir(TestMatrixProfileLR):
         mp_index = self.mplr.profile_index()
         for i in range(dm.shape[0]):
             npt.assert_allclose(np.count_nonzero(mp_index == i), dm.shape[1] / dm.shape[0], rtol=0.1)
+
+    def test_reservoid_sampling_diagonals_spreads_over_lower_upper_diag(self):
+        dm = np.zeros((500, 499))
+
+        self.mplr = MatrixProfileLRReservoir(random_seed=0)
+        self.mplr.initialise(1, dm.shape[0], dm.shape[1])
+
+        for i in range(-dm.shape[0] + 1, dm.shape[1]):
+            self.mplr.process_diagonal(i, np.atleast_2d(dm[diag_indices_of(dm, i)]))
+
+        # Check correct value of matrix profile
+        npt.assert_equal(self.mplr.matrix_profile(), np.zeros(dm.shape[1]))
+
+        # Check uniform distribution of selected indices - spread between upper and lower diagonal
+        mp_index = self.mplr.profile_index()
+        w = dm.shape[1]
+        below_diag = mp_index[:w] > np.arange(w)
+        npt.assert_allclose(np.count_nonzero(below_diag), w / 2, rtol=0.05)
 
 
 class TestShiftingMatrixProfileLR(TestMatrixProfileLR):

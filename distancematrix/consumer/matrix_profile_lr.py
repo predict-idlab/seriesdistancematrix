@@ -311,13 +311,16 @@ class MatrixProfileLRReservoir(AbstractConsumer):
 
         min_dist = np.min(values[:column_index + 1])
         self.matrix_profile_left[column_index] = min_dist
-        self.profile_index_left[column_index] = self._random_pick(np.nonzero(values[:column_index + 1] == min_dist)[0])
+        min_dist_idxs = np.nonzero(values[:column_index + 1] == min_dist)[0]
+        self.num_matches_left[column_index] = len(min_dist_idxs)
+        self.profile_index_left[column_index] = self._random_pick(min_dist_idxs)
 
         if len(values) >= column_index + 2:
             min_dist = np.min(values[column_index + 1:])
             self.matrix_profile_right[column_index] = min_dist
-            self.profile_index_right[column_index] = \
-                self._random_pick(np.nonzero(values[column_index + 1:] == min_dist)[0] + column_index + 1)
+            min_dist_idxs = np.nonzero(values[column_index + 1:] == min_dist)[0]
+            self.num_matches_right[column_index] = len(min_dist_idxs)
+            self.profile_index_right[column_index] = self._random_pick(min_dist_idxs) + column_index + 1
 
     def _update_matrix_profile(self, dist_profile, dist_profile_idx,
                                matrix_profile, matrix_profile_index, num_matches):
