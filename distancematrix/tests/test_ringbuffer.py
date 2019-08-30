@@ -15,11 +15,12 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer.view, np.array([0, 1, 2, 3, 4]))
         self.assertEqual(buffer[0], 0)
 
-        self.assertTrue(buffer.push([5]))
+        self.assertTrue(buffer.push(5))
         npt.assert_equal(buffer.view, np.array([1, 2, 3, 4, 5]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertTrue(buffer.push([6, 7]))
+        self.assertTrue(buffer.push([6]))
+        self.assertTrue(buffer.push([7]))
         npt.assert_equal(buffer.view, np.array([3, 4, 5, 6, 7]))
         self.assertEqual(buffer[0], 3)
 

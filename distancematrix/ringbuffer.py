@@ -61,7 +61,7 @@ class RingBuffer(object):
         :param data: the data to append, all dimensions except the last should match those of the window
         :return: True if any data point was removed by this operation
         """
-        data = np.asarray(data)
+        data = np.atleast_1d(data)
         if not data.shape[:-1] == self._buffer.shape[:-1]:
             raise RuntimeError("Data shape does not match buffer size.")
 
