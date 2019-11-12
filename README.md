@@ -1,9 +1,44 @@
-# Distance Matrix 
+# Series Distance Matrix 
 
-A python 3 library for calculating the distance matrix (and related data)
-from (time-)series data.
+This is a Python 3 library for performing (time) series analysis
+using the Series Distance Matrix,
+a framework that bundles various [Matrix Profile](https://www.cs.ucr.edu/~eamonn/MatrixProfile.html)
+related techniques.
+These techniques can be used for answering questions relating
+to pattern similarity in series.
+Some example applications include:
+- finding motifs in series (finding the best matching windows)
+- finding discords in series (finding the worst matching windows)
+- visualizing series
+- finding changing patterns
+- ...
+
+The **Series Distance Matrix** is a generalization of the Matrix Profile 
+that splits the generation and consumption of
+the all-pair subsequence distances,
+putting the focus on the distance matrix itself.
+This allows for easier and more flexible experiments by
+freely combining components and eliminates the need
+to re-implement algorithms to combine techniques in an efficient way.
+
+
+Following techniques are implemented:
+- Z-normalized Euclidean distance (including noise elimination)
+- Euclidean distance
+- (Left/Right) Matrix Profile
+- Multidimensional Matrix Profile
+- Contextual Matrix Profile
+- Streaming and batch calculation
+
+
+When using this library for academic purposes, please cite:
+```
+(To be published)
+```
 
 ## Installing
+
+This library is not yet in pip, please clone this repositor and run:
 
 ```commandline
 python setup.py clean build install
@@ -24,8 +59,7 @@ When using two time series, the number of channels should match.
 the distance matrix for the time series.
 - You select *consumers* to handle the output of generators, some consumers work on
 a single output, some can work on multiple outputs. The main goal of consumers is
-to keep track of relevant info in the distance matrix, without having to keep it
-fully in memory.
+to keep track of relevant info in the distance matrix in an efficient way.
 - You create a *calculator* and specify how much of the data you want processed,
 when completed, output is available in the consumers.
 
@@ -33,6 +67,8 @@ when completed, output is available in the consumers.
 ### Example
 
 ```python
+%matplotlib inline
+
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
@@ -86,3 +122,5 @@ plt.legend()
 
 plt.show()
 ```
+
+![](example-output.png)
