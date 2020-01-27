@@ -33,7 +33,7 @@ Following techniques are implemented:
 
 When using this library for academic purposes, please cite:
 ```
-@article{DEPAEPE2020103487,
+@article{series_distance_matrix,
 title = "A generalized matrix profile framework with support for contextual series analysis",
 journal = "Engineering Applications of Artificial Intelligence",
 volume = "90",
@@ -42,7 +42,8 @@ year = "2020",
 issn = "0952-1976",
 doi = "https://doi.org/10.1016/j.engappai.2020.103487",
 url = "http://www.sciencedirect.com/science/article/pii/S0952197620300087",
-author = "Dieter De Paepe and Sander Vanden Hautte and Bram Steenwinckel and Filip De Turck and Femke Ongenae and Olivier Janssens and Sofie Van Hoecke",
+author = "Dieter De Paepe and Sander Vanden Hautte and Bram Steenwinckel and Filip De Turck and Femke Ongenae and Olivier Janssens and Sofie Van Hoecke"
+}
 ```
 
 ## Installing
