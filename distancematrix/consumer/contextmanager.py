@@ -130,7 +130,7 @@ def _enumerate_flattened(l):
     Eg: [1, [2,3], 4] => (0, 1), (1, 2), (1, 3), (2, 4)
     """
     for i, el in enumerate(l):
-        if isinstance(el, collections.Iterable) and not isinstance(el, range):
+        if isinstance(el, collections.abc.Iterable) and not isinstance(el, range):
             for r in el:
                 yield i, r
         else:
