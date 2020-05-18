@@ -22,13 +22,18 @@ freely combining components and eliminates the need
 to re-implement algorithms to combine techniques in an efficient way.
 
 
-Following techniques are implemented:
+Following core techniques are implemented:
 - Z-normalized Euclidean distance (including noise elimination)
 - Euclidean distance
 - (Left/Right) Matrix Profile
 - Multidimensional Matrix Profile
 - Contextual Matrix Profile
 - Streaming and batch calculation
+
+
+Following Matrix Profile related techniques are implemented:
+- Valmod: find the top-1 motif in a series for each subsequence length in a given range
+- Ostinato: find the top-1 consensus motif in a collection of series
 
 
 When using this library for academic purposes, please cite:
