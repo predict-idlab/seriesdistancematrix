@@ -9,6 +9,7 @@ to pattern similarity in series.
 Some example applications include:
 - finding motifs in series (finding the best matching windows)
 - finding discords in series (finding the worst matching windows)
+- finding repetitions in series
 - visualizing series
 - finding changing patterns
 - ...
@@ -28,6 +29,7 @@ Following core techniques are implemented:
 - (Left/Right) Matrix Profile
 - Multidimensional Matrix Profile
 - Contextual Matrix Profile
+- Radius Profile
 - Streaming and batch calculation
 
 
