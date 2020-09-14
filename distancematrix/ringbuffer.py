@@ -53,13 +53,13 @@ class RingBuffer(object):
         if data is not None:
             self.push(data)
 
-    def push(self, data):
+    def push(self, data) -> int:
         """
         Appends the given data to the buffer, discarding the oldest values.
         Data is appended to the last dimension of the data window.
 
         :param data: the data to append, all dimensions except the last should match those of the window
-        :return: True if any data point was removed by this operation
+        :return: The number of data points (per dimension) dropped from the sliding window by this operation
         """
         data = np.atleast_1d(data)
         if not data.shape[:-1] == self._buffer.shape[:-1]:
@@ -68,7 +68,7 @@ class RingBuffer(object):
         data_len = data.shape[-1]
 
         if data_len == 0:
-            return False
+            return 0
 
         # If the view does not has its target capacity, first fill until it does
         if self._view_length < self._view_max_length:
@@ -78,7 +78,7 @@ class RingBuffer(object):
             self.view = self._buffer[..., :self._view_length]
 
             if data_len == delta:
-                return False
+                return 0
 
             # The buffer (its view) is now filled, continue the normal flow to process the remaining data.
             data = data[..., delta:]
@@ -109,7 +109,7 @@ class RingBuffer(object):
             self._view_start = 0
             self.view = self._buffer[..., self._view_start:self._view_start + self._view_max_length]
 
-        return True
+        return data_len
 
     def __setitem__(self, key, value):
         self.view.__setitem__(key, value)

@@ -11,32 +11,32 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer.view, np.array([0, 1, 2, 3, 4]))
         npt.assert_equal(buffer.max_shape, (5,))
 
-        self.assertFalse(buffer.push([]))
+        self.assertEqual(buffer.push([]), 0)
         npt.assert_equal(buffer.view, np.array([0, 1, 2, 3, 4]))
         self.assertEqual(buffer[0], 0)
 
-        self.assertTrue(buffer.push(5))
+        self.assertEqual(buffer.push(5), 1)
         npt.assert_equal(buffer.view, np.array([1, 2, 3, 4, 5]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertTrue(buffer.push([6]))
-        self.assertTrue(buffer.push([7]))
+        self.assertEqual(buffer.push([6]), 1)
+        self.assertEqual(buffer.push([7]), 1)
         npt.assert_equal(buffer.view, np.array([3, 4, 5, 6, 7]))
         self.assertEqual(buffer[0], 3)
 
-        self.assertTrue(buffer.push([8, 9, 10]))
+        self.assertEqual(buffer.push([8, 9, 10]), 3)
         npt.assert_equal(buffer.view, np.array([6, 7, 8, 9, 10]))
         self.assertEqual(buffer[0], 6)
 
-        self.assertTrue(buffer.push([11, 12, 13, 14]))
+        self.assertEqual(buffer.push([11, 12, 13, 14]), 4)
         npt.assert_equal(buffer.view, np.array([10, 11, 12, 13, 14]))
         self.assertEqual(buffer[0], 10)
 
-        self.assertTrue(buffer.push([15, 16, 17, 18, 19]))
+        self.assertEqual(buffer.push([15, 16, 17, 18, 19]), 5)
         npt.assert_equal(buffer.view, np.array([15, 16, 17, 18, 19]))
         self.assertEqual(buffer[0], 15)
 
-        self.assertTrue(buffer.push([20, 21, 22, 23, 24, 25]))
+        self.assertEqual(buffer.push([20, 21, 22, 23, 24, 25]), 6)
         npt.assert_equal(buffer.view, np.array([21, 22, 23, 24, 25]))
         self.assertEqual(buffer[0], 21)
 
@@ -45,31 +45,31 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer.view, np.array([[0, 1, 2, 3, 4], [0, -1, -2, -3, -4]]))
         npt.assert_equal(buffer.max_shape, (2, 5))
 
-        self.assertFalse(buffer.push([[], []]))
+        self.assertEqual(buffer.push([[], []]), 0)
         npt.assert_equal(buffer.view, np.array([[0, 1, 2, 3, 4], [0, -1, -2, -3, -4]]))
         npt.assert_equal(buffer[:, 0], [0, 0])
 
-        self.assertTrue(buffer.push([[5], [-5]]))
+        self.assertEqual(buffer.push([[5], [-5]]), 1)
         npt.assert_equal(buffer.view, np.array([[1, 2, 3, 4, 5], [-1, -2, -3, -4, -5]]))
         npt.assert_equal(buffer[:, 0], [1, -1])
 
-        self.assertTrue(buffer.push([[6, 7], [-6, -7]]))
+        self.assertEqual(buffer.push([[6, 7], [-6, -7]]), 2)
         npt.assert_equal(buffer.view, np.array([[3, 4, 5, 6, 7], [-3, -4, -5, -6, -7]]))
         npt.assert_equal(buffer[:, 0], [3, -3])
 
-        self.assertTrue(buffer.push([[8, 9, 10], [-8, -9, -10]]))
+        self.assertEqual(buffer.push([[8, 9, 10], [-8, -9, -10]]), 3)
         npt.assert_equal(buffer.view, np.array([[6, 7, 8, 9, 10], [-6, -7, -8, -9, -10]]))
         npt.assert_equal(buffer[:, 0], [6, -6])
 
-        self.assertTrue(buffer.push([[11, 12, 13, 14], [-11, -12, -13, -14]]))
+        self.assertEqual(buffer.push([[11, 12, 13, 14], [-11, -12, -13, -14]]), 4)
         npt.assert_equal(buffer.view, np.array([[10, 11, 12, 13, 14], [-10, -11, -12, -13, -14]]))
         npt.assert_equal(buffer[:, 0], [10, -10])
 
-        self.assertTrue(buffer.push([[15, 16, 17, 18, 19], [-15, -16, -17, -18, -19]]))
+        self.assertEqual(buffer.push([[15, 16, 17, 18, 19], [-15, -16, -17, -18, -19]]), 5)
         npt.assert_equal(buffer.view, np.array([[15, 16, 17, 18, 19], [-15, -16, -17, -18, -19]]))
         npt.assert_equal(buffer[:, 0], [15, -15])
 
-        self.assertTrue(buffer.push([[20, 21, 22, 23, 24, 25], [-20, -21, -22, -23, -24, -25]]))
+        self.assertEqual(buffer.push([[20, 21, 22, 23, 24, 25], [-20, -21, -22, -23, -24, -25]]), 6)
         npt.assert_equal(buffer.view, np.array([[21, 22, 23, 24, 25], [-21, -22, -23, -24, -25]]))
         npt.assert_equal(buffer[:, 0], [21, -21])
 
@@ -79,15 +79,15 @@ class TestRingBuffer(TestCase):
 
         npt.assert_equal(buffer.view, np.array([]))
 
-        self.assertFalse(buffer.push([1]))
+        self.assertEqual(buffer.push([1]), 0)
         npt.assert_equal(buffer.view, np.array([1]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertFalse(buffer.push([2, 3]))
+        self.assertEqual(buffer.push([2, 3]), 0)
         npt.assert_equal(buffer.view, np.array([1, 2, 3]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertTrue(buffer.push([4, 5, 6]))
+        self.assertEqual(buffer.push([4, 5, 6]), 1)
         npt.assert_equal(buffer.view, np.array([2, 3, 4, 5, 6]))
         self.assertEqual(buffer[0], 2)
 
@@ -98,11 +98,11 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer.view, np.array([1, 2]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertFalse(buffer.push([3]))
+        self.assertEqual(buffer.push([3]), 0)
         npt.assert_equal(buffer.view, np.array([1, 2, 3]))
         self.assertEqual(buffer[0], 1)
 
-        self.assertTrue(buffer.push([4, 5, 6]))
+        self.assertEqual(buffer.push([4, 5, 6]), 1)
         npt.assert_equal(buffer.view, np.array([2, 3, 4, 5, 6]))
         self.assertEqual(buffer[0], 2)
 
@@ -113,10 +113,10 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer.view, np.array([2, 3, 4, 5, 6]))
         self.assertEqual(buffer[0], 2)
 
-        self.assertTrue(buffer.push([7]))
+        self.assertEqual(buffer.push([7]), 1)
         npt.assert_equal(buffer.view, np.array([3, 4, 5, 6, 7]))
         self.assertEqual(buffer[0], 3)
 
-        self.assertTrue(buffer.push([8, 9, 10]))
+        self.assertEqual(buffer.push([8, 9, 10]), 3)
         npt.assert_equal(buffer.view, np.array([6, 7, 8, 9, 10]))
         self.assertEqual(buffer[0], 6)
