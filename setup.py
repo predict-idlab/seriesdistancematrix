@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(name='distancematrix',
-      version='0.2',
+      version='0.3',
       description='Library for dealing with distance matrix related calculations.',
       url='https://github.com/IDLabResearch/seriesdistancematrix',
       author='Dieter De Paepe',
