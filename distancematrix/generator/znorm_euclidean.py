@@ -47,7 +47,23 @@ class ZNormEuclidean(AbstractGenerator):
             query = series
             self_join = True
 
-        return BoundZNormEuclidean(m, series, query, self_join, self.noise_std, self._rb_scale_factor)
+        num_subseq_s = series.max_shape[-1] - m + 1
+        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.bool, scaling_factor=self._rb_scale_factor)
+
+        if not self_join:
+            num_subseq_q = query.max_shape[-1] - m + 1
+            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.bool, scaling_factor=self._rb_scale_factor)
+        else:
+            mu_q = mu_s
+            std_q = std_s
+            std_q_nonzero = std_s_nonzero
+
+        return BoundZNormEuclidean(m, series, query, self_join, self.noise_std,
+                                   mu_s, std_s, std_s_nonzero, mu_q, std_q, std_q_nonzero)
 
     def prepare(self, m, series, query=None):
         if series.ndim != 1:
@@ -55,15 +71,29 @@ class ZNormEuclidean(AbstractGenerator):
         if query is not None and query.ndim != 1:
             raise RuntimeError("Query should be 1D")
 
+        num_subseq_s = series.shape[-1] - m + 1
         series_buffer = RingBuffer(None, shape=series.shape, dtype=np.float, scaling_factor=1)
+        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=1)
+        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=1)
+        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.bool , scaling_factor=1)
+
         if query is not None:
+            num_subseq_q = query.shape[-1] - m + 1
             query_buffer = RingBuffer(None, shape=query.shape, dtype=np.float, scaling_factor=1)
+            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=1)
+            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=1)
+            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.bool, scaling_factor=1)
             self_join = False
         else:
             query_buffer = series_buffer
+            mu_q = mu_s
+            std_q = std_s
+            std_q_nonzero = std_s_nonzero
             self_join = True
 
-        result = BoundZNormEuclidean(m, series_buffer, query_buffer, self_join, self.noise_std, 1)
+        result = BoundZNormEuclidean(m, series_buffer, query_buffer, self_join, self.noise_std,
+                                     mu_s, std_s, std_s_nonzero, mu_q, std_q, std_q_nonzero)
+
         result.append_series(series)
         if not self_join:
             result.append_query(query)
@@ -72,7 +102,8 @@ class ZNormEuclidean(AbstractGenerator):
 
 
 class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
-    def __init__(self, m, series, query, self_join, noise_std, rb_scale_factor):
+    def __init__(self, m, series, query, self_join, noise_std, series_mu, series_std, series_std_nz,
+                 query_mu, query_std, query_std_nz,):
         """
         :param m: subsequence length to consider for distance calculations
         :param series: empty ringbuffer, properly sized to contain the desired window for series
@@ -80,7 +111,6 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
           as series in case of a self-join
         :param self_join: whether or not a self-join should be done
         :param noise_std: standard deviation of noise on series/query, zero to disable noise cancellation
-        :param rb_scale_factor: scaling factor used for internal RingBuffers, for speed/memory tradeoff
         """
 
         # Core values
@@ -91,20 +121,13 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
         self.self_join = self_join
 
         # Derivated values
-        num_subseq_s = series.max_shape[-1] - m + 1
-        self.mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=rb_scale_factor)
-        self.std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=rb_scale_factor)
-        self.std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=rb_scale_factor)
+        self.mu_s = series_mu
+        self.std_s = series_std
+        self.std_s_nonzero = series_std_nz
 
-        if not self_join:
-            num_subseq_q = query.max_shape[-1] - m + 1
-            self.mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=rb_scale_factor)
-            self.std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=rb_scale_factor)
-            self.std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=rb_scale_factor)
-        else:
-            self.mu_q = self.mu_s
-            self.std_q = self.std_s
-            self.std_q_nonzero = self.std_s_nonzero
+        self.mu_q = query_mu
+        self.std_q = query_std
+        self.std_q_nonzero = query_std_nz
 
         # Caching
         self.first_row = None
