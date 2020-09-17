@@ -35,7 +35,8 @@ Following core techniques are implemented:
 
 Following Matrix Profile related techniques are implemented:
 - Valmod: find the top-1 motif in a series for each subsequence length in a given range
-- Ostinato: find the top-1 consensus motif in a collection of series
+- Ostinato: find the top-1 (k of n) consensus motif in a collection of series
+- Anytime Ostinato: find the radius profile for a collection of series
 
 
 When using this library for academic purposes, please cite:
