@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.signal import fftconvolve
+from scipy.signal import convolve
 
 from distancematrix.util import diag_length
 from distancematrix.math_tricks import sliding_mean_std
@@ -75,7 +75,7 @@ class ZNormEuclidean(AbstractGenerator):
         series_buffer = RingBuffer(None, shape=series.shape, dtype=float, scaling_factor=1)
         mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=1)
         std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=1)
-        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=bool , scaling_factor=1)
+        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=bool, scaling_factor=1)
 
         if query is not None:
             num_subseq_q = query.shape[-1] - m + 1
@@ -236,19 +236,19 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
 
         if self.prev_calc_column_index != column - 1 or column == 0:
             # Previous column not cached or data for incremental calculation not available: full calculation
-            dot_prod = fftconvolve(self.query.view, series_subseq[::-1], 'valid')
+            dot_prod = convolve(self.query.view, series_subseq[::-1], 'valid')
         else:
             # Previous column cached, reuse it
             if self.first_row is None:
                 first_query = self.query[0:self.m]
-                self.first_row = RingBuffer(fftconvolve(self.series.view, first_query[::-1], 'valid'),
+                self.first_row = RingBuffer(convolve(self.series.view, first_query[::-1], 'valid'),
                                             shape=(self.series.max_shape[0] - self.m + 1,))
                 self.first_row_backlog = 0
             elif self.first_row_backlog > 0:
                 # Series has been updated since last calculation of first_row
                 elems_to_recalc = self.first_row_backlog + self.m - 1
                 first_query = self.query[0:self.m]
-                self.first_row.push(fftconvolve(self.series[-elems_to_recalc:], first_query[::-1], 'valid'))
+                self.first_row.push(convolve(self.series[-elems_to_recalc:], first_query[::-1], 'valid'))
                 self.first_row_backlog = 0
 
             dot_prod = self.prev_calc_column_dot_prod  # work in same array
