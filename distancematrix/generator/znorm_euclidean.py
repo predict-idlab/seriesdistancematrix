@@ -280,7 +280,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             if self.std_s[column] != 0:
                 mask = slice(None)
             else:
-                mask = self.std_q != 0
+                mask = self.std_q.view != 0
 
             dist_sq[mask] -= (2 * (self.m + 1) * np.square(self.noise_std) /
                               np.square(np.maximum(self.std_s[column], self.std_q[mask])))
