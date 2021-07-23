@@ -30,10 +30,10 @@ class Euclidean(AbstractGenerator):
         self._rb_scale_factor = rb_scale_factor
 
     def prepare_streaming(self, m, series_window, query_window=None):
-        series = RingBuffer(None, (series_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+        series = RingBuffer(None, (series_window,), dtype=float, scaling_factor=self._rb_scale_factor)
 
         if query_window is not None:
-            query = RingBuffer(None, (query_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+            query = RingBuffer(None, (query_window,), dtype=float, scaling_factor=self._rb_scale_factor)
             self_join = False
         else:
             query = series
@@ -47,9 +47,9 @@ class Euclidean(AbstractGenerator):
         if query is not None and query.ndim != 1:
             raise RuntimeError("Query should be 1D")
 
-        series = RingBuffer(series, dtype=np.float, scaling_factor=1)
+        series = RingBuffer(series, dtype=float, scaling_factor=1)
         if query is not None:
-            query = RingBuffer(query, dtype=np.float, scaling_factor=1)
+            query = RingBuffer(query, dtype=float, scaling_factor=1)
             self_join = False
         else:
             query = series
@@ -98,7 +98,7 @@ class BoundStreamingEuclidean(AbstractBoundStreamingGenerator):
 
     def calc_diagonal(self, diag):
         dl = diag_length(len(self.query.view), len(self.series.view), diag)
-        cumsum = np.zeros(dl + 1, dtype=np.float)
+        cumsum = np.zeros(dl + 1, dtype=float)
 
         if diag >= 0:
             # Eg: for diag = 2:

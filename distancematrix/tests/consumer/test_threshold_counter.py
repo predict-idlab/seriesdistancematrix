@@ -25,7 +25,7 @@ class TestThresholdCounter(TestCase):
 
     @staticmethod
     def bruteforce_count(array, threshold_array):
-        result = np.zeros((len(threshold_array), array.shape[1]), dtype=np.int)
+        result = np.zeros((len(threshold_array), array.shape[1]), dtype=int)
 
         for i, threshold in enumerate(threshold_array):
             for col in range(array.shape[1]):
@@ -95,7 +95,7 @@ class TestDistancedThresholdCounter(TestCase):
         threshold_array = np.array(threshold_array)
         threshold_array.sort()
 
-        result = np.zeros((len(threshold_array), array.shape[1]), dtype=np.int)
+        result = np.zeros((len(threshold_array), array.shape[1]), dtype=int)
 
         for i, threshold in enumerate(threshold_array):
             for col in range(array.shape[1]):

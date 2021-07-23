@@ -28,11 +28,11 @@ class MatrixProfileLR(AbstractConsumer):
 
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_subseq = series_subseq
-        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=int)
 
-        self._matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
+        self._matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=float)
         self._profile_index_left = np.full(self._num_subseq, -1, dtype=int)
-        self._matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=np.float)
+        self._matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=float)
         self._profile_index_right = np.full(self._num_subseq, -1, dtype=int)
 
     def process_diagonal(self, diag, values):
@@ -278,14 +278,14 @@ class MatrixProfileLRReservoir(AbstractConsumer):
 
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_subseq = series_subseq
-        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=int)
 
-        self.matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=np.float)
-        self.profile_index_left = np.full(self._num_subseq, -1, dtype=np.int)
-        self.num_matches_left = np.full(self._num_subseq, 0, dtype=np.int)
-        self.matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=np.float)
-        self.profile_index_right = np.full(self._num_subseq, -1, dtype=np.int)
-        self.num_matches_right = np.full(self._num_subseq, 0, dtype=np.int)
+        self.matrix_profile_left = np.full(self._num_subseq, np.inf, dtype=float)
+        self.profile_index_left = np.full(self._num_subseq, -1, dtype=int)
+        self.num_matches_left = np.full(self._num_subseq, 0, dtype=int)
+        self.matrix_profile_right = np.full(self._num_subseq, np.inf, dtype=float)
+        self.profile_index_right = np.full(self._num_subseq, -1, dtype=int)
+        self.num_matches_right = np.full(self._num_subseq, 0, dtype=int)
 
     def process_diagonal(self, diag, values):
         values = values[0]

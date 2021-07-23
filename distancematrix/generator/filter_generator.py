@@ -143,10 +143,10 @@ class BoundStreamingFilterGenerator(BoundFilterGenerator, AbstractBoundStreaming
         self._invalid_data_function = invalid_data_function
 
         invalid_s_subseq_buffer = RingBuffer(None, shape=(num_s_subseq,),
-                                             dtype=np.bool, scaling_factor=rb_scale_factor)
+                                             dtype=bool, scaling_factor=rb_scale_factor)
 
         self.invalid_series = RingBuffer(None, shape=(num_s_subseq + m - 1,),
-                                         dtype=np.bool, scaling_factor=rb_scale_factor)
+                                         dtype=bool, scaling_factor=rb_scale_factor)
 
         if num_q_subseq is None:
             self.self_join = True
@@ -157,9 +157,9 @@ class BoundStreamingFilterGenerator(BoundFilterGenerator, AbstractBoundStreaming
             self.self_join = False
 
             invalid_q_subseq_buffer = RingBuffer(None, shape=(num_q_subseq,),
-                                                 dtype=np.bool, scaling_factor=rb_scale_factor)
+                                                 dtype=bool, scaling_factor=rb_scale_factor)
             self.invalid_query = RingBuffer(None, shape=(num_q_subseq + m - 1,),
-                                            dtype=np.bool, scaling_factor=rb_scale_factor)
+                                            dtype=bool, scaling_factor=rb_scale_factor)
 
         super().__init__(generator, m, num_q_subseq, invalid_s_subseq_buffer, invalid_q_subseq_buffer)
 
@@ -258,7 +258,7 @@ def _invalid_data_to_invalid_subseq(invalid_data, subseq_length):
     :return: 1D boolean array of length num-subsequences
     """
     data_length = invalid_data.shape[0]
-    result = np.zeros(data_length - subseq_length + 1, dtype=np.bool)
+    result = np.zeros(data_length - subseq_length + 1, dtype=bool)
 
     impacted = 0
     for i in range(0, subseq_length - 1):

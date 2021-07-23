@@ -39,9 +39,9 @@ class TestContextualMatrixProfile(TestCase):
         :return: 2D matrix (m by n)
         """
 
-        correct = np.full((len(query_ranges), len(series_ranges)), np.inf, dtype=np.float)
-        correct_qi = np.full((len(query_ranges), len(series_ranges)), -1, dtype=np.int)
-        correct_si = np.full((len(query_ranges), len(series_ranges)), -1, dtype=np.int)
+        correct = np.full((len(query_ranges), len(series_ranges)), np.inf, dtype=float)
+        correct_qi = np.full((len(query_ranges), len(series_ranges)), -1, dtype=int)
+        correct_si = np.full((len(query_ranges), len(series_ranges)), -1, dtype=int)
 
         for i, r0s in enumerate(query_ranges):
             if not isinstance(r0s, list):

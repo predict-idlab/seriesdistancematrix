@@ -84,7 +84,7 @@ def shortest_path_distances(cost_array):
     if cost_array.ndim != 2:
         raise RuntimeError("array should be 2D")
 
-    dist = np.empty_like(cost_array, dtype=np.float)
+    dist = np.empty_like(cost_array, dtype=float)
 
     # Borders can only come from previous step
     dist[0, :] = np.cumsum(cost_array[0, :])
@@ -200,7 +200,7 @@ def sliding_window_view(x, shape, step=None, subok=False, writeable=False):
     x = np.array(x, copy=False, subok=subok)
 
     try:
-        shape = np.array(shape, np.int)
+        shape = np.array(shape, int)
     except:
         raise TypeError('`shape` must be a sequence of integer')
     else:

@@ -60,23 +60,23 @@ class MultidimensionalMatrixProfileLR(AbstractStreamingConsumer):
     def initialise(self, dims, query_subseq, series_subseq):
         self._n_dim = dims
         self._num_subseq = series_subseq
-        self._range = RingBuffer(np.arange(0, self._num_subseq, dtype=np.int),
+        self._range = RingBuffer(np.arange(0, self._num_subseq, dtype=int),
                                  scaling_factor=self._rb_scale_factor)
 
-        self._md_matrix_profile_left = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float),
+        self._md_matrix_profile_left = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=float),
                                                   scaling_factor=self._rb_scale_factor)
-        self._md_profile_index_left = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int),
+        self._md_profile_index_left = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=int),
                                                  scaling_factor=self._rb_scale_factor)
         self._md_profile_dimension_left = \
-            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int),
+            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=int),
                         scaling_factor=self._rb_scale_factor) for i in range(dims)]
 
-        self._md_matrix_profile_right = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=np.float),
+        self._md_matrix_profile_right = RingBuffer(np.full((dims, self._num_subseq), np.inf, dtype=float),
                                                    scaling_factor=self._rb_scale_factor)
-        self._md_profile_index_right = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=np.int),
+        self._md_profile_index_right = RingBuffer(np.full((dims, self._num_subseq), -1, dtype=int),
                                                   scaling_factor=self._rb_scale_factor)
         self._md_profile_dimension_right = \
-            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=np.int),
+            [RingBuffer(np.full((i + 1, self._num_subseq), -1, dtype=int),
                         scaling_factor=self._rb_scale_factor) for i in range(dims)]
 
     def process_diagonal(self, diag, values):
@@ -257,7 +257,7 @@ class MultidimensionalMatrixProfileLR(AbstractStreamingConsumer):
         :return: list of length num_dimensions, where the entry at index i is an ndarray of shape
         (i+1, num_subsequences).
         """
-        profile_dimension = [np.full((i + 1, self._num_subseq), -1, dtype=np.int) for i in range(self._n_dim)]
+        profile_dimension = [np.full((i + 1, self._num_subseq), -1, dtype=int) for i in range(self._n_dim)]
 
         for dim in range(self._n_dim):
             left_best = self._md_matrix_profile_left[dim, :] < self._md_matrix_profile_right[dim, :]

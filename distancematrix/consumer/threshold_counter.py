@@ -19,13 +19,13 @@ class ThresholdCounter(AbstractConsumer):
 
         :param thresholds: scalar or 1D array of threshold values
         """
-        self.thresholds = np.array(thresholds, ndmin=1, dtype=np.float)
+        self.thresholds = np.array(thresholds, ndmin=1, dtype=float)
         if self.thresholds.ndim != 1:
             raise ValueError('Thresholds should be scalar or one-dimensional.')
         self.counts = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self.counts = np.full((len(self.thresholds), series_subseq), 0, dtype=np.int)
+        self.counts = np.full((len(self.thresholds), series_subseq), 0, dtype=int)
 
     def process_diagonal(self, diag, values):
         values = values[0]
@@ -58,7 +58,7 @@ class DistancedThresholdCounter(AbstractConsumer):
         :param thresholds: scalar or 1D array of threshold values
         :param exclusion: number of required spaces in between counted values
         """
-        self.thresholds = np.array(thresholds, ndmin=1, dtype=np.float)
+        self.thresholds = np.array(thresholds, ndmin=1, dtype=float)
         if self.thresholds.ndim != 1:
             raise ValueError('Thresholds should be scalar or one-dimensional.')
         self.thresholds.sort()
@@ -66,7 +66,7 @@ class DistancedThresholdCounter(AbstractConsumer):
         self.counts = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self.counts = np.full((len(self.thresholds), series_subseq), 0, dtype=np.int)
+        self.counts = np.full((len(self.thresholds), series_subseq), 0, dtype=int)
 
     def process_diagonal(self, diag, values):
         raise NotImplementedError("Diagonal processing is not supported.")

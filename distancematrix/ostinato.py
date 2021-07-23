@@ -69,7 +69,7 @@ def find_consensus_motif(series_list, m: int) -> CMResult:
         # Calculate a full matrix profile between the series and the next series
         dist_calc = cached_generators[(series_idx, next_series_idx)]
         num_subseq = len(active_series) - m + 1
-        mp = np.empty(num_subseq, dtype=np.float)
+        mp = np.empty(num_subseq, dtype=float)
         for col in range(num_subseq):
             mp[col] = np.min(dist_calc.calc_column(col))
 

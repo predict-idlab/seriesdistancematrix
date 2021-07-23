@@ -85,8 +85,8 @@ class BoundMockGenerator(AbstractBoundStreamingGenerator):
         self._s_index = s_view_index
         self._q_index = q_view_index
 
-        self.appended_series = np.empty((0,), dtype=np.float)
-        self.appended_query = np.empty((0,), dtype=np.float)
+        self.appended_series = np.empty((0,), dtype=float)
+        self.appended_query = np.empty((0,), dtype=float)
 
     def calc_diagonal(self, diag):
         view = self._dist_matrix[

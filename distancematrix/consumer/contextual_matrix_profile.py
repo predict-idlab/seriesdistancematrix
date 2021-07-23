@@ -43,15 +43,15 @@ class ContextualMatrixProfile(AbstractStreamingConsumer):
     def initialise(self, dims, query_subseq, series_subseq):
         self._num_series_subseq = series_subseq
         self._num_query_subseq = query_subseq
-        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=np.int)
+        self._range = np.arange(0, max(series_subseq, query_subseq), dtype=int)
 
         num_query_contexts, num_series_contexts = self._contexts.context_matrix_shape()
 
-        self._distance_matrix = RingBuffer(np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=np.float),
+        self._distance_matrix = RingBuffer(np.full((num_query_contexts, num_series_contexts), np.Inf, dtype=float),
                                            scaling_factor=self._rb_scale_factor)
-        self._match_index_series = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int),
+        self._match_index_series = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=int),
                                               scaling_factor=self._rb_scale_factor)
-        self._match_index_query = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=np.int),
+        self._match_index_query = RingBuffer(np.full((num_query_contexts, num_series_contexts), -1, dtype=int),
                                              scaling_factor=self._rb_scale_factor)
 
     def process_diagonal(self, diag, values):
@@ -117,9 +117,9 @@ class ContextualMatrixProfile(AbstractStreamingConsumer):
 
         if context_shift > 0:
             height = self._distance_matrix.max_shape[0]
-            self._distance_matrix.push(np.full((height, context_shift), np.Inf, dtype=np.float))
-            self._match_index_series.push(np.full((height, context_shift), -1, dtype=np.int))
-            self._match_index_query.push(np.full((height, context_shift), -1, dtype=np.int))
+            self._distance_matrix.push(np.full((height, context_shift), np.Inf, dtype=float))
+            self._match_index_series.push(np.full((height, context_shift), -1, dtype=int))
+            self._match_index_query.push(np.full((height, context_shift), -1, dtype=int))
 
     def shift_query(self, amount):
         context_shift = self._contexts.shift_query(amount)

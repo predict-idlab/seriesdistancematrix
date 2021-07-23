@@ -25,7 +25,7 @@ class RadiusProfile0(AbstractConsumer):
 
         :param track_indices: values of k to track
         """
-        self.track_indices = np.array(track_indices, ndmin=1, dtype=np.int)
+        self.track_indices = np.array(track_indices, ndmin=1, dtype=int)
 
         if self.track_indices.ndim != 1:
             raise ValueError('Track_indices should be scalar or one-dimensional.')
@@ -38,7 +38,7 @@ class RadiusProfile0(AbstractConsumer):
         self.values = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self.values = np.full((len(self.track_indices), series_subseq), np.nan, dtype=np.float)
+        self.values = np.full((len(self.track_indices), series_subseq), np.nan, dtype=float)
 
     def process_diagonal(self, diag, values):
         raise NotImplementedError
@@ -46,7 +46,7 @@ class RadiusProfile0(AbstractConsumer):
     def process_column(self, column_index, values):
         values = values[0]
 
-        sorted_values = np.empty(len(values) + 1, dtype=np.float)
+        sorted_values = np.empty(len(values) + 1, dtype=float)
         sorted_values[:-1] = np.sort(values)
         sorted_values[-1] = np.nan
 
@@ -73,7 +73,7 @@ class RadiusProfile(AbstractConsumer):
         :param track_indices: values of k to track
         :param exclude_distance: trivial match exclusion distance, typical subsequence length / 2.
         """
-        self.track_indices = np.array(track_indices, ndmin=1, dtype=np.int)
+        self.track_indices = np.array(track_indices, ndmin=1, dtype=int)
 
         if self.track_indices.ndim != 1:
             raise ValueError('Track_indices should be scalar or one-dimensional.')
@@ -89,7 +89,7 @@ class RadiusProfile(AbstractConsumer):
         self.values = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self.values = np.full((len(self.track_indices), series_subseq), np.nan, dtype=np.float)
+        self.values = np.full((len(self.track_indices), series_subseq), np.nan, dtype=float)
 
     def process_diagonal(self, diag, values):
         raise NotImplementedError

@@ -18,7 +18,7 @@ class DistanceMatrix(AbstractStreamingConsumer):
         if dims != 1:
             raise RuntimeError("Input should be 1D")
 
-        self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=np.float)
+        self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=float)
 
     def process_diagonal(self, diagonal_index, values):
         num_values = values.shape[1]

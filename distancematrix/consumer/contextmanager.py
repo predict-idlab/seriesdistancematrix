@@ -76,9 +76,9 @@ class GeneralStaticManager(AbstractContextManager):
             _verify_ranges([r for i, r in _enumerate_flattened(query_contexts)])
 
         self._series_contexts = np.array(
-            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(series_contexts))], dtype=np.int)
+            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(series_contexts))], dtype=int)
         self._query_contexts = np.array(
-            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(query_contexts))], dtype=np.int)
+            [(r.start, r.stop, i) for i, r in _filter_empty(_enumerate_flattened(query_contexts))], dtype=int)
 
         self._qc_sorted_start = self._query_contexts[np.argsort(self._query_contexts[:, 0])]
         self._qc_sorted_stop = self._query_contexts[np.argsort(self._query_contexts[:, 1])]

@@ -105,7 +105,7 @@ class AbstractCalculator(ABC):
 
         generators = list(self._generators.keys())
         generators_needed_ids = list(set(id for id_list in self._consumers.values() for id in id_list))
-        column_dists = np.full((len(self._generators), row_limit), np.nan, dtype=np.float)
+        column_dists = np.full((len(self._generators), row_limit), np.nan, dtype=float)
 
         start_time = time.time()
 
@@ -175,9 +175,9 @@ class AnytimeCalculator(AbstractCalculator):
         """
         self_join = query is None
 
-        self.series = np.atleast_2d(series).astype(np.float, copy=True)
+        self.series = np.atleast_2d(series).astype(float, copy=True)
         if not self_join:
-            self.query = np.atleast_2d(query).astype(np.float, copy=True)
+            self.query = np.atleast_2d(query).astype(float, copy=True)
         else:
             self.query = self.series
 
@@ -235,7 +235,7 @@ class AnytimeCalculator(AbstractCalculator):
         generators = list(self._generators.keys())
         generators_needed_ids = list(set(id for id_list in self._consumers.values() for id in id_list))
         max_diagonal_length = min(self.num_query_subseq, self.num_series_subseq)
-        diag_dists = np.full((len(self._generators), max_diagonal_length), np.nan, dtype=np.float)
+        diag_dists = np.full((len(self._generators), max_diagonal_length), np.nan, dtype=float)
 
         values_needed = _ratio_to_int(partial, self._diagonal_values_total, self._diagonal_values_total)
 

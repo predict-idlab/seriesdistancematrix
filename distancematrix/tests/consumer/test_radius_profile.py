@@ -26,7 +26,7 @@ class TestRadiusProfile0(TestCase):
     @staticmethod
     def bruteforce_calc(array, target_idxs):
         target_idxs = sorted(target_idxs)
-        result = np.zeros((len(target_idxs), array.shape[1]), dtype=np.float)
+        result = np.zeros((len(target_idxs), array.shape[1]), dtype=float)
 
         for col in range(array.shape[1]):
             sorted_col_values = np.sort(array[:, col])
@@ -85,7 +85,7 @@ class TestRadiusProfile(TestCase):
         target_idxs = np.array(target_idxs)
         target_idxs.sort()
 
-        result = np.zeros((len(target_idxs), array.shape[1]), dtype=np.float)
+        result = np.zeros((len(target_idxs), array.shape[1]), dtype=float)
 
         for col in range(array.shape[1]):
             for i, target_idx in enumerate(target_idxs):

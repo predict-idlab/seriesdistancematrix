@@ -38,25 +38,25 @@ class ZNormEuclidean(AbstractGenerator):
         self._rb_scale_factor = rb_scale_factor
 
     def prepare_streaming(self, m, series_window, query_window=None):
-        series = RingBuffer(None, (series_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+        series = RingBuffer(None, (series_window,), dtype=float, scaling_factor=self._rb_scale_factor)
 
         if query_window is not None:
-            query = RingBuffer(None, (query_window,), dtype=np.float, scaling_factor=self._rb_scale_factor)
+            query = RingBuffer(None, (query_window,), dtype=float, scaling_factor=self._rb_scale_factor)
             self_join = False
         else:
             query = series
             self_join = True
 
         num_subseq_s = series.max_shape[-1] - m + 1
-        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=self._rb_scale_factor)
-        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=self._rb_scale_factor)
-        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.bool, scaling_factor=self._rb_scale_factor)
+        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=self._rb_scale_factor)
+        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=self._rb_scale_factor)
+        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=bool, scaling_factor=self._rb_scale_factor)
 
         if not self_join:
             num_subseq_q = query.max_shape[-1] - m + 1
-            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=self._rb_scale_factor)
-            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=self._rb_scale_factor)
-            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.bool, scaling_factor=self._rb_scale_factor)
+            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=float, scaling_factor=self._rb_scale_factor)
+            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=float, scaling_factor=self._rb_scale_factor)
+            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=bool, scaling_factor=self._rb_scale_factor)
         else:
             mu_q = mu_s
             std_q = std_s
@@ -72,17 +72,17 @@ class ZNormEuclidean(AbstractGenerator):
             raise RuntimeError("Query should be 1D")
 
         num_subseq_s = series.shape[-1] - m + 1
-        series_buffer = RingBuffer(None, shape=series.shape, dtype=np.float, scaling_factor=1)
-        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=1)
-        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=np.float, scaling_factor=1)
-        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=np.bool , scaling_factor=1)
+        series_buffer = RingBuffer(None, shape=series.shape, dtype=float, scaling_factor=1)
+        mu_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=1)
+        std_s = RingBuffer(None, shape=(num_subseq_s,), dtype=float, scaling_factor=1)
+        std_s_nonzero = RingBuffer(None, shape=(num_subseq_s,), dtype=bool , scaling_factor=1)
 
         if query is not None:
             num_subseq_q = query.shape[-1] - m + 1
-            query_buffer = RingBuffer(None, shape=query.shape, dtype=np.float, scaling_factor=1)
-            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=1)
-            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=np.float, scaling_factor=1)
-            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=np.bool, scaling_factor=1)
+            query_buffer = RingBuffer(None, shape=query.shape, dtype=float, scaling_factor=1)
+            mu_q = RingBuffer(None, shape=(num_subseq_q,), dtype=float, scaling_factor=1)
+            std_q = RingBuffer(None, shape=(num_subseq_q,), dtype=float, scaling_factor=1)
+            std_q_nonzero = RingBuffer(None, shape=(num_subseq_q,), dtype=bool, scaling_factor=1)
             self_join = False
         else:
             query_buffer = series_buffer
@@ -179,7 +179,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
     def calc_diagonal(self, diag):
         dl = diag_length(len(self.query.view), len(self.series.view), diag)  # Number of affected data points
         dlr = dl - self.m + 1  # Number of entries in diagonal
-        cumsum = np.zeros(dl + 1, dtype=np.float)
+        cumsum = np.zeros(dl + 1, dtype=float)
 
         if diag >= 0:
             # Eg: for diag = 2:
@@ -203,7 +203,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
 
         dot_prod = cumsum[self.m:] - cumsum[:dlr]
 
-        dist_sq = np.zeros(dlr, dtype=np.float)
+        dist_sq = np.zeros(dlr, dtype=float)
         non_zero_std_q = self.std_q_nonzero[q_range]
         non_zero_std_s = self.std_s_nonzero[s_range]
 
@@ -231,7 +231,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
         return np.sqrt(dist_sq)
 
     def calc_column(self, column):
-        dist_sq = np.zeros(len(self.query.view) - self.m + 1, dtype=np.float)
+        dist_sq = np.zeros(len(self.query.view) - self.m + 1, dtype=float)
         series_subseq = self.series[column: column + self.m]
 
         if self.prev_calc_column_index != column - 1 or column == 0:

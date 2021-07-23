@@ -55,9 +55,9 @@ class TestContextualMatrixProfile(TestCase):
         :return: a tuple (profile, index, dimensions)
         """
 
-        correct = np.full((dist_matrix.shape[0], dist_matrix.shape[2]), np.inf, dtype=np.float)
-        correct_index = np.full((dist_matrix.shape[0], dist_matrix.shape[2]), -1, dtype=np.int)
-        correct_dims = [np.full((i + 1, dist_matrix.shape[2]), -1, dtype=np.int) for i in range(dist_matrix.shape[0])]
+        correct = np.full((dist_matrix.shape[0], dist_matrix.shape[2]), np.inf, dtype=float)
+        correct_index = np.full((dist_matrix.shape[0], dist_matrix.shape[2]), -1, dtype=int)
+        correct_dims = [np.full((i + 1, dist_matrix.shape[2]), -1, dtype=int) for i in range(dist_matrix.shape[0])]
 
         correct[0], correct_index[0], correct_dims[0] = self._bruteforce_mmp_for_dims(dist_matrix, ([0], [1], [2]))
         correct[1], correct_index[1], correct_dims[1] = self._bruteforce_mmp_for_dims(dist_matrix, ([0, 1], [0, 2], [1, 2]))
@@ -66,9 +66,9 @@ class TestContextualMatrixProfile(TestCase):
         return correct, correct_index, correct_dims
 
     def _bruteforce_mmp_for_dims(self, dist_matrix, dimensions):
-        mp = np.full(dist_matrix.shape[2], np.inf, dtype=np.float)
-        index = np.full(dist_matrix.shape[2], -1, dtype=np.int)
-        dims = np.full((len(dimensions[0]), dist_matrix.shape[2]), -1, dtype=np.int)
+        mp = np.full(dist_matrix.shape[2], np.inf, dtype=float)
+        index = np.full(dist_matrix.shape[2], -1, dtype=int)
+        dims = np.full((len(dimensions[0]), dist_matrix.shape[2]), -1, dtype=int)
 
         for selected_dims in dimensions:
             dim_view = np.sum(dist_matrix[selected_dims], axis=0) / len(selected_dims)

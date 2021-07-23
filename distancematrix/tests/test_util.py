@@ -113,7 +113,7 @@ class TestUtil(TestCase):
             [0, 1, 1, 4, 0],
             [2, 5, 5, 2, 2],
             [0, 1, 2, 3, 9]
-        ], dtype=np.float)
+        ], dtype=float)
 
         expected = np.array([
             [1, 3, 4, 4, 7],
@@ -121,7 +121,7 @@ class TestUtil(TestCase):
             [2, 3, 4, 7, 4],
             [4, 7, 8, 6, 6],
             [4, 5, 7, 9, 15]
-        ], dtype=np.float)
+        ], dtype=float)
 
         result = shortest_path_distances(data)
         npt.assert_equal(result, expected)
@@ -140,7 +140,7 @@ class TestUtil(TestCase):
             [2, 2, 5, 2, 5],
             [0, 1, 1, 3, 2],
             [0, 1, 1, 5, 9]
-        ], dtype=np.float)
+        ], dtype=float)
 
         result = shortest_path(data)
         npt.assert_equal(result, [[0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [4, 3], [5, 4]])

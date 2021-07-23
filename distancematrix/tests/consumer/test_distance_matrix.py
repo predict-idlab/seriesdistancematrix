@@ -38,7 +38,7 @@ class TestContextualMatrixProfile(TestCase):
         dm = DistanceMatrix()
         self.mock_initialise(dm)
 
-        correct = np.full_like(self.dist_matrix, np.nan, dtype=np.float)
+        correct = np.full_like(self.dist_matrix, np.nan, dtype=float)
 
         for diag in range(-8, self.dist_matrix.shape[1], 3):
             diag_ind = diag_indices_of(self.dist_matrix, diag)
@@ -60,7 +60,7 @@ class TestContextualMatrixProfile(TestCase):
         dm = DistanceMatrix()
         self.mock_initialise(dm)
 
-        correct = np.full_like(self.dist_matrix, np.nan, dtype=np.float)
+        correct = np.full_like(self.dist_matrix, np.nan, dtype=float)
 
         for column in [2, 3, 4, 5, 10, 11, 12]:
             dm.process_column(column, np.atleast_2d(self.dist_matrix[:, column]))

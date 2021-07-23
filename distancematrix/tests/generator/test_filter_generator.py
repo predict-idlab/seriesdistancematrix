@@ -35,12 +35,12 @@ class TestFilterGenerator(TestCase):
         self.assertIsNone(mock_gen.query)
 
     def test_calc_column_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(12, dtype=np.float).reshape((3, 4)))
+        mock_gen = MockGenerator(np.arange(12, dtype=float).reshape((3, 4)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare(
             3,
-            np.array([1, np.inf, 3, 4, 5, 6], dtype=np.float),
-            np.array([1, 2, 3, 4, np.inf], dtype=np.float)
+            np.array([1, np.inf, 3, 4, 5, 6], dtype=float),
+            np.array([1, 2, 3, 4, np.inf], dtype=float)
         )
 
         npt.assert_equal(filter_gen.calc_column(0), [np.inf, np.inf, np.inf])
@@ -49,12 +49,12 @@ class TestFilterGenerator(TestCase):
         npt.assert_equal(filter_gen.calc_column(3), [3, 7, np.inf])
 
     def test_calc_diag_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(12, dtype=np.float).reshape((3, 4)))
+        mock_gen = MockGenerator(np.arange(12, dtype=float).reshape((3, 4)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare(
             3,
-            np.array([1, np.inf, 3, 4, 5, 6], dtype=np.float),
-            np.array([1, 2, 3, 4, np.inf], dtype=np.float)
+            np.array([1, np.inf, 3, 4, 5, 6], dtype=float),
+            np.array([1, 2, 3, 4, np.inf], dtype=float)
         )
 
         # i i 2 3
@@ -112,7 +112,7 @@ class TestStreamingFilterGenerator(TestCase):
         npt.assert_equal(mock_gen.bound_gen.appended_query, [])
 
     def test_streaming_calc_column_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(100, dtype=np.float).reshape((10, 10)))
+        mock_gen = MockGenerator(np.arange(100, dtype=float).reshape((10, 10)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare_streaming(3, 6, 5)
 
@@ -160,7 +160,7 @@ class TestStreamingFilterGenerator(TestCase):
         npt.assert_equal(filter_gen.calc_column(3), [np.Inf, 57, 67])
 
     def test_streaming_self_join_calc_column_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(100, dtype=np.float).reshape((10, 10)))
+        mock_gen = MockGenerator(np.arange(100, dtype=float).reshape((10, 10)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare_streaming(3, 6)
 
@@ -192,7 +192,7 @@ class TestStreamingFilterGenerator(TestCase):
         npt.assert_equal(filter_gen.calc_column(3), [58, 68, 78, 88])
 
     def test_streaming_calc_diag_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(100, dtype=np.float).reshape((10, 10)))
+        mock_gen = MockGenerator(np.arange(100, dtype=float).reshape((10, 10)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare_streaming(3, 6, 5)
 
@@ -250,7 +250,7 @@ class TestStreamingFilterGenerator(TestCase):
         # i . . .
 
     def test_streaming_self_join_calc_diag_with_invalid_data(self):
-        mock_gen = MockGenerator(np.arange(100, dtype=np.float).reshape((10, 10)))
+        mock_gen = MockGenerator(np.arange(100, dtype=float).reshape((10, 10)))
         filter_gen = FilterGenerator(mock_gen,
                                      invalid_data_function=is_not_finite).prepare_streaming(3, 6)
 
@@ -281,38 +281,38 @@ class TestStreamingFilterGenerator(TestCase):
 
 class TestHelperMethods(TestCase):
     def test_invalid_data_to_invalid_subseq(self):
-        data = np.array([0, 0, 0, 0, 0, 0], dtype=np.bool)
-        corr = np.array([0, 0, 0, 0], dtype=np.bool)
+        data = np.array([0, 0, 0, 0, 0, 0], dtype=bool)
+        corr = np.array([0, 0, 0, 0], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([1, 0, 0, 0, 0, 0], dtype=np.bool)
-        corr = np.array([1, 0, 0, 0], dtype=np.bool)
+        data = np.array([1, 0, 0, 0, 0, 0], dtype=bool)
+        corr = np.array([1, 0, 0, 0], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 1, 0, 0, 0, 0], dtype=np.bool)
-        corr = np.array([1, 1, 0, 0], dtype=np.bool)
+        data = np.array([0, 1, 0, 0, 0, 0], dtype=bool)
+        corr = np.array([1, 1, 0, 0], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 0, 1, 0, 0, 0], dtype=np.bool)
-        corr = np.array([1, 1, 1, 0], dtype=np.bool)
+        data = np.array([0, 0, 1, 0, 0, 0], dtype=bool)
+        corr = np.array([1, 1, 1, 0], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 0, 0, 1, 0, 0], dtype=np.bool)
-        corr = np.array([0, 1, 1, 1], dtype=np.bool)
+        data = np.array([0, 0, 0, 1, 0, 0], dtype=bool)
+        corr = np.array([0, 1, 1, 1], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 0, 0, 0, 1, 0], dtype=np.bool)
-        corr = np.array([0, 0, 1, 1], dtype=np.bool)
+        data = np.array([0, 0, 0, 0, 1, 0], dtype=bool)
+        corr = np.array([0, 0, 1, 1], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 0, 0, 0, 0, 1], dtype=np.bool)
-        corr = np.array([0, 0, 0, 1], dtype=np.bool)
+        data = np.array([0, 0, 0, 0, 0, 1], dtype=bool)
+        corr = np.array([0, 0, 0, 1], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([1, 0, 1, 0, 0, 0], dtype=np.bool)
-        corr = np.array([1, 1, 1, 0], dtype=np.bool)
+        data = np.array([1, 0, 1, 0, 0, 0], dtype=bool)
+        corr = np.array([1, 1, 1, 0], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)
 
-        data = np.array([0, 0, 1, 0, 1, 0], dtype=np.bool)
-        corr = np.array([1, 1, 1, 1], dtype=np.bool)
+        data = np.array([0, 0, 1, 0, 1, 0], dtype=bool)
+        corr = np.array([1, 1, 1, 1], dtype=bool)
         npt.assert_equal(_invalid_data_to_invalid_subseq(data, 3), corr)

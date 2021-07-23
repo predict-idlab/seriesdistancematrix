@@ -20,7 +20,7 @@ class SummingConsumer(AbstractConsumer):
         self.distance_matrix = None
 
     def initialise(self, dims, query_subseq, series_subseq):
-        self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=np.float)
+        self.distance_matrix = np.full((query_subseq, series_subseq), np.nan, dtype=float)
 
     def process_diagonal(self, diagonal_index, values):
         indices = diag_indices_of(self.distance_matrix, diagonal_index)
@@ -37,9 +37,9 @@ class TestAnytimeCalculator(TestCase):
         m = 4
 
         distance_matrix1 = np.arange(200.).reshape((10, 20))
-        distance_matrix2 = np.ones((10, 20), dtype=np.float)
-        distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
-        distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
+        distance_matrix2 = np.ones((10, 20), dtype=float)
+        distance_matrix3 = np.full((10, 20), np.nan, dtype=float)
+        distance_matrix4 = np.full((10, 20), 5., dtype=float)
 
         calc = AnytimeCalculator(m, series, query)
         calc.add_generator(0, MockGenerator(distance_matrix1))
@@ -66,9 +66,9 @@ class TestAnytimeCalculator(TestCase):
         m = 4
 
         distance_matrix1 = np.arange(200.).reshape((10, 20))
-        distance_matrix2 = np.ones((10, 20), dtype=np.float)
-        distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
-        distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
+        distance_matrix2 = np.ones((10, 20), dtype=float)
+        distance_matrix3 = np.full((10, 20), np.nan, dtype=float)
+        distance_matrix4 = np.full((10, 20), 5., dtype=float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
         calc = AnytimeCalculator(m, series, query)
@@ -114,9 +114,9 @@ class TestAnytimeCalculator(TestCase):
         m = 4
 
         distance_matrix1 = np.arange(200.).reshape((10, 20))
-        distance_matrix2 = np.ones((10, 20), dtype=np.float)
-        distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
-        distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
+        distance_matrix2 = np.ones((10, 20), dtype=float)
+        distance_matrix3 = np.full((10, 20), np.nan, dtype=float)
+        distance_matrix4 = np.full((10, 20), 5., dtype=float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
 
         calc = AnytimeCalculator(m, series, query)
@@ -144,9 +144,9 @@ class TestAnytimeCalculator(TestCase):
         m = 4
 
         distance_matrix1 = np.arange(200.).reshape((10, 20))
-        distance_matrix2 = np.ones((10, 20), dtype=np.float)
-        distance_matrix3 = np.full((10, 20), np.nan, dtype=np.float)
-        distance_matrix4 = np.full((10, 20), 5., dtype=np.float)
+        distance_matrix2 = np.ones((10, 20), dtype=float)
+        distance_matrix3 = np.full((10, 20), np.nan, dtype=float)
+        distance_matrix4 = np.full((10, 20), 5., dtype=float)
         summed_matrix = distance_matrix1 + distance_matrix2 + distance_matrix4
         max_diag = min(len(query) - m + 1, len(series) - m + 1)  # Maximum length of a diagonal
 
@@ -231,7 +231,7 @@ class TestAnytimeCalculator(TestCase):
 
 class TestStreamingCalculator(TestCase):
     def test_streaming_calculate_columns_self_join(self):
-        dist_matrix = np.arange(10, 100).astype(dtype=np.float).reshape((9, 10))
+        dist_matrix = np.arange(10, 100).astype(dtype=float).reshape((9, 10))
         calc = StreamingCalculator(101, 106, trivial_match_buffer=-1)  # Distance Matrix in consumer has shape (6, 6)
         calc.add_generator(0, MockGenerator(dist_matrix))
         consumer = DistanceMatrix()
@@ -306,7 +306,7 @@ class TestStreamingCalculator(TestCase):
         npt.assert_equal(consumer.distance_matrix, expected)
 
     def test_streaming_calculate_columns(self):
-        dist_matrix = np.arange(10, 100).astype(dtype=np.float).reshape((9, 10))
+        dist_matrix = np.arange(10, 100).astype(dtype=float).reshape((9, 10))
         calc = StreamingCalculator(101, 106, 105)  # Distance Matrix in consumer has shape (5, 6)
         calc.add_generator(0, MockGenerator(dist_matrix))
         consumer = DistanceMatrix()
@@ -412,6 +412,6 @@ def copy_columns(array, columns):
     """
     Returns an array of the same size as array, with the columns copied, and nan for any other value.
     """
-    result = np.full_like(array, np.nan, dtype=np.float)
+    result = np.full_like(array, np.nan, dtype=float)
     result[..., columns] = array[..., columns]
     return result

@@ -74,7 +74,7 @@ class TestRingBuffer(TestCase):
         npt.assert_equal(buffer[:, 0], [21, -21])
 
     def test_empty_intialization(self):
-        buffer = RingBuffer(None, shape=(5,), dtype=np.int)
+        buffer = RingBuffer(None, shape=(5,), dtype=int)
         npt.assert_equal(buffer.max_shape, (5,))
 
         npt.assert_equal(buffer.view, np.array([]))
@@ -92,7 +92,7 @@ class TestRingBuffer(TestCase):
         self.assertEqual(buffer[0], 2)
 
     def test_partial_intialization(self):
-        buffer = RingBuffer([1, 2], shape=(5,), dtype=np.int)
+        buffer = RingBuffer([1, 2], shape=(5,), dtype=int)
         npt.assert_equal(buffer.max_shape, (5,))
 
         npt.assert_equal(buffer.view, np.array([1, 2]))
@@ -107,7 +107,7 @@ class TestRingBuffer(TestCase):
         self.assertEqual(buffer[0], 2)
 
     def test_oversized_initialization(self):
-        buffer = RingBuffer([1, 2, 3, 4, 5, 6], shape=(5,), dtype=np.int)
+        buffer = RingBuffer([1, 2, 3, 4, 5, 6], shape=(5,), dtype=int)
         npt.assert_equal(buffer.max_shape, (5,))
 
         npt.assert_equal(buffer.view, np.array([2, 3, 4, 5, 6]))

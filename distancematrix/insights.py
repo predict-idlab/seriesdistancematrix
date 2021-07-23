@@ -15,7 +15,7 @@ def lowest_value_idxs(array, exclude_distance):
     if type(exclude_distance) is not int or exclude_distance < 0:
         raise RuntimeError('Exclude distance should be positive integer.')
 
-    array = array.astype(np.float, copy=True)
+    array = array.astype(float, copy=True)
     array[~np.isfinite(array)] = np.inf
 
     min_idx = np.argmin(array)
