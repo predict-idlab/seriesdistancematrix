@@ -227,6 +227,18 @@ class AbstractGeneratorTest(object):
         bf_dist_matrix = self.bruteforce_matrix(self.m, self.series[20: 40], self.series[20: 40])
         _verify_columns_correct(bf_dist_matrix, gen, False)
 
+    def test_non_streaming_calc_single(self):
+        gen = self.create_generator().prepare(self.m, self.series, self.query)
+        bf_dist_matrix = self.bruteforce_matrix(self.m, self.series, self.query)
+        num_cols = len(self.series) - self.m + 1
+        num_rows = len(self.query) - self.m + 1
+        result = np.full((num_rows, num_cols), np.nan, dtype=float)
+        for col in range(num_cols):
+            for row in range(num_rows):
+                result[row, col] = gen.calc_single(row, col)
+
+        npt.assert_allclose(result, bf_dist_matrix, atol=1e-10)
+
 
 class TestZnormEuclidean(AbstractGeneratorTest, TestCase):
     def create_generator(self):
@@ -289,8 +301,11 @@ def _euclidean_znorm_distance(s1, s2, m, noise_std=0.):
         np.square(_znorm(s1) - _znorm(s2)))
 
     if noise_std != 0.:
-        max_std = np.maximum(np.std(s1), np.std(s2))
-        if max_std != 0:
+        std1 = np.std(s1)
+        std2 = np.std(s2)
+
+        if std1 != 0. or std2 != 0.:
+            max_std = np.maximum(np.std(s1), np.std(s2))
             sq_dist -= (2 * (m + 1) * np.square(noise_std) /
                         np.square(max_std))
             sq_dist = np.maximum(sq_dist, 0)

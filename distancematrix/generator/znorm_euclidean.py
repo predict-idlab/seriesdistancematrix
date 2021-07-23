@@ -308,14 +308,14 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             return 0.
 
         if std_q == 0. or std_s == 0.:
-            return self.m
+            dist_sq = self.m
+        else:
+            if not dot_prod:
+                dot_prod = np.sum(self.query[row: row+self.m] * self.series[column: column+self.m])
+            mean_q = self.mu_q[row]
+            mean_s = self.mu_s[column]
 
-        if not dot_prod:
-            dot_prod = np.sum(self.query[row: row+self.m] * self.series[column: column+self.m])
-        mean_q = self.mu_q[row]
-        mean_s = self.mu_s[column]
-
-        dist_sq = 2 * (self.m - (dot_prod - self.m * mean_q * mean_s) / (std_q * std_s))
+            dist_sq = 2 * (self.m - (dot_prod - self.m * mean_q * mean_s) / (std_q * std_s))
 
         if self.noise_std != 0.:
             dist_sq -= (2 * (self.m + 1) * np.square(self.noise_std) / np.square(np.maximum(std_s, std_q)))
