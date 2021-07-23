@@ -9,6 +9,17 @@ from distancematrix.ringbuffer import RingBuffer
 
 _EPS = 1e-12
 
+_CONSTANT_SUBSEQ_THRESHOLD = 1e-6
+"""
+We treat all subsequences with a standard deviation equal of lower than this value as constant (= flat) sequences.
+
+The value is based on properties of numerical instability seen in examples:
+- the fft convolution (which may be used depending on size of series and m) can have an error of around 1e-14
+- the dynamic calculation of the dot-products can have errors of up to 1e-20
+By not accepting stds lower than 1e-6, the max scale-up of the error is (1/(std*std)=) 1e12, meaning that
+any error in the resulting distance should be negligible.
+"""
+
 
 class ZNormEuclidean(AbstractGenerator):
     """
@@ -17,6 +28,9 @@ class ZNormEuclidean(AbstractGenerator):
     (zero mean and unit variance) subsequences of both series.
 
     This generator can handle streaming data.
+
+    Subsequences with standard deviation <= 1e-6 will be treated as flat sequences to avoid problems
+    with numerical stability.
     """
 
     def __init__(self, noise_std=0., rb_scale_factor=2.):
@@ -148,7 +162,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             new_mu, new_std = sliding_mean_std(self.series[-num_affected:], self.m)
             self.mu_s.push(new_mu)
             self.std_s.push(new_std)
-            self.std_s_nonzero.push(new_std != 0.)
+            self.std_s_nonzero.push(new_std > _CONSTANT_SUBSEQ_THRESHOLD)
 
         if self.prev_calc_column_index is not None and num_dropped > 0:
             self.prev_calc_column_index -= num_dropped
@@ -174,7 +188,7 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             new_mu, new_std = sliding_mean_std(self.query[-num_affected:], self.m)
             self.mu_q.push(new_mu)
             self.std_q.push(new_std)
-            self.std_q_nonzero.push(new_std != 0.)
+            self.std_q_nonzero.push(new_std > _CONSTANT_SUBSEQ_THRESHOLD)
 
     def calc_diagonal(self, diag):
         dl = diag_length(len(self.query.view), len(self.series.view), diag)  # Number of affected data points
@@ -260,8 +274,8 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
         self.prev_calc_column_dot_prod = dot_prod
         self.prev_calc_column_index = column
 
-        if self.std_s[column] != 0:
-            q_valid = self.std_q.view != 0
+        if self.std_s_nonzero[column]:
+            q_valid = self.std_q_nonzero.view
 
             # Series subsequence is not stable, if query subsequence is stable, the distance is sqrt(m) by definition.
             dist_sq[~q_valid] = self.m
@@ -272,15 +286,15 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
             # Series subsequence is stable, results are either sqrt(m) or 0, depending on whether or not
             # query subsequences are stable as well.
 
-            dist_sq[self.std_q.view != 0] = self.m
+            dist_sq[self.std_q_nonzero.view] = self.m
             # dist_sq[self.std_q == 0] = 0  # Covered by array initialization
 
         # Noise correction - See paper "Eliminating noise in the matrix profile"
         if self.noise_std != 0.:
-            if self.std_s[column] != 0:
+            if self.std_s_nonzero[column]:
                 mask = slice(None)
             else:
-                mask = self.std_q.view != 0
+                mask = self.std_q_nonzero.view
 
             dist_sq[mask] -= (2 * (self.m + 1) * np.square(self.noise_std) /
                               np.square(np.maximum(self.std_s[column], self.std_q[mask])))
@@ -304,10 +318,10 @@ class BoundZNormEuclidean(AbstractBoundStreamingGenerator):
         std_q = self.std_q[row]
         std_s = self.std_s[column]
 
-        if std_q == 0. and std_s == 0.:
+        if std_q <= _CONSTANT_SUBSEQ_THRESHOLD and std_s <= _CONSTANT_SUBSEQ_THRESHOLD:
             return 0.
 
-        if std_q == 0. or std_s == 0.:
+        if std_q <= _CONSTANT_SUBSEQ_THRESHOLD or std_s <= _CONSTANT_SUBSEQ_THRESHOLD:
             dist_sq = self.m
         else:
             if not dot_prod:

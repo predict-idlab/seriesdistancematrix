@@ -3,7 +3,7 @@ import numpy as np
 
 from distancematrix import AnytimeCalculator
 from distancematrix.generator import ZNormEuclidean
-from distancematrix.generator.znorm_euclidean import BoundZNormEuclidean
+from distancematrix.generator.znorm_euclidean import BoundZNormEuclidean, _CONSTANT_SUBSEQ_THRESHOLD
 from distancematrix.consumer import MatrixProfileLR
 from distancematrix.math_tricks import sliding_mean_std
 from distancematrix.ringbuffer import RingBuffer
@@ -48,9 +48,9 @@ def find_consensus_motif(series_list, m: int) -> CMResult:
     stdsz = []
     for series in series_list:
         mu, std = sliding_mean_std(series, m)
-        mus.append(mu)
-        stds.append(std)
-        stdsz.append(std != 0.)
+        mus.append(RingBuffer(mu, scaling_factor=1.))
+        stds.append(RingBuffer(std, scaling_factor=1.))
+        stdsz.append(RingBuffer(std > _CONSTANT_SUBSEQ_THRESHOLD, scaling_factor=1.))
 
     # Step 2: create the distance calculator
     for i, series1 in enumerate(series_list):

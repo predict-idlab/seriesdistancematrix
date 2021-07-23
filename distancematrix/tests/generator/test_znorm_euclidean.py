@@ -239,6 +239,32 @@ class AbstractGeneratorTest(object):
 
         npt.assert_allclose(result, bf_dist_matrix, atol=1e-10)
 
+    def test_numerical_stability(self):
+        self.series = np.array([9.859169023394657, 18.026092617400675, 1.6423838253843416e-24, 0.0, 0.0])
+        self.m = 3
+        gen = self.create_generator().prepare(self.m, self.series, self.series)
+
+        col0 = gen.calc_column(0)
+        col1 = gen.calc_column(1)
+        col2 = gen.calc_column(2)
+
+        # These assertions failed when using FFT convolve
+        npt.assert_(np.max(col0) <= 2 * np.sqrt(self.m), f"Max value was: {np.max(col0)}")
+        npt.assert_(np.max(col1) <= 2 * np.sqrt(self.m), f"Max value was: {np.max(col1)}")
+        npt.assert_(np.max(col2) <= 2 * np.sqrt(self.m), f"Max value was: {np.max(col2)}")
+
+        # These assertions check that calculations for a single value (not using bulk-calculated dot products)
+        # do not differ. They focus on the checking the more complex dot-product based calculation.
+        for col_i, col in enumerate([col0, col1, col2]):
+            for row_i in range(3):
+                npt.assert_allclose(col[row_i], gen.calc_single(row_i, col_i), atol=1e-10)
+
+        # These assertions check against the more simple euclidean-of-znormalized calculation.
+        bf_dist_matrix = self.bruteforce_matrix(self.m, self.series, self.series)
+        npt.assert_allclose(col0, bf_dist_matrix[:, 0], atol=1e-10)
+        npt.assert_allclose(col1, bf_dist_matrix[:, 1], atol=1e-10)
+        npt.assert_allclose(col2, bf_dist_matrix[:, 2], atol=1e-10)
+
 
 class TestZnormEuclidean(AbstractGeneratorTest, TestCase):
     def create_generator(self):
@@ -315,6 +341,6 @@ def _euclidean_znorm_distance(s1, s2, m, noise_std=0.):
 
 def _znorm(a):
     std = np.std(a)
-    if std == 0:
+    if std < 1e-6:
         std = 1
     return (a - np.mean(a)) / std
