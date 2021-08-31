@@ -67,6 +67,14 @@ or for development (this creates a link to the source code, rather than a librar
 python setup.py develop
 ```
 
+## Documentation
+
+Documentation is built using Sphinx. Navigate to the `docs` folder, activate the conda environment
+defined in the environment file, and run:
+
+```commandline
+make html
+```
 
 ## Usage
 
