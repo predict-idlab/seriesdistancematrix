@@ -29,6 +29,7 @@ author = 'Dieter De Paepe'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+  'sphinx.ext.githubpages', # Create a .no_jekyll file in output
   'autoapi.extension',
   'myst_parser' # Accept markdown files
 ]
