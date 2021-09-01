@@ -3,7 +3,7 @@ name: Publish documentation
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   # Inspired by https://github.com/conda-incubator/setup-miniconda#usage-examples
@@ -33,9 +33,11 @@ jobs:
         activate-environment: doc_env
     - name: Build documentation
       shell: bash -l {0}
+      working-directory: ./docs
       run: |
         make html
-    - uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: docs/_build/html # The folder the action should deploy.
+    - name: Push to gh-pages branch
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: docs/_build/html # The folder the action should deploy.
