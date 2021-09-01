@@ -1,0 +1,41 @@
+name: Publish documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Inspired by https://github.com/conda-incubator/setup-miniconda#usage-examples
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up test environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        environment-file: test_environment.yml
+        activate-environment: test_env
+    - name: Run tests
+      shell: bash -l {0}
+      run: |
+        nosetests -v --nocapture
+
+  publish-docs:
+    needs: run-tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up doc building environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        environment-file: docs/doc_environment.yml
+        activate-environment: doc_env
+    - name: Build documentation
+      shell: bash -l {0}
+      run: |
+        make html
+    - uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: docs/_build/html # The folder the action should deploy.
