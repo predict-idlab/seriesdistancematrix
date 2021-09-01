@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>distancematrix.generator.filter_generator &mdash; Series Distance Matrix  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Series Distance Matrix
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Series Distance Matrix</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.generator.filter_generator</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../../_sources/autoapi/distancematrix/generator/filter_generator/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-distancematrix.generator.filter_generator">
+<span id="distancematrix-generator-filter-generator"></span><h1><a class="reference internal" href="#module-distancematrix.generator.filter_generator" title="distancematrix.generator.filter_generator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.generator.filter_generator</span></code></a><a class="headerlink" href="#module-distancematrix.generator.filter_generator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.generator.filter_generator.FilterGenerator" title="distancematrix.generator.filter_generator.FilterGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FilterGenerator</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#distancematrix.generator.filter_generator.BoundFilterGenerator" title="distancematrix.generator.filter_generator.BoundFilterGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundFilterGenerator</span></code></a></p></td>
+<td><p>Wrapper around other generators that will replace values in the distance matrix marked as invalid</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.generator.filter_generator.BoundStreamingFilterGenerator" title="distancematrix.generator.filter_generator.BoundStreamingFilterGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundStreamingFilterGenerator</span></code></a></p></td>
+<td><p>Wrapper around other generators that will replace values in the distance matrix marked as invalid</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.generator.filter_generator.is_not_finite" title="distancematrix.generator.filter_generator.is_not_finite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_not_finite</span></code></a>(data, subseq_length)</p></td>
+<td><p>Marks infinite or nan values as invalid.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.is_not_finite">
+<span class="sig-prename descclassname"><span class="pre">distancematrix.generator.filter_generator.</span></span><span class="sig-name descname"><span class="pre">is_not_finite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subseq_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.is_not_finite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks infinite or nan values as invalid.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.FilterGenerator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.generator.filter_generator.</span></span><span class="sig-name descname"><span class="pre">FilterGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_data_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">is_not_finite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.FilterGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../abstract_generator/index.html#distancematrix.generator.abstract_generator.AbstractGenerator" title="distancematrix.generator.abstract_generator.AbstractGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.generator.abstract_generator.AbstractGenerator</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.FilterGenerator.prepare_streaming">
+<span class="sig-name descname"><span class="pre">prepare_streaming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.FilterGenerator.prepare_streaming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bound generator that supports streaming data.
+The generator will need to receive data before any distances can be calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> – the size of the subsequences used to calculate distances between series and query</p></li>
+<li><p><strong>series_window</strong> – number of values to keep in memory for series, the length of the
+horizontal axis of the distance matrix will be equal to (series_window - m + 1)</p></li>
+<li><p><strong>query_window</strong> – number of values to keep in memory for query, the length of the
+vertical axis of the distance matrix will be equal to (query_window - m + 1),
+or None to indicate a self-join.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a bound generator that supports streaming</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.FilterGenerator.prepare">
+<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.FilterGenerator.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bound non-streaming generator for the given series and query sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> – the size of the subsequences used to calculate distances between series and query</p></li>
+<li><p><strong>series</strong> – 1D array, used as the horizontal axis of a distance matrix</p></li>
+<li><p><strong>query</strong> – 1D array, used as the vertical axis of a distance matrix, or None to indicate a self-join</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a bound generator</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundFilterGenerator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.generator.filter_generator.</span></span><span class="sig-name descname"><span class="pre">BoundFilterGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_q_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_series_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_query_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundFilterGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../abstract_generator/index.html#distancematrix.generator.abstract_generator.AbstractBoundGenerator" title="distancematrix.generator.abstract_generator.AbstractBoundGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.generator.abstract_generator.AbstractBoundGenerator</span></code></a></p>
+<p>Wrapper around other generators that will replace values in the distance matrix marked as invalid
+by positive infinity. It can also perform a data pre-processing step before data reaches the wrapped generator,
+by setting values marked as invalid to zero, this can be useful for example to remove nan values for a generator
+that does not support nan values.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundFilterGenerator.calc_diagonal">
+<span class="sig-name descname"><span class="pre">calc_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundFilterGenerator.calc_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates all distances of the distance matrix diagonal with the given index for the available data.</p>
+<p>If diag is zero, this calculates the main diagonal, running from the top left to the bottom right.
+Any positive value represents a diagonal above the main diagonal, and a negative value represents
+a diagonal below the main diagonal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>diag</strong> – the diagonal index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1D array, containing all values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundFilterGenerator.calc_column">
+<span class="sig-name descname"><span class="pre">calc_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundFilterGenerator.calc_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates all distances of the distance matrix on the specified column for the available data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column</strong> – the column index (starting at 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1D array, containing all values</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundStreamingFilterGenerator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.generator.filter_generator.</span></span><span class="sig-name descname"><span class="pre">BoundStreamingFilterGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_s_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_q_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid_data_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb_scale_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundStreamingFilterGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#distancematrix.generator.filter_generator.BoundFilterGenerator" title="distancematrix.generator.filter_generator.BoundFilterGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.generator.filter_generator.BoundFilterGenerator</span></code></a>, <a class="reference internal" href="../abstract_generator/index.html#distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator" title="distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator</span></code></a></p>
+<p>Wrapper around other generators that will replace values in the distance matrix marked as invalid
+by positive infinity. It can also perform a data pre-processing step before data reaches the wrapped generator,
+by setting values marked as invalid to zero, this can be useful for example to remove nan values for a generator
+that does not support nan values.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.append_series">
+<span class="sig-name descname"><span class="pre">append_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.append_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds more data points to the series sequence (and the query in case of a self-join).
+Older data points will be dropped if the series would become larger than the foreseen capacity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>values</strong> – 1D array, the new values to append to the series</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.append_query">
+<span class="sig-name descname"><span class="pre">append_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.append_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds more data points to the query sequence.
+Older data points will be dropped if the query would become larger than the foreseen capacity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>values</strong> – 1D array, the new values to append to the query</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.calc_column">
+<span class="sig-name descname"><span class="pre">calc_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.generator.filter_generator.BoundStreamingFilterGenerator.calc_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates all distances of the distance matrix on the specified column for the available data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column</strong> – the column index (starting at 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1D array, containing all values</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Dieter De Paepe.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

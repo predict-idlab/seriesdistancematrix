@@ -1,0 +1,26 @@
+:mod:`distancematrix.interrupt_util`
+====================================
+
+.. py:module:: distancematrix.interrupt_util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.interrupt_util.interrupt_catcher
+
+
+.. function:: interrupt_catcher()
+
+   A context that allows for gracefully terminating a calculation by catching interrupts
+   and providing a method to check whether an interrupt has occurred.
+
+   :return: None
+
+

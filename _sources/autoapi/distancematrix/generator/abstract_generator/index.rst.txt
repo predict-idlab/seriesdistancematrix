@@ -1,0 +1,112 @@
+:mod:`distancematrix.generator.abstract_generator`
+==================================================
+
+.. py:module:: distancematrix.generator.abstract_generator
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.generator.abstract_generator.AbstractGenerator
+   distancematrix.generator.abstract_generator.AbstractBoundGenerator
+   distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator
+
+
+
+.. py:class:: AbstractGenerator
+
+   Bases: :class:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: prepare(self, m, series, query=None)
+      :abstractmethod:
+
+      Create a bound non-streaming generator for the given series and query sequences.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series: 1D array, used as the horizontal axis of a distance matrix
+      :param query: 1D array, used as the vertical axis of a distance matrix, or None to indicate a self-join
+      :return: a bound generator
+
+
+   .. method:: prepare_streaming(self, m, series_window, query_window=None)
+      :abstractmethod:
+
+      Create a bound generator that supports streaming data.
+      The generator will need to receive data before any distances can be calculated.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series_window: number of values to keep in memory for series, the length of the
+        horizontal axis of the distance matrix will be equal to (series_window - m + 1)
+      :param query_window: number of values to keep in memory for query, the length of the
+        vertical axis of the distance matrix will be equal to (query_window - m + 1),
+        or None to indicate a self-join.
+      :return: a bound generator that supports streaming
+
+
+
+.. py:class:: AbstractBoundGenerator
+
+   Bases: :class:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: calc_diagonal(self, diag)
+      :abstractmethod:
+
+      Calculates all distances of the distance matrix diagonal with the given index for the available data.
+
+      If diag is zero, this calculates the main diagonal, running from the top left to the bottom right.
+      Any positive value represents a diagonal above the main diagonal, and a negative value represents
+      a diagonal below the main diagonal.
+
+      :param diag: the diagonal index
+      :return: 1D array, containing all values
+
+
+   .. method:: calc_column(self, column)
+      :abstractmethod:
+
+      Calculates all distances of the distance matrix on the specified column for the available data.
+
+      :param column: the column index (starting at 0)
+      :return: 1D array, containing all values
+
+
+
+.. py:class:: AbstractBoundStreamingGenerator
+
+   Bases: :class:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: append_series(self, values)
+      :abstractmethod:
+
+      Adds more data points to the series sequence (and the query in case of a self-join).
+      Older data points will be dropped if the series would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the series
+      :return: None
+
+
+   .. method:: append_query(self, values)
+      :abstractmethod:
+
+      Adds more data points to the query sequence.
+      Older data points will be dropped if the query would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the query
+      :return: None
+
+
+

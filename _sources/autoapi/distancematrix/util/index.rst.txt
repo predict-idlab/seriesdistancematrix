@@ -1,0 +1,121 @@
+:mod:`distancematrix.util`
+==========================
+
+.. py:module:: distancematrix.util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.util.diag_length
+   distancematrix.util.diag_indices
+   distancematrix.util.diag_indices_of
+   distancematrix.util.cut_indices_of
+   distancematrix.util.shortest_path_distances
+   distancematrix.util.shortest_path
+   distancematrix.util.sliding_min
+   distancematrix.util.sliding_max
+   distancematrix.util.sliding_window_view
+
+
+.. function:: diag_length(h, w, diagonal=0)
+
+   Returns the number of elements on the specified diagonal of a matrix with dimensions (h, w).
+
+   :param h: int, height of the matrix
+   :param w: int, width of the matrix
+   :param diagonal: int, diagonal index of the matrix
+   :return: a positive integer, zero if diagonal fall completely outside the matrix
+
+
+.. function:: diag_indices(h, w, diagonal=0)
+
+   Returns the indices of the elements on the specified diagonal of a matrix with dimensions (h, w).
+
+   :param h: int, height of the matrix
+   :param w: int, width of the matrix
+   :param diagonal: int, diagonal index of the matrix
+   :return: a tuple of ranges, serving as indices of the elements
+
+
+.. function:: diag_indices_of(array, diagonal=0)
+
+   Returns the indices of the elements on the specified diagonal of the given matrix.
+
+   :param array: 2D array
+   :param diagonal: int, diagonal index of the matrix
+   :return: a tuple of ranges, serving as indices of the elements
+
+
+.. function:: cut_indices_of(array, cut)
+
+   Calculates the indices of the elements on the given cut for the given matrix.
+   Where a diagonal runs from top left to bottom right, a cut runs from bottom left to top right.
+
+   :param array: 2D array
+   :param cut: index of the cut (cut 0 is the single element of the top left)
+   :return: the indices to retrieve the cut
+
+
+.. function:: shortest_path_distances(cost_array)
+
+   Creates a new array of the same shape, where each entry contains the lowest sum of elements on the path
+   from (0, 0) to that entry. Steps in the path can go horizontal, vertical and diagonal.
+
+   :param cost_array: 2D array containing only positives
+   :return: a new array
+
+
+.. function:: shortest_path(cost_array)
+
+   Finds the shortest (= least summed cost) path from the top left of the array to the bottom right.
+
+   :param cost_array: 2D array containing only positives
+   :return: array of indices, starting from the top left (index: [0, 0])
+
+
+.. function:: sliding_min(array, window_size)
+
+
+.. function:: sliding_max(array, window_size)
+
+
+.. function:: sliding_window_view(x, shape, step=None, subok=False, writeable=False)
+
+   Create sliding window views of the N dimensions array with the given window
+   shape. Window slides across each dimension of `x` and provides subsets of `x`
+   at any window position.
+
+   ``sliding_window_view`` create sliding window views of the N dimensions array
+   with the given window shape and its implementation based on ``as_strided``.
+   Please note that if writeable set to False, the return is views, not copies
+   of array. In this case, write operations could be unpredictable, so the return
+   views is readonly. Bear in mind, return copies (writeable=True), could possibly
+   take memory multiple amount of origin array, due to overlapping windows.
+
+   For some cases, there may be more efficient approaches
+
+   :param x: ndarray
+       Array to create sliding window views.
+   :param shape: sequence of int
+       The shape of the window. Must have same length as number of input array dimensions.
+   :param step: sequence of int, optional
+       The steps of window shifts for each dimension on input array at a time.
+       If given, must have same length as number of input array dimensions.
+       Defaults to 1 on all dimensions.
+   :param subok: bool, optional
+       If True, then sub-classes will be passed-through, otherwise the returned
+       array will be forced to be a base-class array (default).
+   :param writeable: bool, optional
+       If set to False, the returned array will always be readonly view.
+       Otherwise it will return writable copies(see Notes).
+   :return: ndarray
+       Sliding window views (or copies) of `x`. view.shape = (x.shape - shape) // step + 1
+
+

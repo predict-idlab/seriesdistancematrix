@@ -1,0 +1,90 @@
+:mod:`distancematrix.generator.euclidean`
+=========================================
+
+.. py:module:: distancematrix.generator.euclidean
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.generator.euclidean.Euclidean
+   distancematrix.generator.euclidean.BoundStreamingEuclidean
+
+
+
+.. data:: EPSILON
+   :annotation: = 1e-15
+
+   
+
+.. py:class:: Euclidean(rb_scale_factor=2.0)
+
+   Bases: :class:`distancematrix.generator.abstract_generator.AbstractGenerator`
+
+   Class capable of efficiently calculating parts of the euclidean distance matrix between two series,
+   where each entry in the distance matrix equals the euclidean distance between 2 subsequences of both series.
+
+   This generator can handle streaming data.
+
+   .. method:: prepare_streaming(self, m, series_window, query_window=None)
+
+      Create a bound generator that supports streaming data.
+      The generator will need to receive data before any distances can be calculated.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series_window: number of values to keep in memory for series, the length of the
+        horizontal axis of the distance matrix will be equal to (series_window - m + 1)
+      :param query_window: number of values to keep in memory for query, the length of the
+        vertical axis of the distance matrix will be equal to (query_window - m + 1),
+        or None to indicate a self-join.
+      :return: a bound generator that supports streaming
+
+
+   .. method:: prepare(self, m, series, query=None)
+
+      Create a bound non-streaming generator for the given series and query sequences.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series: 1D array, used as the horizontal axis of a distance matrix
+      :param query: 1D array, used as the vertical axis of a distance matrix, or None to indicate a self-join
+      :return: a bound generator
+
+
+
+.. py:class:: BoundStreamingEuclidean(m, series, query, self_join)
+
+   Bases: :class:`distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: append_series(self, values)
+
+      Adds more data points to the series sequence (and the query in case of a self-join).
+      Older data points will be dropped if the series would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the series
+      :return: None
+
+
+   .. method:: append_query(self, values)
+
+      Adds more data points to the query sequence.
+      Older data points will be dropped if the query would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the query
+      :return: None
+
+
+   .. method:: calc_diagonal(self, diag)
+
+
+   .. method:: calc_column(self, column)
+
+
+

@@ -1,0 +1,141 @@
+:mod:`distancematrix.consumer.multidimensional_matrix_profile_lr`
+=================================================================
+
+.. py:module:: distancematrix.consumer.multidimensional_matrix_profile_lr
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.consumer.multidimensional_matrix_profile_lr.MultidimensionalMatrixProfileLR
+
+
+
+.. py:class:: MultidimensionalMatrixProfileLR(rb_scale_factor=2.0)
+
+   Bases: :class:`distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer`
+
+   A consumer that builds the multidimensional matrix profile. This consumer takes in distance measures from
+   multiple channels (dimensions) at the same time and tracks the best distance, the index of this match and
+   the dimensions used in this match.
+   More specifically, if the input has N data channels, this consumer will select for each number of channels
+   (1, 2, ..., N), the channels containing the best match, index and dimensions. It will not track matches for
+   any possible combination of channels.
+
+   This consumer keeps track of the left and right multidimensional profile, and can be used to create the
+   (normal) multidimensional profile from it. The left profile, index and dimensions
+   at index i contain information about a match whose index is less than or equal to i, while the right
+   profile, index and dimensions track information about a match whose index is larger than i.
+
+   The profile is an array with shape (num_dimensions, num_distances). The value at row i, j contains the best averaged
+   distances encountered at index j for any i+1 dimensions. The index is similar, but tracks the index of the query
+   series that had the best match.
+
+   The dimensions being tracked is a list of length num_dimensions. Entry i of this list contains an
+   (i+1, num_distances) array that lists the indices of the dimensions that contained the best match.
+
+   This consumer supports streaming.
+
+   .. method:: initialise(self, dims, query_subseq, series_subseq)
+
+      Initialise this consumer.
+
+      :param dims: the number of dimensions (data channels) this consumer will receive
+      :param query_subseq: the number of query subsequences (rows in the distance matrix)
+      :param series_subseq: the number of series subsequences (column in the distance matrix)
+      :return: None
+
+
+   .. method:: process_diagonal(self, diag, values)
+
+      Method called when a diagonal of the distance matrix is calculated.
+
+      The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+          the main diagonal has index 0
+      :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
+      :return: None
+
+
+   .. method:: process_column(self, column_index, values)
+
+      Method called when a column of the distance matrix is calculated.
+
+      The number of values on the column might be less than the column of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param column_index: index of the column, in range [0, series_subseq[
+      :param values: array of shape (num_dimensions, num_values_on_column) containing the distances
+      :return: None
+
+
+   .. method:: shift_query(self, amount)
+
+      Inform the consumer that the distance matrix has shifted in the query direction.
+
+      :param amount: amount of subsequences that were shifted
+      :return: None
+
+
+   .. method:: shift_series(self, amount)
+
+      Inform the consumer that the distance matrix has shifted in the series direction.
+
+      :param amount: amount of subsequences that were shifted
+      :return: None
+
+
+   .. method:: md_matrix_profile(self)
+
+      Merges the left and right multidimensional matrix profile, to create the multidimensional matrix profile.
+      :return: ndarray of shape (num_dimensions, num_subsequences)
+
+
+   .. method:: md_profile_index(self)
+
+      Merges the left and right multidimensional matrix profile index, to create the multidimensional matrix profile
+      index.
+      :return: ndarray of shape (num_dimensions, num_subsequences)
+
+
+   .. method:: md_profile_dimensions(self)
+
+      Merges the left and right dimensions, to create the dimensions for the multidimensional matrix profile.
+      :return: list of length num_dimensions, where the entry at index i is an ndarray of shape
+      (i+1, num_subsequences).
+
+
+   .. method:: md_matrix_profile_left(self)
+      :property:
+
+
+   .. method:: md_matrix_profile_right(self)
+      :property:
+
+
+   .. method:: md_profile_index_left(self)
+      :property:
+
+
+   .. method:: md_profile_index_right(self)
+      :property:
+
+
+   .. method:: md_profile_dimension_left(self)
+      :property:
+
+
+   .. method:: md_profile_dimension_right(self)
+      :property:
+
+
+

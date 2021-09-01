@@ -1,0 +1,1026 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>distancematrix.consumer &mdash; Series Distance Matrix  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Series Distance Matrix
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Series Distance Matrix</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/autoapi/distancematrix/consumer/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-distancematrix.consumer">
+<span id="distancematrix-consumer"></span><h1><a class="reference internal" href="#module-distancematrix.consumer" title="distancematrix.consumer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer</span></code></a><a class="headerlink" href="#module-distancematrix.consumer" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="abstract_consumer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="contextmanager/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.contextmanager</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="contextual_matrix_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.contextual_matrix_profile</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="distance_matrix/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.distance_matrix</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrix_profile_lr/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.matrix_profile_lr</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="multidimensional_matrix_profile_lr/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.multidimensional_matrix_profile_lr</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="radius_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.radius_profile</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="threshold_counter/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">distancematrix.consumer.threshold_counter</span></code></a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.consumer.ContextualMatrixProfile" title="distancematrix.consumer.ContextualMatrixProfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextualMatrixProfile</span></code></a></p></td>
+<td><p>A consumer that constructs the contextual matrix profile. The contextual matrix profile is formed by</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#distancematrix.consumer.DistanceMatrix" title="distancematrix.consumer.DistanceMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistanceMatrix</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.consumer.MatrixProfileLR" title="distancematrix.consumer.MatrixProfileLR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatrixProfileLR</span></code></a></p></td>
+<td><p>Consumer of distance matrix information to form the left and right matrix profile and their corresponding</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#distancematrix.consumer.ShiftingMatrixProfileLR" title="distancematrix.consumer.ShiftingMatrixProfileLR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShiftingMatrixProfileLR</span></code></a></p></td>
+<td><p>Extension of MatrixProfileLR which supports streaming.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.consumer.MatrixProfileLRReservoir" title="distancematrix.consumer.MatrixProfileLRReservoir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatrixProfileLRReservoir</span></code></a></p></td>
+<td><p>Consumer of distance matrix information to form the left and right matrix profile and their corresponding</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR" title="distancematrix.consumer.MultidimensionalMatrixProfileLR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultidimensionalMatrixProfileLR</span></code></a></p></td>
+<td><p>A consumer that builds the multidimensional matrix profile. This consumer takes in distance measures from</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#distancematrix.consumer.ThresholdCounter" title="distancematrix.consumer.ThresholdCounter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThresholdCounter</span></code></a></p></td>
+<td><p>Consumer that counts the number of values in each column of the distancematrix that are below</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">ContextualMatrixProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context_manager</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AbstractContextManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer" title="distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer</span></code></a></p>
+<p>A consumer that constructs the contextual matrix profile. The contextual matrix profile is formed by
+taking the minimum of rectangles across the full distance matrix (where the matrix profile takes the
+minimum across columns).</p>
+<p>This consumer supports streaming if the provided context manager does.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.shift_series">
+<span class="sig-name descname"><span class="pre">shift_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.shift_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the series direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.shift_query">
+<span class="sig-name descname"><span class="pre">shift_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.shift_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the query direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.match_index_query">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">match_index_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.match_index_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.match_index_series">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">match_index_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.match_index_series" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ContextualMatrixProfile.distance_matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ContextualMatrixProfile.distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">DistanceMatrix</span></span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer" title="distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagonal_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix.shift_series">
+<span class="sig-name descname"><span class="pre">shift_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix.shift_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the series direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.DistanceMatrix.shift_query">
+<span class="sig-name descname"><span class="pre">shift_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.DistanceMatrix.shift_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the query direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">MatrixProfileLR</span></span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractConsumer" title="distancematrix.consumer.abstract_consumer.AbstractConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractConsumer</span></code></a></p>
+<p>Consumer of distance matrix information to form the left and right matrix profile and their corresponding
+indices. The left matrix profile and index is a one dimensional series
+where each each value at index i contains the distance and index of the best match whose index is equal to or less
+than i. The right matrix profile and index contain the best match whose index is larger than i.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.matrix_profile_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix_profile_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.matrix_profile_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.matrix_profile_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix_profile_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.matrix_profile_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.profile_index_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile_index_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.profile_index_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.profile_index_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile_index_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.profile_index_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.matrix_profile">
+<span class="sig-name descname"><span class="pre">matrix_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.matrix_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the matrix profile based on the left and right matrix profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLR.profile_index">
+<span class="sig-name descname"><span class="pre">profile_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLR.profile_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the matrix profile index based on the left and right indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">ShiftingMatrixProfileLR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rb_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="matrix_profile_lr/index.html#distancematrix.consumer.matrix_profile_lr.MatrixProfileLR" title="distancematrix.consumer.matrix_profile_lr.MatrixProfileLR"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.matrix_profile_lr.MatrixProfileLR</span></code></a>, <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer" title="distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer</span></code></a></p>
+<p>Extension of MatrixProfileLR which supports streaming.</p>
+<p>The profile indices tracked in this consumer refer to positions in the complete query series.
+As an example, if the original query consisted of 10 sequences, but has since shifted by 5 sequences,
+the profile indices can contain any value in [0..15], or -1 if no matrix profile value exists.
+These indices can be converted to indices local to the current window by subtracting the query_shift,
+keep in mind that some indices of the left matrix profile can refer to positions outside the current window.</p>
+<p>The concept of left and right matrix profile is only useful when both query and series shift at the same time
+(distances are calculated over a self-join). Even if this is not the case, the values in this consumer are
+correct: the left matrix profile stores any values on or above the (unshifted) main diagonal, the right
+matrix profile stores any values below the (unshifted) main diagonal. (Since the diagonal shifts away when
+only the series is shifted, eventually only the left matrix profile will be used.)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.shift_query">
+<span class="sig-name descname"><span class="pre">shift_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.shift_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the query direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.shift_series">
+<span class="sig-name descname"><span class="pre">shift_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.shift_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the series direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.matrix_profile_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix_profile_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.matrix_profile_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.matrix_profile_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix_profile_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.matrix_profile_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.profile_index_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile_index_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.profile_index_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ShiftingMatrixProfileLR.profile_index_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile_index_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ShiftingMatrixProfileLR.profile_index_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">MatrixProfileLRReservoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractConsumer" title="distancematrix.consumer.abstract_consumer.AbstractConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractConsumer</span></code></a></p>
+<p>Consumer of distance matrix information to form the left and right matrix profile and their corresponding
+indices. The left matrix profile and index is a one dimensional series
+where each each value at index i contains the distance and index of the best match whose index is less
+than i. The right matrix profile and index contain the best match whose index is equal to or larger than i.</p>
+<p>This consumer differs from the regular MatrixProfileLR consumer in that it uses reservoir sampling to determine
+the matrix profile indices. This means that if multiple values in the distance matrix column have the exact
+same distance, a random index will be stored in the matrix profile index.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir.matrix_profile">
+<span class="sig-name descname"><span class="pre">matrix_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir.matrix_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the matrix profile based on the left and right matrix profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MatrixProfileLRReservoir.profile_index">
+<span class="sig-name descname"><span class="pre">profile_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MatrixProfileLRReservoir.profile_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the matrix profile index based on the left and right indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">MultidimensionalMatrixProfileLR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rb_scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer" title="distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer</span></code></a></p>
+<p>A consumer that builds the multidimensional matrix profile. This consumer takes in distance measures from
+multiple channels (dimensions) at the same time and tracks the best distance, the index of this match and
+the dimensions used in this match.
+More specifically, if the input has N data channels, this consumer will select for each number of channels
+(1, 2, …, N), the channels containing the best match, index and dimensions. It will not track matches for
+any possible combination of channels.</p>
+<p>This consumer keeps track of the left and right multidimensional profile, and can be used to create the
+(normal) multidimensional profile from it. The left profile, index and dimensions
+at index i contain information about a match whose index is less than or equal to i, while the right
+profile, index and dimensions track information about a match whose index is larger than i.</p>
+<p>The profile is an array with shape (num_dimensions, num_distances). The value at row i, j contains the best averaged
+distances encountered at index j for any i+1 dimensions. The index is similar, but tracks the index of the query
+series that had the best match.</p>
+<p>The dimensions being tracked is a list of length num_dimensions. Entry i of this list contains an
+(i+1, num_distances) array that lists the indices of the dimensions that contained the best match.</p>
+<p>This consumer supports streaming.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.shift_query">
+<span class="sig-name descname"><span class="pre">shift_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.shift_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the query direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.shift_series">
+<span class="sig-name descname"><span class="pre">shift_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.shift_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inform the consumer that the distance matrix has shifted in the series direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>amount</strong> – amount of subsequences that were shifted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile">
+<span class="sig-name descname"><span class="pre">md_matrix_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges the left and right multidimensional matrix profile, to create the multidimensional matrix profile.
+:return: ndarray of shape (num_dimensions, num_subsequences)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index">
+<span class="sig-name descname"><span class="pre">md_profile_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges the left and right multidimensional matrix profile index, to create the multidimensional matrix profile
+index.
+:return: ndarray of shape (num_dimensions, num_subsequences)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimensions">
+<span class="sig-name descname"><span class="pre">md_profile_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges the left and right dimensions, to create the dimensions for the multidimensional matrix profile.
+:return: list of length num_dimensions, where the entry at index i is an ndarray of shape
+(i+1, num_subsequences).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_matrix_profile_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_matrix_profile_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_matrix_profile_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_profile_index_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_profile_index_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_index_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimension_left">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_profile_dimension_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimension_left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimension_right">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">md_profile_dimension_right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.MultidimensionalMatrixProfileLR.md_profile_dimension_right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="distancematrix.consumer.ThresholdCounter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">distancematrix.consumer.</span></span><span class="sig-name descname"><span class="pre">ThresholdCounter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thresholds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ThresholdCounter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="abstract_consumer/index.html#distancematrix.consumer.abstract_consumer.AbstractConsumer" title="distancematrix.consumer.abstract_consumer.AbstractConsumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">distancematrix.consumer.abstract_consumer.AbstractConsumer</span></code></a></p>
+<p>Consumer that counts the number of values in each column of the distancematrix that are below
+or equal to specified thresholds.</p>
+<p>This consumer counts values as they are passed and does not extrapolate or keep information about which
+values were already counted. Specifically: partial calculations will result in counts of the produced values,
+and passing the same diagonals multiple time could result in double counts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ThresholdCounter.initialise">
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_subseq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_subseq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ThresholdCounter.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise this consumer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dims</strong> – the number of dimensions (data channels) this consumer will receive</p></li>
+<li><p><strong>query_subseq</strong> – the number of query subsequences (rows in the distance matrix)</p></li>
+<li><p><strong>series_subseq</strong> – the number of series subsequences (column in the distance matrix)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ThresholdCounter.process_diagonal">
+<span class="sig-name descname"><span class="pre">process_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ThresholdCounter.process_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a diagonal of the distance matrix is calculated.</p>
+<p>The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagonal_index</strong> – index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+the main diagonal has index 0</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_diagonal) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="distancematrix.consumer.ThresholdCounter.process_column">
+<span class="sig-name descname"><span class="pre">process_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#distancematrix.consumer.ThresholdCounter.process_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called when a column of the distance matrix is calculated.</p>
+<p>The number of values on the column might be less than the column of the full matrix profile,
+this can occur when not enough data is available yet to calculate the entire distance matrix
+(typically for streaming when not enough data is available to fill the entire foreseen space).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_index</strong> – index of the column, in range [0, series_subseq[</p></li>
+<li><p><strong>values</strong> – array of shape (num_dimensions, num_values_on_column) containing the distances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Dieter De Paepe.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+:mod:`distancematrix.ostinato`
+==============================
+
+.. py:module:: distancematrix.ostinato
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.ostinato.OstinatoAnytime
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.ostinato.find_consensus_motif
+   distancematrix.ostinato.find_consensus_motif_subset
+
+
+.. data:: CMResult
+   
+
+   
+
+.. function:: find_consensus_motif(series_list, m: int) -> CMResult
+
+   Finds the top-1 consensus motif and corresponding distance for the given collection of series.
+   The consensus motif is the subsequence (extracted from one of the series),
+   that has a match to a subsequence from each other series within a certain distance,
+   where that distance is minimal.
+
+   This method implements the Ostinato algorithm, described in
+   "Matrix Profile XV: Exploiting Time Series Consensus  Motifs to Find Structure in Time Series Sets"
+   by K. Kamgar, S. Gharghabi and E. Keogh.
+
+   :param series_list: list of 1-dimensional arrays
+   :param m: length of the consensus motif
+   :return: tuple containing radius, series index and subsequence index of the consensus motif
+
+
+.. function:: find_consensus_motif_subset(series_list, m: int, k: int) -> CMResult
+
+   Finds the top-1 k of n consensus motif and corresponding distance for the given collection of series.
+   The consensus motif is the subsequence (extracted from one of the series),
+   that has a match to a subsequence from k other series within a certain distance,
+   where that distance is minimal.
+
+   This method implements the k of n Ostinato algorithm, described in
+   "Matrix Profile XV: Exploiting Time Series Consensus  Motifs to Find Structure in Time Series Sets"
+   by K. Kamgar, S. Gharghabi and E. Keogh.
+
+   Note: this algorithm has not yet been optimized for speed.
+   (Instead, consider using the Anytime Ostinato algorithm.)
+
+   :param series_list: list of 1-dimensional arrays
+   :param m: length of the consensus motif
+   :return: tuple containing radius, series index and subsequence index of the consensus motif
+
+
+.. py:class:: OstinatoAnytime(series, m: int)
+
+   Bases: :class:`object`
+
+   Implementation of the Anytime Ostinato algorithm, which can be used to find the radius profile
+   for a collection of series. Since it is an anytime algorithm, the user can choose between more accurate results
+   or a shorter runtime.
+
+   The radius profile contains for each subsequence the minimum distance needed to match a subsequence
+   from all other series.
+   Given the radius profile, the top-k minimal values correspond to the top-k consensus motifs.
+
+   This algorithm is described in
+   "Mining Recurring Patterns in Real-Valued Time Series using the Radius Profile"
+   by D. De Paepe and S. Van Hoecke.
+
+   .. method:: calculate(self, fraction: float)
+
+      Calculates a given fraction of all distances.
+
+      Experiments show that even for low fractions, the resulting radius profile will give representative
+      approximate results. The runtime of this method scales linear with the fraction.
+
+      :param fraction: fraction of values to calculate, value in [0 .. 1]
+
+
+   .. method:: get_radii(self, k_best: int = None)
+
+      Retrieves the radius profile for each series.
+      If the calculation was not performed completely, the returned profiles will overestimate the real
+      radius profile.
+
+      :param k_best: If specified, calculates the radius using only the k_best best matching series
+       (instead of all series)
+
+
+

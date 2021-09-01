@@ -1,0 +1,48 @@
+:mod:`distancematrix.valmod`
+============================
+
+.. py:module:: distancematrix.valmod
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.valmod.LowerBoundEntry
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.valmod.find_variable_length_motifs
+
+
+.. function:: find_variable_length_motifs(series, min_motif_length, max_motif_length, cache_size=3, noise_std=0.0)
+
+   Finds the top motif for each subsequence length in the given range. The top motif is defined as the
+   subsequence (for a given length) for which the z-normalized euclidean distance is minimal, excluding any
+   trivial matches.
+
+   This method implements the VALMOD algorithm described in "Matrix Profile X: VALMOD - Scalable Discovery of
+   Variable-Length Motifs in Data Series" by M. Linardi et al.
+
+   :param series: one dimensional time series
+   :param min_motif_length: minimum motif length
+   :param max_motif_length: maximum motif length (inclusive)
+   :param cache_size: number of entries kept in memory per subsequence (can only affect performance, default should
+     be okay)
+   :param noise_std: standard deviation of noise on the signal, used for correcting the z-normalized euclidean distance
+   :return: a list of tuples of length (max_motif_length - min_motif_length + 1), containing the indices of the
+     motif and its match
+
+
+.. py:class:: LowerBoundEntry(q_index, s_index, lower_bound_base, dot_prod)
+
+

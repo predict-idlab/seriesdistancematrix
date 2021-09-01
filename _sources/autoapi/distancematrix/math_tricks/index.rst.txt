@@ -1,0 +1,74 @@
+:mod:`distancematrix.math_tricks`
+=================================
+
+.. py:module:: distancematrix.math_tricks
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.math_tricks.StreamingStats
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.math_tricks.sliding_mean_std
+   distancematrix.math_tricks.sliding_mean_var
+
+
+.. function:: sliding_mean_std(series, m)
+
+   Calculates the sliding mean and standard deviation over the series using a window of size m.
+   The series should only contain finite values.
+
+   :param series: 1D numpy array
+   :param m: sliding window size
+   :return: tuple of 2 arrays, each of size (len(series) - m + 1)
+
+
+.. function:: sliding_mean_var(series, m)
+
+   Calculates the sliding mean and variance over the series using a window of size m.
+   The series should only contain finite values.
+
+   :param series: 1D numpy array
+   :param m: sliding window size
+   :return: tuple of 2 arrays, each of size (len(series) - m + 1)
+
+
+.. py:class:: StreamingStats(series, m)
+
+   Bases: :class:`object`
+
+   Class that tracks a data stream and corresponding mean and standard deviation of a window over this data.
+
+   The data stream has to be updated by the user, after which the mean/std stream will be updated automatically.
+
+   This class uses RingBuffers internally, so any old view (data, mean, std) should be considered unreliable
+   after new data was pushed to this class.
+
+   .. method:: append(self, data)
+
+
+   .. method:: data(self)
+      :property:
+
+
+   .. method:: mean(self)
+      :property:
+
+
+   .. method:: std(self)
+      :property:
+
+
+

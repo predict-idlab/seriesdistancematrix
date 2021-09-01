@@ -1,0 +1,250 @@
+:mod:`distancematrix.consumer.matrix_profile_lr`
+================================================
+
+.. py:module:: distancematrix.consumer.matrix_profile_lr
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.consumer.matrix_profile_lr.MatrixProfileLR
+   distancematrix.consumer.matrix_profile_lr.ShiftingMatrixProfileLR
+   distancematrix.consumer.matrix_profile_lr.MatrixProfileLRReservoir
+
+
+
+.. py:class:: MatrixProfileLR
+
+   Bases: :class:`distancematrix.consumer.abstract_consumer.AbstractConsumer`
+
+   Consumer of distance matrix information to form the left and right matrix profile and their corresponding
+   indices. The left matrix profile and index is a one dimensional series
+   where each each value at index i contains the distance and index of the best match whose index is equal to or less
+   than i. The right matrix profile and index contain the best match whose index is larger than i.
+
+   .. method:: initialise(self, dims, query_subseq, series_subseq)
+
+      Initialise this consumer.
+
+      :param dims: the number of dimensions (data channels) this consumer will receive
+      :param query_subseq: the number of query subsequences (rows in the distance matrix)
+      :param series_subseq: the number of series subsequences (column in the distance matrix)
+      :return: None
+
+
+   .. method:: process_diagonal(self, diag, values)
+
+      Method called when a diagonal of the distance matrix is calculated.
+
+      The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+          the main diagonal has index 0
+      :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
+      :return: None
+
+
+   .. method:: process_column(self, column_index, values)
+
+      Method called when a column of the distance matrix is calculated.
+
+      The number of values on the column might be less than the column of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param column_index: index of the column, in range [0, series_subseq[
+      :param values: array of shape (num_dimensions, num_values_on_column) containing the distances
+      :return: None
+
+
+   .. method:: matrix_profile_right(self)
+      :property:
+
+
+   .. method:: matrix_profile_left(self)
+      :property:
+
+
+   .. method:: profile_index_right(self)
+      :property:
+
+
+   .. method:: profile_index_left(self)
+      :property:
+
+
+   .. method:: matrix_profile(self)
+
+      Creates the matrix profile based on the left and right matrix profile.
+
+      :return: 1D array
+
+
+   .. method:: profile_index(self)
+
+      Creates the matrix profile index based on the left and right indices.
+
+      :return: 1D array
+
+
+
+.. py:class:: ShiftingMatrixProfileLR(rb_scale_factor=2.0)
+
+   Bases: :class:`distancematrix.consumer.matrix_profile_lr.MatrixProfileLR`, :class:`distancematrix.consumer.abstract_consumer.AbstractStreamingConsumer`
+
+   Extension of MatrixProfileLR which supports streaming.
+
+   The profile indices tracked in this consumer refer to positions in the complete query series.
+   As an example, if the original query consisted of 10 sequences, but has since shifted by 5 sequences,
+   the profile indices can contain any value in [0..15], or -1 if no matrix profile value exists.
+   These indices can be converted to indices local to the current window by subtracting the query_shift,
+   keep in mind that some indices of the left matrix profile can refer to positions outside the current window.
+
+   The concept of left and right matrix profile is only useful when both query and series shift at the same time
+   (distances are calculated over a self-join). Even if this is not the case, the values in this consumer are
+   correct: the left matrix profile stores any values on or above the (unshifted) main diagonal, the right
+   matrix profile stores any values below the (unshifted) main diagonal. (Since the diagonal shifts away when
+   only the series is shifted, eventually only the left matrix profile will be used.)
+
+   .. method:: initialise(self, dims, query_subseq, series_subseq)
+
+      Initialise this consumer.
+
+      :param dims: the number of dimensions (data channels) this consumer will receive
+      :param query_subseq: the number of query subsequences (rows in the distance matrix)
+      :param series_subseq: the number of series subsequences (column in the distance matrix)
+      :return: None
+
+
+   .. method:: process_diagonal(self, diag, values)
+
+      Method called when a diagonal of the distance matrix is calculated.
+
+      The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+          the main diagonal has index 0
+      :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
+      :return: None
+
+
+   .. method:: process_column(self, column_index, values)
+
+      Method called when a column of the distance matrix is calculated.
+
+      The number of values on the column might be less than the column of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param column_index: index of the column, in range [0, series_subseq[
+      :param values: array of shape (num_dimensions, num_values_on_column) containing the distances
+      :return: None
+
+
+   .. method:: shift_query(self, amount)
+
+      Inform the consumer that the distance matrix has shifted in the query direction.
+
+      :param amount: amount of subsequences that were shifted
+      :return: None
+
+
+   .. method:: shift_series(self, amount)
+
+      Inform the consumer that the distance matrix has shifted in the series direction.
+
+      :param amount: amount of subsequences that were shifted
+      :return: None
+
+
+   .. method:: matrix_profile_right(self)
+      :property:
+
+
+   .. method:: matrix_profile_left(self)
+      :property:
+
+
+   .. method:: profile_index_right(self)
+      :property:
+
+
+   .. method:: profile_index_left(self)
+      :property:
+
+
+
+.. py:class:: MatrixProfileLRReservoir(random_seed=None)
+
+   Bases: :class:`distancematrix.consumer.abstract_consumer.AbstractConsumer`
+
+   Consumer of distance matrix information to form the left and right matrix profile and their corresponding
+   indices. The left matrix profile and index is a one dimensional series
+   where each each value at index i contains the distance and index of the best match whose index is less
+   than i. The right matrix profile and index contain the best match whose index is equal to or larger than i.
+
+   This consumer differs from the regular MatrixProfileLR consumer in that it uses reservoir sampling to determine
+   the matrix profile indices. This means that if multiple values in the distance matrix column have the exact
+   same distance, a random index will be stored in the matrix profile index.
+
+   .. method:: initialise(self, dims, query_subseq, series_subseq)
+
+      Initialise this consumer.
+
+      :param dims: the number of dimensions (data channels) this consumer will receive
+      :param query_subseq: the number of query subsequences (rows in the distance matrix)
+      :param series_subseq: the number of series subsequences (column in the distance matrix)
+      :return: None
+
+
+   .. method:: process_diagonal(self, diag, values)
+
+      Method called when a diagonal of the distance matrix is calculated.
+
+      The number of values on the diagonal might be less than the diagonal of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param diagonal_index: index of the diagonal in range ]-num_query_subseq, num_series_subseq[,
+          the main diagonal has index 0
+      :param values: array of shape (num_dimensions, num_values_on_diagonal) containing the distances
+      :return: None
+
+
+   .. method:: process_column(self, column_index, values)
+
+      Method called when a column of the distance matrix is calculated.
+
+      The number of values on the column might be less than the column of the full matrix profile,
+      this can occur when not enough data is available yet to calculate the entire distance matrix
+      (typically for streaming when not enough data is available to fill the entire foreseen space).
+
+      :param column_index: index of the column, in range [0, series_subseq[
+      :param values: array of shape (num_dimensions, num_values_on_column) containing the distances
+      :return: None
+
+
+   .. method:: matrix_profile(self)
+
+      Creates the matrix profile based on the left and right matrix profile.
+
+      :return: 1D array
+
+
+   .. method:: profile_index(self)
+
+      Creates the matrix profile index based on the left and right indices.
+
+      :return: 1D array
+
+
+

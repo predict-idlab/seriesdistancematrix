@@ -1,0 +1,117 @@
+:mod:`distancematrix`
+=====================
+
+.. py:module:: distancematrix
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   consumer/index.rst
+   generator/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   calculator/index.rst
+   insights/index.rst
+   interrupt_util/index.rst
+   math_tricks/index.rst
+   ostinato/index.rst
+   ringbuffer/index.rst
+   util/index.rst
+   valmod/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.AnytimeCalculator
+   distancematrix.StreamingCalculator
+
+
+
+.. py:class:: AnytimeCalculator(m, series, query=None, trivial_match_buffer=None)
+
+   Bases: :class:`distancematrix.calculator.AbstractCalculator`
+
+   Calculator that allows approximate calculations in a fraction of the time, but does not support
+   data streaming.
+
+   A calculator is repsonsible for managing
+   consumers and generators for a distance matrix calculation. It provides
+   a single point of interaction for the user.
+
+   .. method:: add_generator(self, input_dim, generator)
+
+      Adds a generator that will use the data from the specified channel (from series/query).
+
+      :param input_dim: index of the data channel
+      :param generator: the generator to add
+      :return: the bound generator
+
+
+   .. method:: calculate_diagonals(self, partial=1.0, print_progress=False)
+
+      Calculates diagonals of the distance matrix. The advantage of calculating diagonals is that values are spread
+      over the entire distance matrix, which can provide a quick approximation for any consumer.
+
+      :param partial: int for a number of values, float for relative number of values. The number of distance
+      matrix values that should be calculated (including the counts of previous diagonals calulated).
+      :param print_progress: print progress to the console
+      :return: None
+
+
+
+.. py:class:: StreamingCalculator(m, series_window, query_window=None, n_dim=1, trivial_match_buffer=None)
+
+   Bases: :class:`distancematrix.calculator.AbstractCalculator`
+
+   Calculator that allows streaming data, but does not support anytime calculations.
+
+   A calculator is repsonsible for managing
+   consumers and generators for a distance matrix calculation. It provides
+   a single point of interaction for the user.
+
+   .. method:: add_generator(self, input_dim, generator)
+
+      Adds a generator that will use the data from the specified channel (from series/query).
+
+      :param input_dim: index of the data channel
+      :param generator: the generator to add
+      :return: the bound generator
+
+
+   .. method:: append_series(self, values)
+
+      Add more data points to series.
+
+      As a side effect, the last calculated column index is shifted along with the data.
+
+      :param values: 1D array for one data point on each channel, or 2D array of shape (num_dim, num_points)
+      :return: None
+
+
+   .. method:: append_query(self, values)
+
+      Add more data points to query. Cannot be used if performing a self join.
+
+      Note that appending query data does not adjust the last column calculated index.
+
+      :param values: 1D array for one data point on each channel, or 2D array of shape (num_dim, num_points)
+      :return: None
+
+
+

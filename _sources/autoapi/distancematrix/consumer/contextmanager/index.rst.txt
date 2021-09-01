@@ -1,0 +1,103 @@
+:mod:`distancematrix.consumer.contextmanager`
+=============================================
+
+.. py:module:: distancematrix.consumer.contextmanager
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.consumer.contextmanager.AbstractContextManager
+   distancematrix.consumer.contextmanager.GeneralStaticManager
+
+
+
+.. py:class:: AbstractContextManager
+
+   Bases: :class:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: query_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]
+      :abstractmethod:
+
+      Return all non-empty query context definitions that fall in the given range of the distance matrix query axis.
+
+      :param start: start of the range
+      :param stop: end of the range
+      :return: iterable of tuples (start of context, end of context, context id)
+
+
+   .. method:: series_contexts(self, start: int, stop: int) -> Iterable[Tuple[int, int, int]]
+      :abstractmethod:
+
+      Return all non-empty series context definitions that fall in the given range of the distance matrix series axis.
+
+      :param start: start of the range
+      :param stop: end of the range
+      :return: iterable of tuples (start of context, end of context, context id)
+
+
+   .. method:: context_matrix_shape(self) -> (int, int)
+      :abstractmethod:
+
+      Returns the shape of the contextual distance matrix
+
+      :return: upper bound for any context id returned by this manager, for query and series axis
+
+
+   .. method:: shift_query(self, amount: int) -> int
+
+      Informs the manager that the distance matrix has shifted along the query axis.
+
+      :param amount: amount of values shifted
+      :return: the amount of values that the contextual distance matrix should shift along the query axis
+
+
+   .. method:: shift_series(self, amount: int) -> int
+
+      Informs the manager that the distance matrix has shifted along the series axis.
+
+      :param amount: amount of values shifted
+      :return: the amount of values that the contextual distance matrix should shift along the series axis
+
+
+
+.. py:class:: GeneralStaticManager(series_contexts, query_contexts=None)
+
+   Bases: :class:`distancematrix.consumer.contextmanager.AbstractContextManager`
+
+   General purpose context manager for contextual matrix profile. This manager does not support streaming data.
+
+   .. method:: context_matrix_shape(self) -> (int, int)
+
+      Returns the shape of the contextual distance matrix
+
+      :return: upper bound for any context id returned by this manager, for query and series axis
+
+
+   .. method:: series_contexts(self, start, stop)
+
+      Return all non-empty series context definitions that fall in the given range of the distance matrix series axis.
+
+      :param start: start of the range
+      :param stop: end of the range
+      :return: iterable of tuples (start of context, end of context, context id)
+
+
+   .. method:: query_contexts(self, start, stop)
+
+      Return all non-empty query context definitions that fall in the given range of the distance matrix query axis.
+
+      :param start: start of the range
+      :param stop: end of the range
+      :return: iterable of tuples (start of context, end of context, context id)
+
+
+

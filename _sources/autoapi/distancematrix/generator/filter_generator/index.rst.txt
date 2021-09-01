@@ -1,0 +1,131 @@
+:mod:`distancematrix.generator.filter_generator`
+================================================
+
+.. py:module:: distancematrix.generator.filter_generator
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.generator.filter_generator.FilterGenerator
+   distancematrix.generator.filter_generator.BoundFilterGenerator
+   distancematrix.generator.filter_generator.BoundStreamingFilterGenerator
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.generator.filter_generator.is_not_finite
+
+
+.. function:: is_not_finite(data, subseq_length)
+
+   Marks infinite or nan values as invalid.
+
+
+.. py:class:: FilterGenerator(generator, invalid_data_function=is_not_finite, rb_scale_factor=2.0)
+
+   Bases: :class:`distancematrix.generator.abstract_generator.AbstractGenerator`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. method:: prepare_streaming(self, m, series_window, query_window=None)
+
+      Create a bound generator that supports streaming data.
+      The generator will need to receive data before any distances can be calculated.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series_window: number of values to keep in memory for series, the length of the
+        horizontal axis of the distance matrix will be equal to (series_window - m + 1)
+      :param query_window: number of values to keep in memory for query, the length of the
+        vertical axis of the distance matrix will be equal to (query_window - m + 1),
+        or None to indicate a self-join.
+      :return: a bound generator that supports streaming
+
+
+   .. method:: prepare(self, m, series, query=None)
+
+      Create a bound non-streaming generator for the given series and query sequences.
+
+      :param m: the size of the subsequences used to calculate distances between series and query
+      :param series: 1D array, used as the horizontal axis of a distance matrix
+      :param query: 1D array, used as the vertical axis of a distance matrix, or None to indicate a self-join
+      :return: a bound generator
+
+
+
+.. py:class:: BoundFilterGenerator(generator, m, num_q_subseq, invalid_series_subseq, invalid_query_subseq)
+
+   Bases: :class:`distancematrix.generator.abstract_generator.AbstractBoundGenerator`
+
+   Wrapper around other generators that will replace values in the distance matrix marked as invalid
+   by positive infinity. It can also perform a data pre-processing step before data reaches the wrapped generator,
+   by setting values marked as invalid to zero, this can be useful for example to remove nan values for a generator
+   that does not support nan values.
+
+   .. method:: calc_diagonal(self, diag)
+
+      Calculates all distances of the distance matrix diagonal with the given index for the available data.
+
+      If diag is zero, this calculates the main diagonal, running from the top left to the bottom right.
+      Any positive value represents a diagonal above the main diagonal, and a negative value represents
+      a diagonal below the main diagonal.
+
+      :param diag: the diagonal index
+      :return: 1D array, containing all values
+
+
+   .. method:: calc_column(self, column)
+
+      Calculates all distances of the distance matrix on the specified column for the available data.
+
+      :param column: the column index (starting at 0)
+      :return: 1D array, containing all values
+
+
+
+.. py:class:: BoundStreamingFilterGenerator(generator, m, num_s_subseq, num_q_subseq, invalid_data_function, rb_scale_factor)
+
+   Bases: :class:`distancematrix.generator.filter_generator.BoundFilterGenerator`, :class:`distancematrix.generator.abstract_generator.AbstractBoundStreamingGenerator`
+
+   Wrapper around other generators that will replace values in the distance matrix marked as invalid
+   by positive infinity. It can also perform a data pre-processing step before data reaches the wrapped generator,
+   by setting values marked as invalid to zero, this can be useful for example to remove nan values for a generator
+   that does not support nan values.
+
+   .. method:: append_series(self, values)
+
+      Adds more data points to the series sequence (and the query in case of a self-join).
+      Older data points will be dropped if the series would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the series
+      :return: None
+
+
+   .. method:: append_query(self, values)
+
+      Adds more data points to the query sequence.
+      Older data points will be dropped if the query would become larger than the foreseen capacity.
+
+      :param values: 1D array, the new values to append to the query
+      :return: None
+
+
+   .. method:: calc_column(self, column)
+
+      Calculates all distances of the distance matrix on the specified column for the available data.
+
+      :param column: the column index (starting at 0)
+      :return: 1D array, containing all values
+
+
+

@@ -1,0 +1,39 @@
+:mod:`distancematrix.insights`
+==============================
+
+.. py:module:: distancematrix.insights
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   distancematrix.insights.lowest_value_idxs
+   distancematrix.insights.highest_value_idxs
+
+
+.. function:: lowest_value_idxs(array, exclude_distance)
+
+   Creates a generator that returns the indices of the lowest elements, where each index differs by at least
+   exclude_distance from every previously returned index. Non-finite values are ignored.
+
+   :param array: 1D array
+   :param exclude_distance: a positive integer
+   :return: a generator
+
+
+.. function:: highest_value_idxs(array, exclude_distance)
+
+   Creates a generator that returns the indices of the highest elements, where each index differs by at least
+   exclude_distance from every previously returned index. Non-finite values are ignored.
+
+   :param array: 1D array
+   :param exclude_distance: a positive integer
+   :return: a generator
+
+
