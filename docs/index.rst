@@ -4,10 +4,13 @@ Welcome to Series Distance Matrix's documentation!
 
 
 .. toctree::
-   :maxdepth: 1
+   :hidden:
+   :maxdepth: 2
    :caption: Contents:
 
+   examples.rst
    install.md
+
 
 
 Indices and tables

@@ -33,3 +33,6 @@ pip-delete-this-directory.txt
 .cache
 nosetests.xml
 coverage.xml
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/

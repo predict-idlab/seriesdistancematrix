@@ -1,9 +1,16 @@
 # Installing
 
-This library is not yet in pip, please clone this repositor and run:
+Using pip:
+```bash
+pip install seriesdistancematrix
+```
 
-    python setup.py clean build install
+Alternatively, clone this repositor and run:
+```bash
+python setup.py clean build install
+```
 
-or for development (this creates a link to the source code, rather than a library):
-
-    python setup.py develop
+For local development (this allows you to edit code without having to reinstall the library):
+```bash
+python setup.py develop
+```

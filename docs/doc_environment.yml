@@ -13,3 +13,6 @@ dependencies:
   - sphinx-autoapi
   - myst-parser
   - sphinx_rtd_theme
+  - nbsphinx  # Enable notebook conversion
+  - ipython  # Includes ipython lexer for converting notebooks
+

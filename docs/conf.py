@@ -30,7 +30,8 @@ author = 'Dieter De Paepe'
 # ones.
 extensions = [
   'sphinx.ext.githubpages', # Create a .no_jekyll file in output
-  'autoapi.extension',
+  'autoapi.extension', # Automatically generate an API overview
+  'nbsphinx', # Convert jupyter notebooks
   'myst_parser' # Accept markdown files
 ]
 autoapi_type = 'python'
